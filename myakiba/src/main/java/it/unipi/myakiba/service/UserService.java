@@ -19,4 +19,11 @@ public class UserService {
         return userRepository.findAll();
     }
 
+    public User registerUser(User user) {
+        return null;
+    }
+
+    public User loginUser(User user) {
+        return null;
+    }
 }
