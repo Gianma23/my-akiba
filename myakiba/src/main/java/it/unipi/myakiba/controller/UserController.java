@@ -7,7 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import it.unipi.myakiba.model.User;
+import it.unipi.myakiba.model.UserMongo;
 
 import java.util.List;
 
@@ -24,12 +24,12 @@ public class UserController {
     }
 
     @PostMapping("/user/register")
-    public ResponseEntity<User> registerUser(@RequestBody User user) {
+    public ResponseEntity<UserMongo> registerUser(@RequestBody UserMongo user) {
         return ResponseEntity.ok(userService.registerUser(user));
     }
 
     @PostMapping("/user/login")
-    public ResponseEntity<?> loginUser(@RequestBody User user) {
+    public ResponseEntity<?> loginUser(@RequestBody UserMongo user) {
         try {
             String token = userService.loginUser(user);
             if (token != null) {
@@ -43,12 +43,12 @@ public class UserController {
     }
 
     @GetMapping("/users")
-    public ResponseEntity<List<User>> browseUsers() {
+    public ResponseEntity<List<UserMongo>> browseUsers() {
         return ResponseEntity.ok(userService.getUsers());
     }
 
     @GetMapping("/user")
-    public ResponseEntity<User> getUser(@RequestHeader("Authorization") String accessToken) {
+    public ResponseEntity<UserMongo> getUser(@RequestHeader("Authorization") String accessToken) {
 /*        return userService.getAuthenticatedUser(accessToken)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.status(401).build()); // Unauthorized if token is invalid*/
@@ -56,54 +56,54 @@ public class UserController {
     }
 
     @PatchMapping("/user")
-    public ResponseEntity<User> modifyUser(@RequestHeader("Authorization") String accessToken) {
+    public ResponseEntity<UserMongo> modifyUser(@RequestHeader("Authorization") String accessToken) {
         return null;
     }
 
     @DeleteMapping("/user")
-    public ResponseEntity<User> deleteUser(@RequestHeader("Authorization") String accessToken) {
+    public ResponseEntity<UserMongo> deleteUser(@RequestHeader("Authorization") String accessToken) {
         return null;
     }
 
     //@GetMapping("/user/{id}") TODO: capire se mettere /admin o no
 
     @GetMapping("/user/lists")
-    public ResponseEntity<List<User>> getUserLists(@RequestHeader("Authorization") String accessToken) {
+    public ResponseEntity<List<UserMongo>> getUserLists(@RequestHeader("Authorization") String accessToken) {
         return null;
     }
 
     @PostMapping("/user/lists")
-    public ResponseEntity<List<User>> addMediaToUserList(@RequestHeader("Authorization") String accessToken) {
+    public ResponseEntity<List<UserMongo>> addMediaToUserList(@RequestHeader("Authorization") String accessToken) {
         return null;
     }
 
     @PatchMapping("/user/lists/{mediaId}")
-    public ResponseEntity<List<User>> modifyMediaInUserList(@RequestHeader("Authorization") String accessToken, @PathVariable String mediaId) {
+    public ResponseEntity<List<UserMongo>> modifyMediaInUserList(@RequestHeader("Authorization") String accessToken, @PathVariable String mediaId) {
         return null;
     }
 
     @DeleteMapping("/user/lists/{mediaId}")
-    public ResponseEntity<List<User>> removeMediaFromUserList(@RequestHeader("Authorization") String accessToken, @PathVariable String mediaId) {
+    public ResponseEntity<List<UserMongo>> removeMediaFromUserList(@RequestHeader("Authorization") String accessToken, @PathVariable String mediaId) {
         return null;
     }
 
     @GetMapping("/user/followers")
-    public ResponseEntity<List<User>> getUserFollowers(@RequestHeader("Authorization") String accessToken) {
+    public ResponseEntity<List<UserMongo>> getUserFollowers(@RequestHeader("Authorization") String accessToken) {
         return null;
     }
 
     @GetMapping("/user/following")
-    public ResponseEntity<List<User>> getUserFollowing(@RequestHeader("Authorization") String accessToken) {
+    public ResponseEntity<List<UserMongo>> getUserFollowing(@RequestHeader("Authorization") String accessToken) {
         return null;
     }
 
     @PostMapping("/user/follow/{userId}")
-    public ResponseEntity<List<User>> followUser(@RequestHeader("Authorization") String accessToken, @PathVariable String userId) {
+    public ResponseEntity<List<UserMongo>> followUser(@RequestHeader("Authorization") String accessToken, @PathVariable String userId) {
         return null;
     }
 
     @DeleteMapping("/user/follow/{userId}")
-    public ResponseEntity<List<User>> unfollowUser(@RequestHeader("Authorization") String accessToken, @PathVariable String userId) {
+    public ResponseEntity<List<UserMongo>> unfollowUser(@RequestHeader("Authorization") String accessToken, @PathVariable String userId) {
         return null;
     }
 }

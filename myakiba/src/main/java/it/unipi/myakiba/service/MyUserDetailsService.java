@@ -1,6 +1,6 @@
 package it.unipi.myakiba.service;
 
-import it.unipi.myakiba.model.User;
+import it.unipi.myakiba.model.UserMongo;
 import it.unipi.myakiba.model.UserPrincipal;
 import it.unipi.myakiba.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,7 +21,7 @@ public class MyUserDetailsService implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
-        User user = userRepository.findByEmail(email);
+        UserMongo user = userRepository.findByEmail(email);
         if (user == null) {
             throw new UsernameNotFoundException("User not found");
         }
