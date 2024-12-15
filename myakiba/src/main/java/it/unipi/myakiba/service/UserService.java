@@ -5,9 +5,13 @@ import it.unipi.myakiba.model.User;
 import it.unipi.myakiba.model.UserPrincipal;
 import it.unipi.myakiba.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -18,23 +22,32 @@ public class UserService implements UserDetailsService {
 
     @Autowired
     private UserRepository userRepository;
+    @Autowired
+    AuthenticationManager authManager;
+    @Autowired
+    private JWTService jwtService;
+    private final BCryptPasswordEncoder encoder = new BCryptPasswordEncoder(12);
 
     public List<User> getUsers() {
         return userRepository.findAll();
     }
 
     public User registerUser(User user) {
-        return null;
+        user.setPassword(encoder.encode(user.getPassword()));
+        return userRepository.save(user);
     }
 
-    public User loginUser(User user) {
+    public String loginUser(User user) {
+        Authentication auth = authManager.authenticate(new UsernamePasswordAuthenticationToken(user.getUsername(), user.getPassword()));
+        if (auth.isAuthenticated()) {
+            return jwtService.generateToken(user.getUsername());
+        }
         return null;
     }
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         User user = userRepository.findByUsername(username);
-        System.out.println("User: " + user);
         if (user == null) {
             throw new UsernameNotFoundException("User not found");
         }

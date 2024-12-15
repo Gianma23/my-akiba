@@ -1,6 +1,6 @@
 package it.unipi.myakiba.config;
 
-import io.jsonwebtoken.*;
+/*import io.jsonwebtoken.*;
 import java.util.Date;
 
 public class JwtUtils {
@@ -23,4 +23,4 @@ public class JwtUtils {
                 .parseClaimsJws(token)
                 .getBody();
     }
-}
+}*/

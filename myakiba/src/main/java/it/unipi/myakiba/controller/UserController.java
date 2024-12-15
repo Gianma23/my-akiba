@@ -1,8 +1,10 @@
 package it.unipi.myakiba.controller;
 
 import io.swagger.v3.oas.annotations.tags.Tag;
+import it.unipi.myakiba.DTO.LoginResponse;
 import it.unipi.myakiba.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import it.unipi.myakiba.model.User;
@@ -23,8 +25,17 @@ public class UserController {
     }
 
     @PostMapping("/user/login")
-    public ResponseEntity<User> loginUser(@RequestBody User user) {
-        return ResponseEntity.ok(userService.loginUser(user));
+    public ResponseEntity<?> loginUser(@RequestBody User user) {
+        try {
+            String token = userService.loginUser(user);
+            if (token != null) {
+                return ResponseEntity.ok(new LoginResponse(token));
+            } else {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid credentials");
+            }
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An error occurred while processing the request");
+        }
     }
 
     @GetMapping("/users")
