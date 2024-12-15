@@ -16,8 +16,12 @@ import java.util.List;
 @Tag(name = "User Management", description = "Operations related to user management")
 public class UserController {
 
+    private final UserService userService;
+
     @Autowired
-    private UserService userService;
+    public UserController(UserService userService) {
+        this.userService = userService;
+    }
 
     @PostMapping("/user/register")
     public ResponseEntity<User> registerUser(@RequestBody User user) {

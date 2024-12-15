@@ -1,6 +1,7 @@
 package it.unipi.myakiba.config;
 
 import io.netty.util.internal.NoOpTypeParameterMatcher;
+import it.unipi.myakiba.service.MyUserDetailsService;
 import it.unipi.myakiba.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -27,8 +28,11 @@ import org.springframework.security.web.SecurityFilterChain;
 @EnableWebSecurity
 public class SecurityConfig {
 
-    @Autowired
-    private UserService userDetailsService; //TODO: capire se deve essere UserDetailsService o UserService
+    private final MyUserDetailsService userDetailsService; //TODO: capire se deve essere UserDetailsService o UserService
+
+    public SecurityConfig(MyUserDetailsService userDetailsService) {
+        this.userDetailsService = userDetailsService;
+    }
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {

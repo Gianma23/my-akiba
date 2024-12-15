@@ -18,15 +18,18 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
-public class UserService implements UserDetailsService {
+public class UserService {
+
+    AuthenticationManager authManager;
+    private final UserRepository userRepository;
+    private final JWTService jwtService;
+    private final BCryptPasswordEncoder encoder = new BCryptPasswordEncoder(12);
 
     @Autowired
-    private UserRepository userRepository;
-    @Autowired
-    AuthenticationManager authManager;
-    @Autowired
-    private JWTService jwtService;
-    private final BCryptPasswordEncoder encoder = new BCryptPasswordEncoder(12);
+    public UserService(UserRepository userRepository, JWTService jwtService) {
+        this.userRepository = userRepository;
+        this.jwtService = jwtService;
+    }
 
     public List<User> getUsers() {
         return userRepository.findAll();
@@ -45,12 +48,5 @@ public class UserService implements UserDetailsService {
         return null;
     }
 
-    @Override
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        User user = userRepository.findByUsername(username);
-        if (user == null) {
-            throw new UsernameNotFoundException("User not found");
-        }
-        return new UserPrincipal(user);
-    }
+
 }
