@@ -2,7 +2,9 @@ package it.unipi.myakiba.controller;
 
 import io.swagger.v3.oas.annotations.tags.Tag;
 import it.unipi.myakiba.DTO.LoginResponse;
+import it.unipi.myakiba.DTO.UserRegistrationDto;
 import it.unipi.myakiba.service.UserService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -24,8 +26,9 @@ public class UserController {
     }
 
     @PostMapping("/user/register")
-    public ResponseEntity<UserMongo> registerUser(@RequestBody UserMongo user) {
-        return ResponseEntity.ok(userService.registerUser(user));
+    public ResponseEntity<UserMongo> registerUser(@Valid @RequestBody UserRegistrationDto user) {
+        userService.registerUser(user);
+        return ResponseEntity.ok().build();
     }
 
     @PostMapping("/user/login")

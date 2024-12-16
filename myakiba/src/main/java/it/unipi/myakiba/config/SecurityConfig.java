@@ -28,7 +28,7 @@ import org.springframework.security.web.SecurityFilterChain;
 @EnableWebSecurity
 public class SecurityConfig {
 
-    private final MyUserDetailsService userDetailsService; //TODO: capire se deve essere UserDetailsService o UserService
+    private final MyUserDetailsService userDetailsService;
 
     public SecurityConfig(MyUserDetailsService userDetailsService) {
         this.userDetailsService = userDetailsService;
@@ -40,7 +40,7 @@ public class SecurityConfig {
             .authorizeHttpRequests(request -> request
                     .requestMatchers("/api/user/login", "/api/user/register").permitAll()
                     .anyRequest().authenticated())
-            .httpBasic(Customizer.withDefaults())
+            .httpBasic(customizer -> customizer.disable())
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
         return http.build();
     }
