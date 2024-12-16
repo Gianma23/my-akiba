@@ -2,6 +2,7 @@ package it.unipi.myakiba.controller;
 
 import io.swagger.v3.oas.annotations.tags.Tag;
 import it.unipi.myakiba.DTO.LoginResponse;
+import it.unipi.myakiba.DTO.UserLoginDto;
 import it.unipi.myakiba.DTO.UserRegistrationDto;
 import it.unipi.myakiba.service.UserService;
 import jakarta.validation.Valid;
@@ -32,7 +33,7 @@ public class UserController {
     }
 
     @PostMapping("/user/login")
-    public ResponseEntity<?> loginUser(@RequestBody UserMongo user) {
+    public ResponseEntity<?> loginUser(@RequestBody UserLoginDto user) {
         try {
             String token = userService.loginUser(user);
             if (token != null) {
@@ -41,6 +42,7 @@ public class UserController {
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid credentials");
             }
         } catch (Exception e) {
+            System.out.println(e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An error occurred while processing the request");
         }
     }

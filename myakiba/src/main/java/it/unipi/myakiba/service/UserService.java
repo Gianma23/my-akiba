@@ -1,5 +1,6 @@
 package it.unipi.myakiba.service;
 
+import it.unipi.myakiba.DTO.UserLoginDto;
 import it.unipi.myakiba.DTO.UserRegistrationDto;
 import it.unipi.myakiba.model.UserMongo;
 import it.unipi.myakiba.repository.UserRepository;
@@ -18,13 +19,14 @@ import java.util.List;
 @Service
 public class UserService {
 
-    AuthenticationManager authManager;
+    private final AuthenticationManager authManager;
     private final UserRepository userRepository;
     private final JWTService jwtService;
     private final BCryptPasswordEncoder encoder = new BCryptPasswordEncoder(12);
 
     @Autowired
-    public UserService(UserRepository userRepository, JWTService jwtService) {
+    public UserService(AuthenticationManager authManager, UserRepository userRepository, JWTService jwtService) {
+        this.authManager = authManager;
         this.userRepository = userRepository;
         this.jwtService = jwtService;
     }
@@ -51,10 +53,11 @@ public class UserService {
         userRepository.save(newUserMongo);
     }
 
-    public String loginUser(UserMongo user) {
-        Authentication auth = authManager.authenticate(new UsernamePasswordAuthenticationToken(user.getUsername(), user.getPassword()));
+    public String loginUser(UserLoginDto user) {
+        Authentication auth = authManager.authenticate(new UsernamePasswordAuthenticationToken(user.getEmail(), user.getPassword()));
+        UserMongo userMongo = userRepository.findByEmail(user.getEmail());
         if (auth.isAuthenticated()) {
-            return jwtService.generateToken(user.getUsername());
+            return jwtService.generateToken(userMongo.getId());
         }
         return null;
     }
