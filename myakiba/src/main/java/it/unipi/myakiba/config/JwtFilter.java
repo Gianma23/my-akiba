@@ -41,6 +41,7 @@ public class JwtFilter extends OncePerRequestFilter {
         // authentication should be null at this point
         if (userId != null && SecurityContextHolder.getContext().getAuthentication() == null) {
             // load user details with the user id
+            //TODO: userId deve essere preso da mongoDB
             if (JwtUtils.validateToken(token, userId)) {
                 UserMongo user = context.getBean(UserService.class).getUserById(userId);
                 UserPrincipal userPrincipal = new UserPrincipal(user);
