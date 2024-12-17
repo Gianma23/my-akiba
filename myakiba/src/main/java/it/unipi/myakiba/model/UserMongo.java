@@ -2,9 +2,9 @@ package it.unipi.myakiba.model;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Past;
 import lombok.Data;
+import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
@@ -35,6 +35,6 @@ public class UserMongo {
     @Past(message = "Birthdate must be in the past")
     private LocalDate birthdate;
 
-    @NotBlank
+    @CreatedDate //TODO controllare se funziona
     private LocalDate createdAt;
 }

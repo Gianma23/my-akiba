@@ -57,7 +57,6 @@ public class UserService{
         newUserMongo.setEmail(user.getEmail());
         newUserMongo.setBirthdate(user.getBirthdate());
         newUserMongo.setRole("USER");
-        newUserMongo.setCreatedAt(LocalDate.now());
         userRepository.save(newUserMongo);
 
         //TODO add also on neo4j
