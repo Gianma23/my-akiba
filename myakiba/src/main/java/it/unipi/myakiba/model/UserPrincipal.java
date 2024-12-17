@@ -7,7 +7,7 @@ import java.util.Collections;
 
 public class UserPrincipal implements UserDetails {
 
-    private UserMongo user;
+    private final UserMongo user;
 
     public UserPrincipal(UserMongo user) {
         this.user = user;
@@ -15,7 +15,7 @@ public class UserPrincipal implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return Collections.singleton((GrantedAuthority) () -> "USER");
+        return Collections.singleton(() -> "ROLE_" + user.getRole().toUpperCase());
     }
 
     @Override
@@ -25,26 +25,26 @@ public class UserPrincipal implements UserDetails {
 
     @Override
     public String getUsername() {
-        return user.getUsername();
+        return user.getEmail();
     }
 
     @Override
     public boolean isAccountNonExpired() {
-        return UserDetails.super.isAccountNonExpired();
+        return true;
     }
 
     @Override
     public boolean isAccountNonLocked() {
-        return UserDetails.super.isAccountNonLocked();
+        return true;
     }
 
     @Override
     public boolean isCredentialsNonExpired() {
-        return UserDetails.super.isCredentialsNonExpired();
+        return true;
     }
 
     @Override
     public boolean isEnabled() {
-        return UserDetails.super.isEnabled();
+        return true;
     }
 }
