@@ -1,9 +1,13 @@
 package it.unipi.myakiba.repository;
 
-import it.unipi.myakiba.model.User;
+import it.unipi.myakiba.model.UserMongo;
 import org.springframework.data.mongodb.repository.MongoRepository;
-import java.util.Optional;
+import org.springframework.stereotype.Repository;
 
-public interface UserRepository extends MongoRepository<User, String> {
+@Repository
+public interface UserRepository extends MongoRepository<UserMongo, String> {
+    UserMongo findByEmail(String email);
+    boolean existsByUsername(String username);
+    boolean existsByEmail(String email);
 }
 
