@@ -19,6 +19,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class UserService{
@@ -32,10 +33,6 @@ public class UserService{
         this.authManager = authManager;
         this.userRepository = userRepository;
         this.encoder = encoder;
-    }
-
-    public List<UserMongo> getUsers() {
-        return userRepository.findAll();
     }
 
     public UserMongo getUserById(String id) throws UsernameNotFoundException {
@@ -71,5 +68,38 @@ public class UserService{
         return null;
     }
 
+    public List<UserMongo> getUsers() {
+        return userRepository.findAll();
+    }
 
+    public UserMongo updateUser(UserMongo user, Map<String, Object> updates) {
+        updates.forEach((key, value) -> {
+            switch (key) {
+                case "email":
+                    user.setEmail((String) value);
+                    break;
+                case "username":
+                    user.setUsername((String) value);
+                    break;
+                case "birthdate":
+                    user.setBirthdate((LocalDate) value);
+                    break;
+                case "password":
+                    user.setPassword(encoder.encode((String) value));
+                    break;
+                default:
+                    throw new IllegalArgumentException("Unsupported field: " + key);
+            }
+        });
+        return userRepository.save(user);
+    }
+
+    public UserMongo deleteUser(UserMongo user) {
+        userRepository.delete(user);
+        return user;
+    }
+
+    public List<UserMongo> getUserLists(String accessToken) {
+        return null;
+    }
 }

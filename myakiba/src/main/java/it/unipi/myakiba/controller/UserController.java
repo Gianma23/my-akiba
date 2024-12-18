@@ -10,11 +10,13 @@ import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import it.unipi.myakiba.model.UserMongo;
 
 import java.security.Principal;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api")
@@ -55,22 +57,24 @@ public class UserController {
     }
 
     @GetMapping("/user")
-    public ResponseEntity<UserMongo> getUser(Principal principal) {
-        UserPrincipal user = (UserPrincipal) principal;
+    public ResponseEntity<UserMongo> getUser() {
+        UserPrincipal user = (UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         return ResponseEntity.ok(user.getUser());
     }
 
     @PatchMapping("/user")
-    public ResponseEntity<UserMongo> modifyUser(@RequestHeader("Authorization") String accessToken) {
-        return null;
+    public ResponseEntity<UserMongo> updateUser(@RequestBody Map<String, Object> updates) {
+        UserPrincipal user = (UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        UserMongo updatedUser = userService.updateUser(user.getUser(), updates);
+        return ResponseEntity.ok(updatedUser);
     }
 
     @DeleteMapping("/user")
-    public ResponseEntity<UserMongo> deleteUser(@RequestHeader("Authorization") String accessToken) {
-        return null;
+    public ResponseEntity<UserMongo> deleteUser() {
+        UserPrincipal user = (UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        UserMongo updatedUser = userService.deleteUser(user.getUser());
+        return ResponseEntity.ok(updatedUser);
     }
-
-    //@GetMapping("/user/{id}") TODO: capire se mettere /admin o no
 
     @GetMapping("/user/lists")
     public ResponseEntity<List<UserMongo>> getUserLists(@RequestHeader("Authorization") String accessToken) {
