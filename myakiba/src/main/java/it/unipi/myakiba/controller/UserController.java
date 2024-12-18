@@ -8,6 +8,8 @@ import it.unipi.myakiba.model.UserPrincipal;
 import it.unipi.myakiba.service.UserService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Slice;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -52,8 +54,12 @@ public class UserController {
     }
 
     @GetMapping("/users")
-    public ResponseEntity<List<UserMongo>> browseUsers() {
-        return ResponseEntity.ok(userService.getUsers());
+    public ResponseEntity<Slice<UserMongo>> browseUsers(
+            @RequestParam(defaultValue = "") String username,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size
+    ) {
+        return ResponseEntity.ok(userService.getUsers(username, page, size));
     }
 
     @GetMapping("/user")

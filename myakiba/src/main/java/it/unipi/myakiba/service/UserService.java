@@ -7,6 +7,10 @@ import it.unipi.myakiba.model.UserMongo;
 import it.unipi.myakiba.model.UserPrincipal;
 import it.unipi.myakiba.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -68,8 +72,9 @@ public class UserService{
         return null;
     }
 
-    public List<UserMongo> getUsers() {
-        return userRepository.findAll();
+    public Slice<UserMongo> getUsers(String username, int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        return userRepository.findByUsernameContaining(username, pageable);
     }
 
     public UserMongo updateUser(UserMongo user, Map<String, Object> updates) {

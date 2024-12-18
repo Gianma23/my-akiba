@@ -7,6 +7,7 @@ import lombok.Data;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.index.Indexed;
+import org.springframework.data.mongodb.core.index.TextIndexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.time.LocalDate;
@@ -21,6 +22,7 @@ public class UserMongo {
     private String role;
 
     @NotBlank(message = "Username cannot be blank")
+    @TextIndexed
     @Indexed(unique = true)
     private String username;
 
