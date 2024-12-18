@@ -28,7 +28,8 @@ public class JwtFilter extends OncePerRequestFilter {
     }
 
     @Override
-    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
+    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
+            throws ServletException, IOException {
         String authHeader = request.getHeader("Authorization");
         String token = null;
         String userId = null;
@@ -39,16 +40,13 @@ public class JwtFilter extends OncePerRequestFilter {
         }
 
         // authentication should be null at this point
-        if (userId != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-            // load user details with the user id
-            //TODO: userId deve essere preso da mongoDB
-            if (JwtUtils.validateToken(token, userId)) {
-                UserMongo user = context.getBean(UserService.class).getUserById(userId);
-                UserPrincipal userPrincipal = new UserPrincipal(user);
-                UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(userPrincipal, null, userPrincipal.getAuthorities());
-                authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-                SecurityContextHolder.getContext().setAuthentication(authToken);
-            }
+        if (userId != null && JwtUtils.validateToken(token)) {
+            UserMongo user = context.getBean(UserService.class).getUserById(userId);
+            UserPrincipal userPrincipal = new UserPrincipal(user);
+            UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(userPrincipal, null, userPrincipal.getAuthorities());
+            authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+            SecurityContextHolder.getContext().setAuthentication(authToken);
+
         }
 
         filterChain.doFilter(request, response);

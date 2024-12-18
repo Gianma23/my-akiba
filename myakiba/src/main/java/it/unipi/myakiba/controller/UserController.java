@@ -4,6 +4,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import it.unipi.myakiba.DTO.LoginResponse;
 import it.unipi.myakiba.DTO.UserLoginDto;
 import it.unipi.myakiba.DTO.UserRegistrationDto;
+import it.unipi.myakiba.model.UserPrincipal;
 import it.unipi.myakiba.service.UserService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,6 +13,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import it.unipi.myakiba.model.UserMongo;
 
+import java.security.Principal;
 import java.util.List;
 
 @RestController
@@ -53,11 +55,9 @@ public class UserController {
     }
 
     @GetMapping("/user")
-    public ResponseEntity<UserMongo> getUser(@RequestHeader("Authorization") String accessToken) {
-/*        return userService.getAuthenticatedUser(accessToken)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.status(401).build()); // Unauthorized if token is invalid*/
-        return null;
+    public ResponseEntity<UserMongo> getUser(Principal principal) {
+        UserPrincipal user = (UserPrincipal) principal;
+        return ResponseEntity.ok(user.getUser());
     }
 
     @PatchMapping("/user")

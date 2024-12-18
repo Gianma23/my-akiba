@@ -34,7 +34,6 @@ public class JwtUtils {
     }
 
     private JwtUtils() {
-        // Private constructor to prevent instantiation
         throw new UnsupportedOperationException("JWTUtils is a utility class and cannot be instantiated");
     }
 
@@ -51,9 +50,13 @@ public class JwtUtils {
                 .compact();
     }
 
-    public static boolean validateToken(String token, String userId) {
-        final String TokenUserId = extractUserId(token);
-        return (TokenUserId.equals(userId) && !isTokenExpired(token));
+    public static boolean validateToken(String token) {
+        try {
+            final String username = extractUserId(token);
+            return !isTokenExpired(token);
+        } catch (Exception e) {
+            return false; // Invalid token
+        }
     }
 
     public static  String extractUserId(String token) {
