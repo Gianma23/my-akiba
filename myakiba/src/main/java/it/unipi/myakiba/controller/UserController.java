@@ -4,6 +4,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import it.unipi.myakiba.DTO.LoginResponse;
 import it.unipi.myakiba.DTO.UserLoginDto;
 import it.unipi.myakiba.DTO.UserRegistrationDto;
+import it.unipi.myakiba.model.UserNeo4j;
 import it.unipi.myakiba.model.UserPrincipal;
 import it.unipi.myakiba.service.UserService;
 import jakarta.validation.Valid;
@@ -83,42 +84,45 @@ public class UserController {
     }
 
     @GetMapping("/user/lists")
-    public ResponseEntity<List<UserMongo>> getUserLists(@RequestHeader("Authorization") String accessToken) {
+    public ResponseEntity<List<UserNeo4j>> getUserLists() {
+        UserPrincipal user = (UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        
         return null;
     }
 
     @PostMapping("/user/lists")
-    public ResponseEntity<List<UserMongo>> addMediaToUserList(@RequestHeader("Authorization") String accessToken) {
+    public ResponseEntity<List<UserMongo>> addMediaToUserList() {
         return null;
     }
 
     @PatchMapping("/user/lists/{mediaId}")
-    public ResponseEntity<List<UserMongo>> modifyMediaInUserList(@RequestHeader("Authorization") String accessToken, @PathVariable String mediaId) {
+    public ResponseEntity<List<UserMongo>> modifyMediaInUserList(@PathVariable String mediaId) {
         return null;
     }
 
     @DeleteMapping("/user/lists/{mediaId}")
-    public ResponseEntity<List<UserMongo>> removeMediaFromUserList(@RequestHeader("Authorization") String accessToken, @PathVariable String mediaId) {
+    public ResponseEntity<List<UserMongo>> removeMediaFromUserList(@PathVariable String mediaId) {
         return null;
     }
 
     @GetMapping("/user/followers")
-    public ResponseEntity<List<UserMongo>> getUserFollowers(@RequestHeader("Authorization") String accessToken) {
-        return null;
+    public ResponseEntity<List<UserNeo4j>> getUserFollowers() {
+        UserPrincipal user = (UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        return ResponseEntity.ok(userService.getUserFollowers(user.getUser().getId()));
     }
 
     @GetMapping("/user/following")
-    public ResponseEntity<List<UserMongo>> getUserFollowing(@RequestHeader("Authorization") String accessToken) {
+    public ResponseEntity<List<UserMongo>> getUserFollowing() {
         return null;
     }
 
     @PostMapping("/user/follow/{userId}")
-    public ResponseEntity<List<UserMongo>> followUser(@RequestHeader("Authorization") String accessToken, @PathVariable String userId) {
+    public ResponseEntity<List<UserMongo>> followUser(@PathVariable String userId) {
         return null;
     }
 
     @DeleteMapping("/user/follow/{userId}")
-    public ResponseEntity<List<UserMongo>> unfollowUser(@RequestHeader("Authorization") String accessToken, @PathVariable String userId) {
+    public ResponseEntity<List<UserMongo>> unfollowUser(@PathVariable String userId) {
         return null;
     }
 }

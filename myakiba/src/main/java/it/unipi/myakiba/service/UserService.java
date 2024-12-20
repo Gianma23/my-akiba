@@ -4,20 +4,17 @@ import it.unipi.myakiba.DTO.UserLoginDto;
 import it.unipi.myakiba.DTO.UserRegistrationDto;
 import it.unipi.myakiba.config.JwtUtils;
 import it.unipi.myakiba.model.UserMongo;
-import it.unipi.myakiba.model.UserPrincipal;
-import it.unipi.myakiba.repository.UserRepository;
+import it.unipi.myakiba.model.UserNeo4j;
+import it.unipi.myakiba.repository.UserMongoRepository;
+import it.unipi.myakiba.repository.UserNeo4jRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -29,26 +26,28 @@ import java.util.Map;
 public class UserService{
 
     private final AuthenticationManager authManager;
-    private final UserRepository userRepository;
+    private final UserMongoRepository userMongoRepository;
     private final PasswordEncoder encoder;
+    private final UserNeo4jRepository userNeo4jRepository;
 
     @Autowired
-    public UserService(AuthenticationManager authManager, UserRepository userRepository, PasswordEncoder encoder) {
+    public UserService(AuthenticationManager authManager, UserMongoRepository userMongoRepository, PasswordEncoder encoder, UserNeo4jRepository userNeo4jRepository) {
         this.authManager = authManager;
-        this.userRepository = userRepository;
+        this.userMongoRepository = userMongoRepository;
         this.encoder = encoder;
+        this.userNeo4jRepository = userNeo4jRepository;
     }
 
     public UserMongo getUserById(String id) throws UsernameNotFoundException {
-        return userRepository.findById(id)
+        return userMongoRepository.findById(id)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found with ID: " + id));
     }
 
     public void registerUser(UserRegistrationDto user) {
-        if (userRepository.existsByUsername((user.getUsername()))) {
+        if (userMongoRepository.existsByUsername((user.getUsername()))) {
             throw new IllegalArgumentException("Username already exists");
         }
-        if (userRepository.existsByEmail((user.getEmail()))) {
+        if (userMongoRepository.existsByEmail((user.getEmail()))) {
             throw new IllegalArgumentException("Email already exists");
         }
 
@@ -58,15 +57,19 @@ public class UserService{
         newUserMongo.setEmail(user.getEmail());
         newUserMongo.setBirthdate(user.getBirthdate());
         newUserMongo.setRole("USER");
-        userRepository.save(newUserMongo);
+        userMongoRepository.save(newUserMongo);
 
-        //TODO add also on neo4j
+        UserNeo4j newUserNeo4j = new UserNeo4j();
+        newUserNeo4j.setUsername(user.getUsername());
+        newUserNeo4j.setEmail(user.getEmail());
+        newUserNeo4j.setId(newUserMongo.getId());
+        userNeo4jRepository.save(newUserNeo4j);
     }
 
     public String loginUser(UserLoginDto user) {
         Authentication auth = authManager.authenticate(new UsernamePasswordAuthenticationToken(user.getEmail(), user.getPassword()));
         if (auth.isAuthenticated()) {
-            UserMongo userMongo = userRepository.findByEmail(user.getEmail());
+            UserMongo userMongo = userMongoRepository.findByEmail(user.getEmail());
             return JwtUtils.generateToken(userMongo.getId());
         }
         return null;
@@ -74,7 +77,7 @@ public class UserService{
 
     public Slice<UserMongo> getUsers(String username, int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
-        return userRepository.findByUsernameContaining(username, pageable);
+        return userMongoRepository.findByUsernameContaining(username, pageable);
     }
 
     public UserMongo updateUser(UserMongo user, Map<String, Object> updates) {
@@ -96,15 +99,19 @@ public class UserService{
                     throw new IllegalArgumentException("Unsupported field: " + key);
             }
         });
-        return userRepository.save(user);
+        return userMongoRepository.save(user);
     }
 
     public UserMongo deleteUser(UserMongo user) {
-        userRepository.delete(user);
+        userMongoRepository.delete(user);
         return user;
     }
 
     public List<UserMongo> getUserLists(String accessToken) {
         return null;
+    }
+
+    public List<UserNeo4j> getUserFollowers(String id) {
+        return userNeo4jRepository.findFollowersById(id);
     }
 }
