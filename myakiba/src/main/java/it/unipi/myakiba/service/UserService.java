@@ -3,6 +3,7 @@ package it.unipi.myakiba.service;
 import it.unipi.myakiba.DTO.UserLoginDto;
 import it.unipi.myakiba.DTO.UserRegistrationDto;
 import it.unipi.myakiba.config.JwtUtils;
+import it.unipi.myakiba.model.AnimeNeo4j;
 import it.unipi.myakiba.model.UserMongo;
 import it.unipi.myakiba.model.UserNeo4j;
 import it.unipi.myakiba.repository.UserMongoRepository;
@@ -107,11 +108,25 @@ public class UserService{
         return user;
     }
 
-    public List<UserMongo> getUserLists(String accessToken) {
-        return null;
+    public List<AnimeNeo4j> getUserLists(String id, String type) {
+        return userNeo4jRepository.findListsById(id, type);
     }
 
     public List<UserNeo4j> getUserFollowers(String id) {
         return userNeo4jRepository.findFollowersById(id);
+    }
+
+    public List<UserNeo4j> getUserFollowing(String id) {
+        return userNeo4jRepository.findFollowsById(id);
+    }
+
+    public String followUser(String followerId, String followedId) {
+        userNeo4jRepository.followUser(followerId, followedId);
+        return "User followed";
+    }
+
+    public String unfollowUser(String followerId, String followedId) {
+        userNeo4jRepository.unfollowUser(followerId, followedId);
+        return "User unfollowed";
     }
 }

@@ -4,6 +4,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import it.unipi.myakiba.DTO.LoginResponse;
 import it.unipi.myakiba.DTO.UserLoginDto;
 import it.unipi.myakiba.DTO.UserRegistrationDto;
+import it.unipi.myakiba.model.AnimeNeo4j;
 import it.unipi.myakiba.model.UserNeo4j;
 import it.unipi.myakiba.model.UserPrincipal;
 import it.unipi.myakiba.service.UserService;
@@ -84,10 +85,9 @@ public class UserController {
     }
 
     @GetMapping("/user/lists")
-    public ResponseEntity<List<UserNeo4j>> getUserLists() {
+    public ResponseEntity<List<AnimeNeo4j>> getUserLists(@RequestParam String type) {
         UserPrincipal user = (UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        
-        return null;
+        return ResponseEntity.ok(userService.getUserLists(user.getUser().getId(), type));
     }
 
     @PostMapping("/user/lists")
@@ -112,17 +112,20 @@ public class UserController {
     }
 
     @GetMapping("/user/following")
-    public ResponseEntity<List<UserMongo>> getUserFollowing() {
-        return null;
+    public ResponseEntity<List<UserNeo4j>> getUserFollowing() {
+        UserPrincipal user = (UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        return ResponseEntity.ok(userService.getUserFollowing(user.getUser().getId()));
     }
 
     @PostMapping("/user/follow/{userId}")
-    public ResponseEntity<List<UserMongo>> followUser(@PathVariable String userId) {
-        return null;
+    public ResponseEntity<String> followUser(@PathVariable String userId) {
+        UserPrincipal user = (UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        return ResponseEntity.ok(userService.followUser(user.getUser().getId(), userId));
     }
 
     @DeleteMapping("/user/follow/{userId}")
-    public ResponseEntity<List<UserMongo>> unfollowUser(@PathVariable String userId) {
-        return null;
+    public ResponseEntity<String> unfollowUser(@PathVariable String userId) {
+        UserPrincipal user = (UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        return ResponseEntity.ok(userService.unfollowUser(user.getUser().getId(), userId));
     }
 }

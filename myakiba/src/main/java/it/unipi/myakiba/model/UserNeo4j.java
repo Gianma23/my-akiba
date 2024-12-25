@@ -15,7 +15,6 @@ import java.util.List;
 public class UserNeo4j {
 
     @Id
-    @GeneratedValue
     private String id;
 
     @Property("username")
@@ -24,9 +23,18 @@ public class UserNeo4j {
     @Property("email")
     private String email;
 
-    @Relationship(type = "FOLLOW", direction = Relationship.Direction.OUTGOING)
+/*    @Relationship(type = "FOLLOW", direction = Relationship.Direction.OUTGOING)
     private List<UserNeo4j> following;
 
     @Relationship(type = "FOLLOW", direction = Relationship.Direction.INCOMING)
     private List<UserNeo4j> followers;
+
+    @Relationship(type = "WATCHED", direction = Relationship.Direction.OUTGOING)
+    private List<AnimeNeo4j> watched;
+
+    @Relationship(type = "WATCHING", direction = Relationship.Direction.OUTGOING)
+    private List<AnimeNeo4j> watching;
+
+    @Relationship(type = "WANT_TO_WATCH", direction = Relationship.Direction.OUTGOING)
+    private List<AnimeNeo4j> wantToWatch;*/
 }
