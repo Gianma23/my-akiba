@@ -96,10 +96,10 @@ public class UserController {
         return ResponseEntity.ok(userService.getUserLists(user.getUser().getId(), type));
     }
 
-    @PostMapping("/user/lists")
-    public ResponseEntity<String> addMediaToUserList() {
+    @PostMapping("/user/lists/{mediaId}")
+    public ResponseEntity<String> addMediaToUserList(@PathVariable String mediaId) {
         UserPrincipal user = (UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        return ResponseEntity.ok(userService.addMediaToUserList(user.getUser().getId()));
+        return ResponseEntity.ok(userService.addMediaToUserList(user.getUser().getId(), mediaId));
     }
 
     @PatchMapping("/user/lists/{mediaId}")
@@ -108,8 +108,9 @@ public class UserController {
     }
 
     @DeleteMapping("/user/lists/{mediaId}")
-    public ResponseEntity<List<UserMongo>> removeMediaFromUserList(@PathVariable String mediaId) {
-        return null;
+    public ResponseEntity<String> removeMediaFromUserList(@PathVariable String mediaId) {
+        UserPrincipal user = (UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        return ResponseEntity.ok(userService.removeMediaFromUserList(user.getUser().getId(), mediaId));
     }
 
     /* ================================ FOLLOWERS CRUD ================================ */

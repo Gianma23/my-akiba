@@ -44,6 +44,8 @@ public class UserService{
                 .orElseThrow(() -> new UsernameNotFoundException("User not found with ID: " + id));
     }
 
+    /* ================================ AUTHENTICATION ================================ */
+
     public void registerUser(UserRegistrationDto user) {
         if (userMongoRepository.existsByUsername((user.getUsername()))) {
             throw new IllegalArgumentException("Username already exists");
@@ -77,6 +79,8 @@ public class UserService{
         return null;
     }
 
+    /* ================================ USERS CRUD ================================ */
+
     public Slice<UserMongo> getUsers(String username, int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
         return userMongoRepository.findByUsernameContaining(username, pageable);
@@ -109,13 +113,20 @@ public class UserService{
         return user;
     }
 
-    public String addMediaToUserList(String id) {
-        // TODO: implementation
-        return "Media added to user list";
-    }
+    /* ================================ LISTS CRUD ================================ */
 
     public List<AnimeNeo4j> getUserLists(String id, String type) {
         return userNeo4jRepository.findListsById(id, type);
+    }
+
+    public String addMediaToUserList(String userId, String mediaId) {
+        userNeo4jRepository.addMediaToList(userId, mediaId);
+        return "Media added to user list";
+    }
+
+    public String removeMediaFromUserList(String userId, String mediaId) {
+        userNeo4jRepository.removeMediaFromList(userId, mediaId);
+        return "Media removed from user list";
     }
 
     public List<UserNeo4j> getUserFollowers(String id) {

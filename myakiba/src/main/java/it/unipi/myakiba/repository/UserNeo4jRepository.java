@@ -13,6 +13,13 @@ public interface UserNeo4jRepository extends Neo4jRepository<UserNeo4j, String> 
     @Query("MATCH (u:User) WHERE u.username = $username RETURN u")
     List<AnimeNeo4j> findListsById(String id, String type);
 
+    @Query("MATCH (u:User {id: $userId}), (m:Media {id: $mediaId})" +
+            " CREATE (u)-[:LIST_ELEMENT {episodesWatched: 0}]->(m)")
+    void addMediaToList(String userId, String mediaId);
+
+    @Query("MATCH (u:User {id: $userId})-[r:LIST_ELEMENT]->(m:Media {id: $mediaId}) DELETE r")
+    void removeMediaFromList(String userId, String mediaId);
+
     @Query("MATCH (u:User)<-[:FOLLOW]-(f:User) WHERE u.id = $id RETURN f")
     List<UserNeo4j> findFollowersById(String id);
 
