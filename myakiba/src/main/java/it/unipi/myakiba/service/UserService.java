@@ -61,9 +61,10 @@ public class UserService{
         userMongoRepository.save(newUserMongo);
 
         UserNeo4j newUserNeo4j = new UserNeo4j();
+        System.out.println(newUserMongo.getId());
+        newUserNeo4j.setId(newUserMongo.getId());
         newUserNeo4j.setUsername(user.getUsername());
         newUserNeo4j.setEmail(user.getEmail());
-        newUserNeo4j.setId(newUserMongo.getId());
         userNeo4jRepository.save(newUserNeo4j);
     }
 
@@ -106,6 +107,11 @@ public class UserService{
     public UserMongo deleteUser(UserMongo user) {
         userMongoRepository.delete(user);
         return user;
+    }
+
+    public String addMediaToUserList(String id) {
+        // TODO: implementation
+        return "Media added to user list";
     }
 
     public List<AnimeNeo4j> getUserLists(String id, String type) {

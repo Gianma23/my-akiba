@@ -34,6 +34,8 @@ public class UserController {
         this.userService = userService;
     }
 
+    /* ================================ AUTHENTICATION ================================ */
+
     @PostMapping("/user/register")
     public ResponseEntity<UserMongo> registerUser(@Valid @RequestBody UserRegistrationDto user) {
         userService.registerUser(user);
@@ -54,6 +56,8 @@ public class UserController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An error occurred while processing the request");
         }
     }
+
+    /* ================================ USERS CRUD ================================ */
 
     @GetMapping("/users")
     public ResponseEntity<Slice<UserMongo>> browseUsers(
@@ -84,6 +88,8 @@ public class UserController {
         return ResponseEntity.ok(updatedUser);
     }
 
+    /* ================================ LISTS CRUD ================================ */
+
     @GetMapping("/user/lists")
     public ResponseEntity<List<AnimeNeo4j>> getUserLists(@RequestParam String type) {
         UserPrincipal user = (UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
@@ -91,8 +97,9 @@ public class UserController {
     }
 
     @PostMapping("/user/lists")
-    public ResponseEntity<List<UserMongo>> addMediaToUserList() {
-        return null;
+    public ResponseEntity<String> addMediaToUserList() {
+        UserPrincipal user = (UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        return ResponseEntity.ok(userService.addMediaToUserList(user.getUser().getId()));
     }
 
     @PatchMapping("/user/lists/{mediaId}")
@@ -104,6 +111,8 @@ public class UserController {
     public ResponseEntity<List<UserMongo>> removeMediaFromUserList(@PathVariable String mediaId) {
         return null;
     }
+
+    /* ================================ FOLLOWERS CRUD ================================ */
 
     @GetMapping("/user/followers")
     public ResponseEntity<List<UserNeo4j>> getUserFollowers() {
