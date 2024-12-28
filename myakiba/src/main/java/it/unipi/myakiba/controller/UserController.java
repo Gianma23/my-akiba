@@ -36,27 +36,6 @@ public class UserController {
 
     /* ================================ AUTHENTICATION ================================ */
 
-    @PostMapping("/user/register")
-    public ResponseEntity<UserMongo> registerUser(@Valid @RequestBody UserRegistrationDto user) {
-        userService.registerUser(user);
-        return ResponseEntity.ok().build();
-    }
-
-    @PostMapping("/user/login")
-    public ResponseEntity<?> loginUser(@RequestBody UserLoginDto user) {
-        try {
-            String token = userService.loginUser(user);
-            if (token != null) {
-                return ResponseEntity.ok(new LoginResponse(token));
-            } else {
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid credentials");
-            }
-        } catch (Exception e) {
-            System.out.println(e.getMessage());
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An error occurred while processing the request");
-        }
-    }
-
     /* ================================ USERS CRUD ================================ */
 
     @GetMapping("/users")
