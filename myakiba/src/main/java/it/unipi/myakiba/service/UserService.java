@@ -39,7 +39,7 @@ public class UserService{
         this.userNeo4jRepository = userNeo4jRepository;
     }
 
-    public UserMongo getUserById(String id) throws UsernameNotFoundException {
+    public UserMongo getUserById(String id, boolean checkPrivacyStatus) throws UsernameNotFoundException {
         return userMongoRepository.findById(id)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found with ID: " + id));
     }

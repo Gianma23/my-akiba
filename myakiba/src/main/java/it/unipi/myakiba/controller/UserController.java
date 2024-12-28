@@ -74,6 +74,11 @@ public class UserController {
         return ResponseEntity.ok(user.getUser());
     }
 
+    @GetMapping("/user/{userId}")
+    public ResponseEntity<UserMongo> getUserById(@PathVariable String userId) {
+        return ResponseEntity.ok(userService.getUserById(userId, true));
+    }
+
     @PatchMapping("/user")
     public ResponseEntity<UserMongo> updateUser(@RequestBody Map<String, Object> updates) {
         UserPrincipal user = (UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
