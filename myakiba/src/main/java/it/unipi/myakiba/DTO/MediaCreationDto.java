@@ -1,7 +1,6 @@
 package it.unipi.myakiba.DTO;
 
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Past;
 import lombok.Data;
 
 @Data

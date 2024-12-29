@@ -34,7 +34,8 @@ public class AnalyticsService {
     @Autowired
     private MongoTemplate mongoTemplate;
 
-    public List<Document> getMonthlyRegistrations() throws Exception {
+//   For each year, see the month with most registrations
+    public List<MonthAnalyticDTO> getMonthlyRegistrations() throws Exception {
             MonthAnalytic maxDocument = monthAnalyticRepository.findTopByOrderByIdDesc();
             int lastYearCalculated = maxDocument != null ? maxDocument.getYear() : 2000;
 
@@ -46,15 +47,7 @@ public class AnalyticsService {
                 monthAnalytic.setCount(result.getCount());
                 monthAnalyticRepository.save(monthAnalytic);
             }
-            return mongoTemplate.findAll(Document.class, "month_analytics");
-    }
-
-    public String getAvgScore() throws Exception {
-        return "Average Score";
-    }
-
-    public String getHighestRatedMedia() throws Exception {
-        return "Highest Rate";
+            return mongoTemplate.findAll(MonthAnalyticDTO.class, "month_analytics");
     }
 
     public String getControversialMedia() throws Exception {

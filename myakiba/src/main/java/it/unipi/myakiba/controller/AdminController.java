@@ -136,24 +136,6 @@ public class AdminController {
         }
     }
 
-    @GetMapping("/analytics/avgscore")
-    public String getAvgScore() {
-        try {
-            return analyticsService.getAvgScore();
-        } catch (Exception e) {
-            return e.getMessage();
-        }
-    }
-
-    @GetMapping("/analytics/highestrate")
-    public String getHighestRatedMedia() {
-        try {
-            return analyticsService.getHighestRatedMedia();
-        } catch (Exception e) {
-            return e.getMessage();
-        }
-    }
-
     @GetMapping("/analytics/controversial")
     public String getControversialMedia() {
         try {
