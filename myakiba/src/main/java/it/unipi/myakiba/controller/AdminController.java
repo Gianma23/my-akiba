@@ -9,6 +9,7 @@ import it.unipi.myakiba.service.MediaService;
 import it.unipi.myakiba.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Slice;
+import org.springframework.http.RequestEntity;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -32,11 +33,12 @@ public class AdminController {
     @GetMapping("/media")
     public ResponseEntity<?> getMediaList(
             @RequestParam String type,
+            @RequestParam(defaultValue = "") String name,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size
     ) {
         try {
-            return ResponseEntity.ok(mediaService.getMedia(type, page, size));
+            return ResponseEntity.ok(mediaService.getMedia(type, name, page, size));
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
@@ -55,39 +57,70 @@ public class AdminController {
 
 //  get info on a specific media
     @GetMapping("/media/{id}")
-    public String getMediaDetails() {
-        return mediaService.getMedia();
+    public ResponseEntity<?> getMediaDetails(@PathVariable int mediaId, @RequestParam String type) {
+        try {
+            return ResponseEntity.ok(mediaService.getMediaDetails(mediaId, type));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
     }
 
 //  update media info
     @PutMapping("/media/{id}")
-    public String updateMedia() {
-        return mediaService.updateMedia();
+    public ResponseEntity<?> updateMedia(@PathVariable int mediaId, @RequestBody String type, @RequestBody MediaCreationDto media) {
+        try {
+            mediaService.updateMedia(mediaId, type);
+            return ResponseEntity.ok().build();
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
     }
 
 //  delete a specific media
     @DeleteMapping("/media/{id}")
-    public String deleteMedia() {
-        return mediaService.deleteMedia();
+    public ResponseEntity<?> deleteMedia(@PathVariable int mediaId) {
+        try {
+            mediaService.deleteMedia(mediaId);
+            return ResponseEntity.ok().build();
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
     }
 
 //  delete a review
     @DeleteMapping("/media/{id}/review/{reviewId}")
-    public String deleteReview() {
-        return mediaService.deleteReview();
+    public ResponseEntity<?> deleteReview(@PathVariable int mediaId, @PathVariable int reviewId, @RequestParam String type) {
+        try {
+            mediaService.deleteReview(mediaId, reviewId, type);
+            return ResponseEntity.ok().build();
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
     }
 
 //    USER MANAGEMENT
 //  get the list of users
     @GetMapping("/users")
-    public String getUsers() {
-        return userService.getUsers();
+    public ResponseEntity<?> getUsers(
+            @RequestParam(defaultValue = "") String username,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size
+    ) {
+        try {
+            return ResponseEntity.ok(mediaService.getMedia(username, page, size));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
     }
 
 //  get info on a specific user
     @GetMapping("/users/{userId}")
-    public String getUserDetails() {
-        return userService.getUserById(userId, false);
+    public ResponseEntity<?> getUserDetails(@PathVariable int userId) {
+        try {
+            return ResponseEntity.ok(userService.getUserById(userId, false));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
     }
 
 //    ANALYTICS

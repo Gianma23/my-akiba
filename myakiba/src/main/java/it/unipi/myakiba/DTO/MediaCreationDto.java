@@ -14,4 +14,6 @@ public class MediaCreationDto {
     private int episodes;
     @NotBlank
     private String status;
+    @NotBlank
+    private String type;
 }
