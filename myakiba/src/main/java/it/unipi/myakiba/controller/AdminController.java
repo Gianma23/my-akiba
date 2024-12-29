@@ -13,6 +13,9 @@ import org.springframework.http.RequestEntity;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import org.bson.Document;
+import java.util.List;
+
 @RestController
 @RequestMapping("/api")
 @Tag(name = "Admin management", description = "Operations related to admin management")
@@ -125,57 +128,101 @@ public class AdminController {
 
 //    ANALYTICS
     @GetMapping("/analytics/monthlyregistrations")
-    public String getUsersAnalytics() {
-        return analyticsService.getUsersAnalytics();
+    public ResponseEntity<?> getMonthlyRegistrations() {
+        try {
+            return ResponseEntity.ok(analyticsService.getMonthlyRegistrations());
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
     }
 
     @GetMapping("/analytics/avgscore")
-    public String getUsersAnalytics() {
-        return analyticsService.getUsersAnalytics();
+    public String getAvgScore() {
+        try {
+            return analyticsService.getAvgScore();
+        } catch (Exception e) {
+            return e.getMessage();
+        }
     }
 
     @GetMapping("/analytics/highestrate")
-    public String getUsersAnalytics() {
-        return analyticsService.getUsersAnalytics();
+    public String getHighestRatedMedia() {
+        try {
+            return analyticsService.getHighestRatedMedia();
+        } catch (Exception e) {
+            return e.getMessage();
+        }
     }
 
     @GetMapping("/analytics/controversial")
-    public String getUsersAnalytics() {
-        return analyticsService.getUsersAnalytics();
+    public String getControversialMedia() {
+        try {
+            return analyticsService.getControversialMedia();
+        } catch (Exception e) {
+            return e.getMessage();
+        }
     }
 
     @GetMapping("/analytics/worse")
-    public String getUsersAnalytics() {
-        return analyticsService.getUsersAnalytics();
+    public String getWorseningMedia() {
+        try {
+            return analyticsService.getWorseningMedia();
+        } catch (Exception e) {
+            return e.getMessage();
+        }
     }
 
     @GetMapping("/analytics/better")
-    public String getUsersAnalytics() {
-        return analyticsService.getUsersAnalytics();
+    public String getImprovingMedia() {
+        try {
+            return analyticsService.getImprovingMedia();
+        } catch (Exception e) {
+            return e.getMessage();
+        }
     }
 
     @GetMapping("/analytics/clique")
-    public String getUsersAnalytics() {
-        return analyticsService.getUsersAnalytics();
+    public String getClique() {
+        try {
+            return analyticsService.getClique();
+        } catch (Exception e) {
+            return e.getMessage();
+        }
     }
 
     @GetMapping("/analytics/influencers")
-    public String getUsersAnalytics() {
-        return analyticsService.getUsersAnalytics();
+    public String getInfluencers() {
+        try {
+            return analyticsService.getInfluencers();
+        } catch (Exception e) {
+            return e.getMessage();
+        }
     }
 
     @GetMapping("/analytics/listcounter")
-    public String getUsersAnalytics() {
-        return analyticsService.getUsersAnalytics();
+    public String getListCounter() {
+        try {
+            return analyticsService.getListCounter();
+        } catch (Exception e) {
+            return e.getMessage();
+        }
     }
 
     @GetMapping("/analytics/mediainlists")
-    public String getUsersAnalytics() {
-        return analyticsService.getUsersAnalytics();
+    public String getMediaInLists() {
+        try {
+            return analyticsService.getMediaInLists();
+        } catch (Exception e) {
+            return e.getMessage();
+        }
     }
 
     @GetMapping("/analytics/usersonpar")
-    public String getUsersAnalytics() {
-        return analyticsService.getUsersAnalytics();
+    public String getUsersOnPar() {
+        try {
+            return analyticsService.getUsersOnPar();
+        } catch (Exception e) {
+            return e.getMessage();
+        }
     }
 }
