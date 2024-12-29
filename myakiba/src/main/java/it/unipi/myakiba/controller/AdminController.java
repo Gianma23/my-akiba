@@ -1,10 +1,15 @@
 package it.unipi.myakiba.controller;
 
 import io.swagger.v3.oas.annotations.tags.Tag;
+import it.unipi.myakiba.DTO.MediaCreationDto;
+import it.unipi.myakiba.model.Anime;
+import it.unipi.myakiba.model.Manga;
 import it.unipi.myakiba.service.AnalyticsService;
 import it.unipi.myakiba.service.MediaService;
 import it.unipi.myakiba.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Slice;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -25,14 +30,27 @@ public class AdminController {
 //    MEDIA MANAGEMENT
 //  get the list of media
     @GetMapping("/media")
-    public String getMedia() {
-        return mediaService.getMedia();
+    public ResponseEntity<?> getMediaList(
+            @RequestParam String type,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size
+    ) {
+        try {
+            return ResponseEntity.ok(mediaService.getMedia(type, page, size));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
     }
 
 //  add a new media
     @PostMapping("/media/add")
-    public String addMedia() {
-        return mediaService.addMedia();
+    public ResponseEntity<String> addMedia(@RequestBody MediaCreationDto media) {
+        try {
+            mediaService.addMedia(media);
+            return ResponseEntity.ok().build();
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
     }
 
 //  get info on a specific media
