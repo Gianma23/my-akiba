@@ -1,5 +1,6 @@
 package it.unipi.myakiba.service;
 
+import it.unipi.myakiba.DTO.MonthAnalyticDTO;
 import it.unipi.myakiba.model.MonthAnalytic;
 import it.unipi.myakiba.repository.MonthAnalyticRepository;
 import org.bson.Document;
@@ -12,6 +13,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.stereotype.Service;
 
 import java.time.Year;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -35,19 +37,14 @@ public class AnalyticsService {
     public List<Document> getMonthlyRegistrations() throws Exception {
             MonthAnalytic maxDocument = monthAnalyticRepository.findTopByOrderByIdDesc();
             int lastYearCalculated = maxDocument != null ? maxDocument.getYear() : 2000;
-            int currentYear = Year.now().getValue();
 
-            for(int i = lastYearCalculated+1; i < currentYear; i++) {
+            List<MonthAnalyticDTO> results = userMongoRepository.findMaxMonthByYearGreaterThan(lastYearCalculated);
+            for(MonthAnalyticDTO result : results) {
                 MonthAnalytic monthAnalytic = new MonthAnalytic();
-                Document result = userMongoRepository.findMonthWithMaxCountByYear(i);
-                if (result != null) {
-                    monthAnalytic.setYear(i);
-                    monthAnalytic.setMonth(result.getInteger("month"));
-                    monthAnalytic.setCount(result.getInteger("totalCount"));
-                    monthAnalyticRepository.save(monthAnalytic);
-                } else {
-                    break;
-                }
+                monthAnalytic.setYear(result.getYear());
+                monthAnalytic.setMonth(result.getMonth());
+                monthAnalytic.setCount(result.getCount());
+                monthAnalyticRepository.save(monthAnalytic);
             }
             return mongoTemplate.findAll(Document.class, "month_analytics");
     }
