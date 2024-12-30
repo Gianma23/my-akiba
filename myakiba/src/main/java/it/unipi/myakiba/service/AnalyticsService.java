@@ -21,13 +21,15 @@ public class AnalyticsService {
     private final UserMongoRepository userMongoRepository;
     private final UserNeo4jRepository userNeo4jRepository;
     private final MonthAnalyticRepository monthAnalyticRepository;
+    private final MangaMongoRepository mangaMongoRepository;
 
     @Autowired
-    public AnalyticsService(AuthenticationManager authManager, UserMongoRepository userMongoRepository, UserNeo4jRepository userNeo4jRepository, MonthAnalyticRepository monthAnalyticRepository) {
+    public AnalyticsService(AuthenticationManager authManager, UserMongoRepository userMongoRepository, UserNeo4jRepository userNeo4jRepository, MonthAnalyticRepository monthAnalyticRepository, MangaMongoRepository mangaMongoRepository) {
         this.authManager = authManager;
         this.userMongoRepository = userMongoRepository;
         this.userNeo4jRepository = userNeo4jRepository;
         this.monthAnalyticRepository = monthAnalyticRepository;
+        this.mangaMongoRepository = mangaMongoRepository;
     }
     @Autowired
     private MongoTemplate mongoTemplate;
@@ -49,7 +51,7 @@ public class AnalyticsService {
     }
 
     public List<ControversialMediaDto> getControversialMedia() throws Exception {
-        return MangaMongoRepository.findTopVarianceMangaByGenre();
+        return mangaMongoRepository.findTopVarianceMangaByGenre();
     }
 
     public String getWorseningMedia() throws Exception {

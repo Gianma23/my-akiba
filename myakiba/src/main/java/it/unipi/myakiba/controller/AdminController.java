@@ -41,7 +41,7 @@ public class AdminController {
 
 //  update media info
     @PatchMapping("/media/{mediaType}/{mediaId}")
-    public ResponseEntity<?> updateMedia(@PathVariable MediaType mediaType, @PathVariable int mediaId, @RequestBody Map<String, Object> updates) {
+    public ResponseEntity<?> updateMedia(@PathVariable MediaType mediaType, @PathVariable String mediaId, @RequestBody Map<String, Object> updates) {
         try {
             mediaService.updateMedia(mediaId, mediaType, updates);
             return ResponseEntity.ok().build();
@@ -63,7 +63,7 @@ public class AdminController {
 
 //  delete a review
     @DeleteMapping("/media/{mediaType}/{mediaId}/review/{reviewId}")
-    public ResponseEntity<?> deleteReview(@PathVariable MediaType mediaType, @PathVariable int mediaId, @PathVariable int reviewId) {
+    public ResponseEntity<?> deleteReview(@PathVariable MediaType mediaType, @PathVariable String mediaId, @PathVariable String reviewId) {
         try {
             mediaService.deleteReview(mediaId, reviewId, mediaType);
             return ResponseEntity.ok().build();
@@ -75,7 +75,7 @@ public class AdminController {
 //    USER MANAGEMENT
 //  get info on a specific user
     @GetMapping("/users/{userId}")
-    public ResponseEntity<?> getUserDetails(@PathVariable int userId) {
+    public ResponseEntity<?> getUserDetails(@PathVariable String userId) {
         try {
             return ResponseEntity.ok(userService.getUserById(userId, false));
         } catch (Exception e) {
