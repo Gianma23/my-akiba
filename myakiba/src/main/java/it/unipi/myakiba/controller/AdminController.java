@@ -2,22 +2,18 @@ package it.unipi.myakiba.controller;
 
 import io.swagger.v3.oas.annotations.tags.Tag;
 import it.unipi.myakiba.DTO.MediaCreationDto;
-import it.unipi.myakiba.model.Anime;
-import it.unipi.myakiba.model.Manga;
 import it.unipi.myakiba.service.AnalyticsService;
 import it.unipi.myakiba.service.MediaService;
 import it.unipi.myakiba.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Slice;
-import org.springframework.http.RequestEntity;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import org.bson.Document;
-import java.util.List;
+import java.util.Map;
 
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/api/admin")
 @Tag(name = "Admin management", description = "Operations related to admin management")
 public class AdminController {
     private final UserService userService;
@@ -32,21 +28,6 @@ public class AdminController {
     }
 
 //    MEDIA MANAGEMENT
-//  get the list of media
-    @GetMapping("/media")
-    public ResponseEntity<?> getMediaList(
-            @RequestParam String type,
-            @RequestParam(defaultValue = "") String name,
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size
-    ) {
-        try {
-            return ResponseEntity.ok(mediaService.getMedia(type, name, page, size));
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
-    }
-
 //  add a new media
     @PostMapping("/media/add")
     public ResponseEntity<String> addMedia(@RequestBody MediaCreationDto media) {
@@ -58,21 +39,11 @@ public class AdminController {
         }
     }
 
-//  get info on a specific media
-    @GetMapping("/media/{id}")
-    public ResponseEntity<?> getMediaDetails(@PathVariable int mediaId, @RequestParam String type) {
-        try {
-            return ResponseEntity.ok(mediaService.getMediaDetails(mediaId, type));
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
-    }
-
 //  update media info
-    @PutMapping("/media/{id}")
-    public ResponseEntity<?> updateMedia(@PathVariable int mediaId, @RequestBody String type, @RequestBody MediaCreationDto media) {
+    @PatchMapping("/media/{mediaType}/{mediaId}")
+    public ResponseEntity<?> updateMedia(@PathVariable MediaType mediaType, @PathVariable int mediaId, @RequestBody Map<String, Object> updates) {
         try {
-            mediaService.updateMedia(mediaId, type);
+            mediaService.updateMedia(mediaId, mediaType, updates);
             return ResponseEntity.ok().build();
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
@@ -80,7 +51,7 @@ public class AdminController {
     }
 
 //  delete a specific media
-    @DeleteMapping("/media/{id}")
+    @DeleteMapping("/media/{mediaId}")
     public ResponseEntity<?> deleteMedia(@PathVariable int mediaId) {
         try {
             mediaService.deleteMedia(mediaId);
@@ -91,10 +62,10 @@ public class AdminController {
     }
 
 //  delete a review
-    @DeleteMapping("/media/{id}/review/{reviewId}")
-    public ResponseEntity<?> deleteReview(@PathVariable int mediaId, @PathVariable int reviewId, @RequestParam String type) {
+    @DeleteMapping("/media/{mediaType}/{mediaId}/review/{reviewId}")
+    public ResponseEntity<?> deleteReview(@PathVariable MediaType mediaType, @PathVariable int mediaId, @PathVariable int reviewId) {
         try {
-            mediaService.deleteReview(mediaId, reviewId, type);
+            mediaService.deleteReview(mediaId, reviewId, mediaType);
             return ResponseEntity.ok().build();
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
@@ -102,20 +73,6 @@ public class AdminController {
     }
 
 //    USER MANAGEMENT
-//  get the list of users
-    @GetMapping("/users")
-    public ResponseEntity<?> getUsers(
-            @RequestParam(defaultValue = "") String username,
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size
-    ) {
-        try {
-            return ResponseEntity.ok(mediaService.getMedia(username, page, size));
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
-    }
-
 //  get info on a specific user
     @GetMapping("/users/{userId}")
     public ResponseEntity<?> getUserDetails(@PathVariable int userId) {
@@ -137,11 +94,11 @@ public class AdminController {
     }
 
     @GetMapping("/analytics/controversial")
-    public String getControversialMedia() {
+    public ResponseEntity<?> getControversialMedia() {
         try {
-            return analyticsService.getControversialMedia();
+            return ResponseEntity.ok(analyticsService.getControversialMedia());
         } catch (Exception e) {
-            return e.getMessage();
+            return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
 
