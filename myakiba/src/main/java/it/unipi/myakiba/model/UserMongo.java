@@ -1,5 +1,6 @@
 package it.unipi.myakiba.model;
 
+import it.unipi.myakiba.enumerator.PrivacyStatus;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Past;
@@ -11,6 +12,7 @@ import org.springframework.data.mongodb.core.index.TextIndexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.time.LocalDate;
+import java.util.List;
 
 @Document(collection = "users")
 @Data
@@ -34,9 +36,13 @@ public class UserMongo {
     @Indexed(unique = true)
     private String email;
 
+    @NotBlank(message = "Privacy status cannot be blank")
+    private PrivacyStatus privacyStatus;
+
+    private List<String> followers;
+
     @Past(message = "Birthdate must be in the past")
     private LocalDate birthdate;
 
-    @CreatedDate //TODO controllare se funziona
     private LocalDate createdAt;
 }
