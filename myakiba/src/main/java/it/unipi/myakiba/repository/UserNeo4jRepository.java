@@ -19,7 +19,7 @@ public interface UserNeo4jRepository extends Neo4jRepository<UserNeo4j, String> 
     List<ListElementDto> findMangaListsById(String id);
 
     @Query("MATCH (u:User {id: $userId}), (a:Anime {id: $mediaId})" +
-            " CREATE (u)-[:LIST_ELEMENT {progress: 0}]->(a)")
+            " MERGE (u)-[:LIST_ELEMENT {progress: 0}]->(a)")
     void addAnimeToList(String userId, String mediaId);
 
     @Query("MATCH (u:User {id: $userId})-[r:LIST_ELEMENT]->(m:Media {id: $mediaId}) DELETE r")
@@ -31,7 +31,7 @@ public interface UserNeo4jRepository extends Neo4jRepository<UserNeo4j, String> 
     @Query("MATCH (u:User)-[:FOLLOW]->(f:User) WHERE u.id = $id RETURN f")
     List<UserNeo4j> findFollowedById(String id);
 
-    @Query("MATCH (u:User {id: $followerId}), (f:User {id: $followedId}) CREATE (u)-[:FOLLOW]->(f)")
+    @Query("MATCH (u:User {id: $followerId}), (f:User {id: $followedId}) MERGE (u)-[:FOLLOW]->(f)")
     void followUser(String followerId, String followedId);
 
     @Query("MATCH (u:User {id: $followerId})-[r:FOLLOW]->(f:User {id: $followedId}) DELETE r")
