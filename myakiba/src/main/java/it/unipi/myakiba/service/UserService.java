@@ -2,10 +2,14 @@ package it.unipi.myakiba.service;
 
 import it.unipi.myakiba.DTO.UserLoginDto;
 import it.unipi.myakiba.DTO.UserRegistrationDto;
+import it.unipi.myakiba.DTO.ListElementDto;
 import it.unipi.myakiba.config.JwtUtils;
-import it.unipi.myakiba.model.AnimeNeo4j;
+import it.unipi.myakiba.enumerator.MediaType;
+import it.unipi.myakiba.enumerator.PrivacyStatus;
 import it.unipi.myakiba.model.UserMongo;
 import it.unipi.myakiba.model.UserNeo4j;
+import it.unipi.myakiba.model.UserPrincipal;
+import it.unipi.myakiba.projection.UserBrowseProjection;
 import it.unipi.myakiba.repository.UserMongoRepository;
 import it.unipi.myakiba.repository.UserNeo4jRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,6 +19,7 @@ import org.springframework.data.domain.Slice;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -24,7 +29,7 @@ import java.util.List;
 import java.util.Map;
 
 @Service
-public class UserService{
+public class UserService {
 
     private final AuthenticationManager authManager;
     private final UserMongoRepository userMongoRepository;
@@ -40,8 +45,26 @@ public class UserService{
     }
 
     public UserMongo getUserById(String id, boolean checkPrivacyStatus) throws UsernameNotFoundException {
-        return userMongoRepository.findById(id)
+        UserMongo user = userMongoRepository.findById(id)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found with ID: " + id));
+
+        if (!checkPrivacyStatus) {
+            return user;
+        }
+
+        switch (user.getPrivacyStatus()) {
+            case ALL:
+                return user;
+            case FOLLOWERS:
+                UserPrincipal principal = (UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+                if (principal.getUser().getFollowers().contains(user.getId())) {
+                    return user;
+                }
+                break;
+            case NOBODY:
+                throw new IllegalArgumentException("User has set their profile to private");
+        }
+        return null;
     }
 
     /* ================================ AUTHENTICATION ================================ */
@@ -60,6 +83,7 @@ public class UserService{
         newUserMongo.setEmail(user.getEmail());
         newUserMongo.setBirthdate(user.getBirthdate());
         newUserMongo.setRole("USER");
+        newUserMongo.setPrivacyStatus(PrivacyStatus.ALL);
         userMongoRepository.save(newUserMongo);
 
         UserNeo4j newUserNeo4j = new UserNeo4j();
@@ -81,8 +105,9 @@ public class UserService{
 
     /* ================================ USERS CRUD ================================ */
 
-    public Slice<UserMongo> getUsers(String username, int page, int size) {
+    public Slice<UserBrowseProjection> getUsers(String username, int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
+        //TODO rimuovere l'utente che richiede dalla lista, se presente
         return userMongoRepository.findByUsernameContaining(username, pageable);
     }
 
@@ -115,12 +140,16 @@ public class UserService{
 
     /* ================================ LISTS CRUD ================================ */
 
-    public List<AnimeNeo4j> getUserLists(String id, String type) {
-        return userNeo4jRepository.findListsById(id, type);
+    public List<ListElementDto> getUserLists(String id, MediaType mediaType) {
+        if (mediaType == MediaType.ANIME) {
+            return userNeo4jRepository.findAnimeListsById(id);
+        } else {
+            return userNeo4jRepository.findMangaListsById(id);
+        }
     }
 
     public String addMediaToUserList(String userId, String mediaId) {
-        userNeo4jRepository.addMediaToList(userId, mediaId);
+        userNeo4jRepository.addAnimeToList(userId, mediaId);
         return "Media added to user list";
     }
 
@@ -129,21 +158,27 @@ public class UserService{
         return "Media removed from user list";
     }
 
+    /* ================================ FOLLOWERS CRUD ================================ */
+
     public List<UserNeo4j> getUserFollowers(String id) {
         return userNeo4jRepository.findFollowersById(id);
     }
 
     public List<UserNeo4j> getUserFollowing(String id) {
-        return userNeo4jRepository.findFollowsById(id);
+        return userNeo4jRepository.findFollowedById(id);
     }
 
     public String followUser(String followerId, String followedId) {
+        //TODO controllare non esista gia il follow
         userNeo4jRepository.followUser(followerId, followedId);
+        userMongoRepository.findAndPushFollowerById(followedId, followerId);
         return "User followed";
     }
 
     public String unfollowUser(String followerId, String followedId) {
+        //TODO controllare esista
         userNeo4jRepository.unfollowUser(followerId, followedId);
+        userMongoRepository.findAndPullFollowerById(followedId, followerId);
         return "User unfollowed";
     }
 }

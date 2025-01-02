@@ -1,9 +1,9 @@
 package it.unipi.myakiba.DTO;
 
-public class LoginResponse {
+public class UserLoginResponseDto {
     private final String accessToken;
 
-    public LoginResponse(String accessToken) {
+    public UserLoginResponseDto(String accessToken) {
         this.accessToken = accessToken;
     }
 

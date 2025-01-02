@@ -1,24 +1,20 @@
 package it.unipi.myakiba.controller;
 
 import io.swagger.v3.oas.annotations.tags.Tag;
-import it.unipi.myakiba.DTO.LoginResponse;
-import it.unipi.myakiba.DTO.UserLoginDto;
-import it.unipi.myakiba.DTO.UserRegistrationDto;
+import it.unipi.myakiba.DTO.ListElementDto;
 import it.unipi.myakiba.model.AnimeNeo4j;
 import it.unipi.myakiba.model.UserNeo4j;
 import it.unipi.myakiba.model.UserPrincipal;
+import it.unipi.myakiba.projection.UserBrowseProjection;
 import it.unipi.myakiba.service.UserService;
-import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Slice;
-import org.springframework.http.HttpStatus;
+import it.unipi.myakiba.enumerator.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import it.unipi.myakiba.model.UserMongo;
 
-import java.security.Principal;
 import java.util.List;
 import java.util.Map;
 
@@ -34,33 +30,10 @@ public class UserController {
         this.userService = userService;
     }
 
-    /* ================================ AUTHENTICATION ================================ */
-
-    @PostMapping("/user/register")
-    public ResponseEntity<UserMongo> registerUser(@Valid @RequestBody UserRegistrationDto user) {
-        userService.registerUser(user);
-        return ResponseEntity.ok().build();
-    }
-
-    @PostMapping("/user/login")
-    public ResponseEntity<?> loginUser(@RequestBody UserLoginDto user) {
-        try {
-            String token = userService.loginUser(user);
-            if (token != null) {
-                return ResponseEntity.ok(new LoginResponse(token));
-            } else {
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid credentials");
-            }
-        } catch (Exception e) {
-            System.out.println(e.getMessage());
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An error occurred while processing the request");
-        }
-    }
-
     /* ================================ USERS CRUD ================================ */
 
     @GetMapping("/users")
-    public ResponseEntity<Slice<UserMongo>> browseUsers(
+    public ResponseEntity<Slice<UserBrowseProjection>> browseUsers(
             @RequestParam(defaultValue = "") String username,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size
@@ -89,19 +62,19 @@ public class UserController {
     @DeleteMapping("/user")
     public ResponseEntity<UserMongo> deleteUser() {
         UserPrincipal user = (UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        UserMongo updatedUser = userService.deleteUser(user.getUser());
-        return ResponseEntity.ok(updatedUser);
+        UserMongo deletedUser = userService.deleteUser(user.getUser());
+        return ResponseEntity.ok(deletedUser);
     }
 
     /* ================================ LISTS CRUD ================================ */
 
-    @GetMapping("/user/lists")
-    public ResponseEntity<List<AnimeNeo4j>> getUserLists(@RequestParam String type) {
+    @GetMapping("/user/lists/{mediaType}")
+    public ResponseEntity<List<ListElementDto>> getUserLists(@PathVariable MediaType mediaType) {
         UserPrincipal user = (UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        return ResponseEntity.ok(userService.getUserLists(user.getUser().getId(), type));
+        return ResponseEntity.ok(userService.getUserLists(user.getUser().getId(), mediaType));
     }
 
-    @PostMapping("/user/lists/{mediaId}")
+    @PostMapping("/user/lists/{mediaType}/{mediaId}")
     public ResponseEntity<String> addMediaToUserList(@PathVariable String mediaId) {
         UserPrincipal user = (UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         return ResponseEntity.ok(userService.addMediaToUserList(user.getUser().getId(), mediaId));
