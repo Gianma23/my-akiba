@@ -2,7 +2,7 @@ package it.unipi.myakiba.repository;
 
 import it.unipi.myakiba.DTO.ControversialMediaDto;
 import it.unipi.myakiba.DTO.TrendingMediaDto;
-import it.unipi.myakiba.model.Anime;
+import it.unipi.myakiba.model.AnimeMongo;
 import org.springframework.data.mongodb.repository.Aggregation;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.stereotype.Repository;
@@ -10,7 +10,7 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 @Repository
-public interface AnimeMongoRepository extends MongoRepository<Anime, String> {
+public interface AnimeMongoRepository extends MongoRepository<AnimeMongo, String> {
     @Aggregation(pipeline = {
             "{ '$unwind': '$reviews' }",                                            // Fase 1: Unwind per separare le review embedded
             "{ '$group': { " +                                                      // Fase 2: Raggruppamento per anime per calcolare deviazione standard

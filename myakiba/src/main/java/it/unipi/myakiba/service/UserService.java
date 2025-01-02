@@ -87,7 +87,6 @@ public class UserService {
         userMongoRepository.save(newUserMongo);
 
         UserNeo4j newUserNeo4j = new UserNeo4j();
-        System.out.println(newUserMongo.getId());
         newUserNeo4j.setId(newUserMongo.getId());
         newUserNeo4j.setUsername(user.getUsername());
         newUserNeo4j.setEmail(user.getEmail());

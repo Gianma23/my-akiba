@@ -1,6 +1,7 @@
 package it.unipi.myakiba.controller;
 
 import io.swagger.v3.oas.annotations.tags.Tag;
+import it.unipi.myakiba.DTO.MediaCreationDto;
 import it.unipi.myakiba.enumerator.MediaType;
 import it.unipi.myakiba.service.AnalyticsService;
 import it.unipi.myakiba.service.MediaService;
@@ -31,8 +32,7 @@ public class AdminController {
     @PostMapping("/media/add")
     public ResponseEntity<String> addMedia(@RequestBody MediaCreationDto media) {
         try {
-            mediaService.addMedia(media);
-            return ResponseEntity.ok().build();
+            return ResponseEntity.ok(mediaService.addMedia(media));
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
