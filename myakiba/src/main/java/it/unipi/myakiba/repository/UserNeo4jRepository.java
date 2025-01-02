@@ -1,5 +1,6 @@
 package it.unipi.myakiba.repository;
 
+import it.unipi.myakiba.DTO.InfluencersDto;
 import it.unipi.myakiba.DTO.ListElementDto;
 import it.unipi.myakiba.model.UserNeo4j;
 import org.springframework.data.neo4j.repository.Neo4jRepository;
@@ -36,4 +37,13 @@ public interface UserNeo4jRepository extends Neo4jRepository<UserNeo4j, String> 
 
     @Query("MATCH (u:User {id: $followerId})-[r:FOLLOW]->(f:User {id: $followedId}) DELETE r")
     void unfollowUser(String followerId, String followedId);
+
+    @Query("""
+        MATCH (u:User)<-[:FOLLOW]-(f:User)
+        WITH u, COUNT(f) AS followersCount
+        ORDER BY followersCount DESC
+        LIMIT 20
+        RETURN u.id AS userId, u.name AS userName, followersCount
+    """)
+    List<InfluencersDto> getMostFollowedUsers();
 }

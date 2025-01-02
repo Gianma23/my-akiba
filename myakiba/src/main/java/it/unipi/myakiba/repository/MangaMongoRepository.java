@@ -1,13 +1,15 @@
 package it.unipi.myakiba.repository;
 
 import it.unipi.myakiba.DTO.ControversialMediaDto;
-import it.unipi.myakiba.DTO.TrendingMediaDTO;
+import it.unipi.myakiba.DTO.TrendingMediaDto;
 import it.unipi.myakiba.model.Manga;
 import org.springframework.data.mongodb.repository.Aggregation;
 import org.springframework.data.mongodb.repository.MongoRepository;
+import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
+@Repository
 public interface MangaMongoRepository extends MongoRepository<Manga, String> {
     @Aggregation(pipeline = {
             "{ '$unwind': '$reviews' }",                                            // Fase 1: Unwind per separare le review embedded
@@ -40,9 +42,9 @@ public interface MangaMongoRepository extends MongoRepository<Manga, String> {
             "{ '$addFields': { 'scoreDifference': { '$subtract': ['$averageScore', '$recentAverageScore'] } } }",       // Fase 5: Calcola la differenza tra media totale e media recente
             "{ '$sort': { 'scoreDifference': -1 } }",       // Fase 6: Ordina per differenza decrescente
             "{ '$limit': 10 }",     // Fase 7: Limita ai primi 10 manga
-            "{ '$project': { '_id': 0, 'id': '$_id', 'name': '$name', 'averageScore': 1, 'recentAverageScore': 1, 'scoreDifference': 1 } }"     // Fase 8: Proietta i campi richiesti
+            "{ '$project': { '_id': 0, 'id': '$_id', 'name': '$name', 'scoreDifference': 1 } }"     // Fase 8: Proietta i campi richiesti
     })
-    List<TrendingMediaDTO> findTopDecliningManga();
+    List<TrendingMediaDto> findTopDecliningManga();
     @Aggregation(pipeline = {
             "{ '$unwind': '$reviews' }",                                // Fase 1: Unwind per separare le review embedded
             "{ '$group': { " +
@@ -57,8 +59,8 @@ public interface MangaMongoRepository extends MongoRepository<Manga, String> {
             "{ '$addFields': { 'scoreDifference': { '$subtract': ['$recentAverageScore', '$averageScore'] } } }",       // Fase 5: Calcola la differenza tra media totale e media recente
             "{ '$sort': { 'scoreDifference': -1 } }",       // Fase 6: Ordina per differenza decrescente
             "{ '$limit': 10 }",     // Fase 7: Limita ai primi 10 manga
-            "{ '$project': { '_id': 0, 'id': '$_id', 'name': '$name', 'averageScore': 1, 'recentAverageScore': 1, 'scoreDifference': 1 } }"     // Fase 8: Proietta i campi richiesti
+            "{ '$project': { '_id': 0, 'id': '$_id', 'name': '$name', 'scoreDifference': 1 } }"     // Fase 8: Proietta i campi richiesti
     })
-    List<TrendingMediaDTO> findTopImprovingManga();
+    List<TrendingMediaDto> findTopImprovingManga();
 
 }

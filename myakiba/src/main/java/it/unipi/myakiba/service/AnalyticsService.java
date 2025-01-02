@@ -1,13 +1,14 @@
 package it.unipi.myakiba.service;
 
 import it.unipi.myakiba.DTO.ControversialMediaDto;
-import it.unipi.myakiba.DTO.MonthAnalyticDTO;
-import it.unipi.myakiba.DTO.TrendingMediaDTO;
+import it.unipi.myakiba.DTO.InfluencersDto;
+import it.unipi.myakiba.DTO.MonthAnalyticDto;
+import it.unipi.myakiba.DTO.TrendingMediaDto;
+import it.unipi.myakiba.enumerator.MediaType;
 import it.unipi.myakiba.model.MonthAnalytic;
 import it.unipi.myakiba.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoTemplate;
-import org.springframework.http.MediaType;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.stereotype.Service;
 
@@ -36,19 +37,19 @@ public class AnalyticsService {
     private MongoTemplate mongoTemplate;
 
 //   For each year, see the month with most registrations
-    public List<MonthAnalyticDTO> getMonthlyRegistrations() throws Exception {
+    public List<MonthAnalyticDto> getMonthlyRegistrations() throws Exception {
         MonthAnalytic maxDocument = monthAnalyticRepository.findTopByOrderByIdDesc();
         int lastYearCalculated = maxDocument != null ? maxDocument.getYear() : 2000;
 
-        List<MonthAnalyticDTO> results = userMongoRepository.findMaxMonthByYearGreaterThan(lastYearCalculated);
-        for(MonthAnalyticDTO result : results) {
+        List<MonthAnalyticDto> results = userMongoRepository.findMaxMonthByYearGreaterThan(lastYearCalculated);
+        for(MonthAnalyticDto result : results) {
             MonthAnalytic monthAnalytic = new MonthAnalytic();
             monthAnalytic.setYear(result.getYear());
             monthAnalytic.setMonth(result.getMonth());
             monthAnalytic.setCount(result.getCount());
             monthAnalyticRepository.save(monthAnalytic);
         }
-        return mongoTemplate.findAll(MonthAnalyticDTO.class, "month_analytics");
+        return mongoTemplate.findAll(MonthAnalyticDto.class, "month_analytics");
     }
 
     public List<ControversialMediaDto> getControversialMedia(MediaType mediaType) throws Exception {
@@ -59,7 +60,7 @@ public class AnalyticsService {
         }
     }
 
-    public List<TrendingMediaDTO> getWorseningMedia(MediaType mediaType) throws Exception {
+    public List<TrendingMediaDto> getWorseningMedia(MediaType mediaType) throws Exception {
         if(mediaType == MediaType.MANGA) {
             return mangaMongoRepository.findTopDecliningManga();
         } else {
@@ -67,7 +68,7 @@ public class AnalyticsService {
         }
     }
 
-    public List<TrendingMediaDTO> getImprovingMedia(MediaType mediaType) throws Exception {
+    public List<TrendingMediaDto> getImprovingMedia(MediaType mediaType) throws Exception {
         if(mediaType == MediaType.MANGA) {
             return mangaMongoRepository.findTopImprovingManga();
         } else {
@@ -79,8 +80,8 @@ public class AnalyticsService {
         return "Clique";
     }
 
-    public String getInfluencers() throws Exception {
-        return "Influencers";
+    public List<InfluencersDto> getInfluencers() throws Exception {
+        return userNeo4jRepository.getMostFollowedUsers();
     }
 
     public String getListCounter() throws Exception {

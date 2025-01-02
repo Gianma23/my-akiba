@@ -4,11 +4,11 @@ import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
 
 @Data
-public class TrendingMediaDTO {
+public class InfluencersDto {
     @NotBlank
-    private int id;
+    private String userId;
     @NotBlank
-    private String name;
+    private String userName;
     @NotBlank
-    private float difference;
+    private int followersCount;
 }

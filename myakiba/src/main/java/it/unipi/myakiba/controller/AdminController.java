@@ -1,12 +1,11 @@
 package it.unipi.myakiba.controller;
 
 import io.swagger.v3.oas.annotations.tags.Tag;
-import it.unipi.myakiba.DTO.MediaCreationDto;
+import it.unipi.myakiba.enumerator.MediaType;
 import it.unipi.myakiba.service.AnalyticsService;
 import it.unipi.myakiba.service.MediaService;
 import it.unipi.myakiba.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -130,11 +129,11 @@ public class AdminController {
     }
 
     @GetMapping("/analytics/influencers")
-    public String getInfluencers() {
+    public ResponseEntity<?> getInfluencers() {
         try {
-            return analyticsService.getInfluencers();
+            return ResponseEntity.ok(analyticsService.getInfluencers());
         } catch (Exception e) {
-            return e.getMessage();
+            return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
 

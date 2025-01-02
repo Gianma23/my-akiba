@@ -1,9 +1,8 @@
 package it.unipi.myakiba.repository;
 
-import it.unipi.myakiba.DTO.MonthAnalyticDTO;
+import it.unipi.myakiba.DTO.MonthAnalyticDto;
 import it.unipi.myakiba.model.UserMongo;
 import it.unipi.myakiba.projection.UserBrowseProjection;
-import org.bson.Document;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.mongodb.repository.Aggregation;
@@ -30,5 +29,5 @@ public interface UserMongoRepository extends MongoRepository<UserMongo, String> 
             "{ '$group': { '_id': '$_id.year', 'maxMonth': { '$first': { 'month': '$_id.month', 'count': '$count' } }, 'year': { '$first': '$_id.year' } } }",
             "{ '$project': { '_id': 0, 'year': '$year', 'month': '$maxMonth.month', 'count': '$maxMonth.count' } }"
     })
-    List<MonthAnalyticDTO> findMaxMonthByYearGreaterThan(int year);
+    List<MonthAnalyticDto> findMaxMonthByYearGreaterThan(int year);
 }
