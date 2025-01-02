@@ -2,13 +2,13 @@ package it.unipi.myakiba.repository;
 
 import it.unipi.myakiba.DTO.ControversialMediaDto;
 import it.unipi.myakiba.DTO.TrendingMediaDTO;
-import it.unipi.myakiba.model.Manga;
+import it.unipi.myakiba.model.Anime;
 import org.springframework.data.mongodb.repository.Aggregation;
 import org.springframework.data.mongodb.repository.MongoRepository;
 
 import java.util.List;
 
-public interface MangaMongoRepository extends MongoRepository<Manga, String> {
+public interface AnimeMongoRepository extends MongoRepository<Anime, String> {
     @Aggregation(pipeline = {
             "{ '$unwind': '$reviews' }",                                            // Fase 1: Unwind per separare le review embedded
             "{ '$group': { " +                                                      // Fase 2: Raggruppamento per manga per calcolare deviazione standard
@@ -25,7 +25,7 @@ public interface MangaMongoRepository extends MongoRepository<Manga, String> {
                     "} }",
             "{ '$project': { '_id': 0, 'id': '$manga.id', 'name': '$manga.name', 'genre': '$manga.genre' } }"   // Fase 6: Proiezione finale per ritornare solo i campi richiesti
     })
-    List<ControversialMediaDto> findTopVarianceManga();
+    List<ControversialMediaDto> findTopVarianceAnime();
     @Aggregation(pipeline = {
             "{ '$unwind': '$reviews' }",                                // Fase 1: Unwind per separare le review embedded
             "{ '$group': { " +
@@ -42,7 +42,7 @@ public interface MangaMongoRepository extends MongoRepository<Manga, String> {
             "{ '$limit': 10 }",     // Fase 7: Limita ai primi 10 manga
             "{ '$project': { '_id': 0, 'id': '$_id', 'name': '$name', 'averageScore': 1, 'recentAverageScore': 1, 'scoreDifference': 1 } }"     // Fase 8: Proietta i campi richiesti
     })
-    List<TrendingMediaDTO> findTopDecliningManga();
+    List<TrendingMediaDTO> findTopDecliningAnime();
     @Aggregation(pipeline = {
             "{ '$unwind': '$reviews' }",                                // Fase 1: Unwind per separare le review embedded
             "{ '$group': { " +
@@ -59,6 +59,5 @@ public interface MangaMongoRepository extends MongoRepository<Manga, String> {
             "{ '$limit': 10 }",     // Fase 7: Limita ai primi 10 manga
             "{ '$project': { '_id': 0, 'id': '$_id', 'name': '$name', 'averageScore': 1, 'recentAverageScore': 1, 'scoreDifference': 1 } }"     // Fase 8: Proietta i campi richiesti
     })
-    List<TrendingMediaDTO> findTopImprovingManga();
-
+    List<TrendingMediaDTO> findTopImprovingAnime();
 }

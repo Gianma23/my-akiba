@@ -93,30 +93,30 @@ public class AdminController {
         }
     }
 
-    @GetMapping("/analytics/controversial")
-    public ResponseEntity<?> getControversialMedia() {
+    @GetMapping("/analytics/controversial/{mediaType}")
+    public ResponseEntity<?> getControversialMedia(@PathVariable MediaType mediaType) {
         try {
-            return ResponseEntity.ok(analyticsService.getControversialMedia());
+            return ResponseEntity.ok(analyticsService.getControversialMedia(mediaType));
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
 
-    @GetMapping("/analytics/worse")
-    public String getWorseningMedia() {
+    @GetMapping("/analytics/worse/{mediaType}")
+    public ResponseEntity<?> getWorseningMedia(@PathVariable MediaType mediaType) {
         try {
-            return analyticsService.getWorseningMedia();
+            return ResponseEntity.ok(analyticsService.getWorseningMedia(mediaType));
         } catch (Exception e) {
-            return e.getMessage();
+            return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
 
-    @GetMapping("/analytics/better")
-    public String getImprovingMedia() {
+    @GetMapping("/analytics/better/{mediaType}")
+    public ResponseEntity<?> getImprovingMedia(@PathVariable MediaType mediaType) {
         try {
-            return analyticsService.getImprovingMedia();
+            return ResponseEntity.ok(analyticsService.getImprovingMedia(mediaType));
         } catch (Exception e) {
-            return e.getMessage();
+            return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
 
