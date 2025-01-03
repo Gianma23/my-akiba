@@ -107,7 +107,6 @@ public class UserService {
 
     public Slice<UserBrowseProjection> getUsers(String username, int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
-        //TODO rimuovere l'utente che richiede dalla lista, se presente
         return userMongoRepository.findByUsernameContaining(username, pageable);
     }
 
@@ -125,6 +124,9 @@ public class UserService {
                     break;
                 case "password":
                     user.setPassword(encoder.encode((String) value));
+                    break;
+                case "privacyStatus":
+                    user.setPrivacyStatus((PrivacyStatus) value);
                     break;
                 default:
                     throw new IllegalArgumentException("Unsupported field: " + key);
@@ -169,14 +171,12 @@ public class UserService {
     }
 
     public String followUser(String followerId, String followedId) {
-        //TODO controllare non esista gia il follow
         userNeo4jRepository.followUser(followerId, followedId);
         userMongoRepository.findAndPushFollowerById(followedId, followerId);
         return "User followed";
     }
 
     public String unfollowUser(String followerId, String followedId) {
-        //TODO controllare esista
         userNeo4jRepository.unfollowUser(followerId, followedId);
         userMongoRepository.findAndPullFollowerById(followedId, followerId);
         return "User unfollowed";
