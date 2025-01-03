@@ -137,12 +137,12 @@ public class AdminController {
         }
     }
 
-    @GetMapping("/analytics/listcounter")
-    public String getListCounter() {
+    @GetMapping("/analytics/listcounter/{mediaType}")
+    public ResponseEntity<?> getListCounter(@PathVariable MediaType mediaType) {
         try {
-            return analyticsService.getListCounter();
+            return ResponseEntity.ok(analyticsService.getListCounter(mediaType));
         } catch (Exception e) {
-            return e.getMessage();
+            return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
 

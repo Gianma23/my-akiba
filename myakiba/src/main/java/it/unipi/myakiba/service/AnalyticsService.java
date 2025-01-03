@@ -7,10 +7,10 @@ import it.unipi.myakiba.model.MonthAnalytic;
 import it.unipi.myakiba.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoTemplate;
-import org.springframework.data.neo4j.core.Neo4jClient;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.stereotype.Service;
 
+import javax.print.attribute.standard.Media;
 import java.util.List;
 
 @Service
@@ -23,10 +23,18 @@ public class AnalyticsService {
     private final CliqueAnalyticRepository cliqueAnalyticRepository;
     private final MangaMongoRepository mangaMongoRepository;
     private final AnimeMongoRepository animeMongoRepository;
+    private final MangaNeo4jRepository mangaNeo4jRepository;
+    private final AnimeNeo4jRepository animeNeo4jRepository;
+
     private final MongoTemplate mongoTemplate;
 
     @Autowired
-    public AnalyticsService(AuthenticationManager authManager, UserMongoRepository userMongoRepository, UserNeo4jRepository userNeo4jRepository, MonthAnalyticRepository monthAnalyticRepository, MangaMongoRepository mangaMongoRepository, AnimeMongoRepository animeMongoRepository, MongoTemplate mongoTemplate, CliqueAnalyticRepository cliqueAnalyticRepository) {
+    public AnalyticsService(AuthenticationManager authManager,
+                            UserMongoRepository userMongoRepository, UserNeo4jRepository userNeo4jRepository,
+                            MangaMongoRepository mangaMongoRepository, AnimeMongoRepository animeMongoRepository,
+                            MangaNeo4jRepository mangaNeo4jRepository, AnimeNeo4jRepository animeNeo4jRepository,
+                            MonthAnalyticRepository monthAnalyticRepository, CliqueAnalyticRepository cliqueAnalyticRepository,
+                            MongoTemplate mongoTemplate) {
         this.authManager = authManager;
         this.userMongoRepository = userMongoRepository;
         this.userNeo4jRepository = userNeo4jRepository;
@@ -34,6 +42,8 @@ public class AnalyticsService {
         this.cliqueAnalyticRepository = cliqueAnalyticRepository;
         this.mangaMongoRepository = mangaMongoRepository;
         this.animeMongoRepository = animeMongoRepository;
+        this.mangaNeo4jRepository = mangaNeo4jRepository;
+        this.animeNeo4jRepository = animeNeo4jRepository;
         this.mongoTemplate = mongoTemplate;
     }
 
@@ -96,8 +106,12 @@ public class AnalyticsService {
         return userNeo4jRepository.findMostFollowedUsers();
     }
 
-    public String getListCounter() throws Exception {
-        return "List Counter";
+    public List<ListCounterAnalyticDto> getListCounter(MediaType mediaType) throws Exception {
+        if(mediaType == MediaType.MANGA) {
+            return mangaNeo4jRepository.getMangaAppearancesInLists();
+        } else {
+            return animeNeo4jRepository.getAnimeAppearancesInLists();
+        }
     }
 
     public String getMediaInLists() throws Exception {
