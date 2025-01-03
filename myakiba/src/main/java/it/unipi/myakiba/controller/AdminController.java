@@ -29,7 +29,7 @@ public class AdminController {
 
 //    MEDIA MANAGEMENT
 //  add a new media
-    @PostMapping("/media/add")
+    @PostMapping("/media")
     public ResponseEntity<String> addMedia(@RequestBody MediaCreationDto media) {
         try {
             return ResponseEntity.ok(mediaService.addMedia(media));
