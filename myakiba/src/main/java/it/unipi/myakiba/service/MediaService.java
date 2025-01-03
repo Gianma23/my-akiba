@@ -1,6 +1,8 @@
 package it.unipi.myakiba.service;
 
 import it.unipi.myakiba.DTO.MediaCreationDto;
+import it.unipi.myakiba.DTO.ReviewDto;
+import it.unipi.myakiba.enumerator.MediaStatus;
 import it.unipi.myakiba.enumerator.MediaType;
 import it.unipi.myakiba.model.AnimeNeo4j;
 import it.unipi.myakiba.model.MangaMongo;
@@ -10,6 +12,11 @@ import it.unipi.myakiba.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.stereotype.Service;
+
+import java.time.LocalDate;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 @Service
 public class MediaService {
@@ -79,5 +86,111 @@ public class MediaService {
             animeNeo4jRepository.save(newAnimeNeo4j);
             return "Successfully added anime";
         }
+    }
+    public String updateMedia(String mediaId, MediaType mediaType, Map<String, Object> updates) throws Exception {
+        if(mediaType == MediaType.MANGA) {
+            MangaMongo targetMongo = mangaMongoRepository.findById(mediaId)
+                    .orElseThrow(() -> new Exception("Media not found with id: " + mediaId));
+            MangaNeo4j targetNeo4j = mangaNeo4jRepository.findById(mediaId)
+                    .orElseThrow(() -> new Exception("Media not found with id: " + mediaId));
+
+        updates.forEach((key, value) -> {
+            switch (key) {
+                case "name":
+                    targetMongo.setName((String) value);
+                    targetNeo4j.setName((String) value);
+                    break;
+                case "status":
+                    targetMongo.setStatus((MediaStatus) value);
+                    targetNeo4j.setStatus((MediaStatus) value);
+                    break;
+                case "chapters":
+                    targetMongo.setChapters((int) value);
+                    targetNeo4j.setChapters((int) value);
+                    break;
+                case "genres":
+                    targetMongo.setGenres((List<String>) value);
+                    targetNeo4j.setGenres((List<String>) value);
+                    break;
+                case "sumScores":
+                    targetMongo.setSumScores((int) value);
+                    break;
+                case "numScores":
+                    targetMongo.setNumScores((int) value);
+                    break;
+                case "type":
+                    targetMongo.setType((String) value);
+                    break;
+                case "authors":
+                    targetMongo.setAuthors((List<String>) value);
+                    break;
+                case "synopsis":
+                    targetMongo.setSynopsis((String) value);
+                    break;
+                case "reviews":
+                    targetMongo.setReviews((List<ReviewDto>) value);
+                    break;
+                default:
+                    throw new IllegalArgumentException("Unsupported field: " + key);
+            }
+        });
+            mangaMongoRepository.save(targetMongo);
+            mangaNeo4jRepository.save(targetNeo4j);
+        } else {
+            AnimeMongo targetMongo = animeMongoRepository.findById(mediaId)
+                    .orElseThrow(() -> new Exception("Media not found with id: " + mediaId));
+            AnimeNeo4j targetNeo4j = animeNeo4jRepository.findById(mediaId)
+                    .orElseThrow(() -> new Exception("Media not found with id: " + mediaId));
+
+            updates.forEach((key, value) -> {
+                switch (key) {
+                    case "name":
+                        targetMongo.setName((String) value);
+                        targetNeo4j.setName((String) value);
+                        break;
+                    case "status":
+                        targetMongo.setStatus((MediaStatus) value);
+                        targetNeo4j.setStatus((MediaStatus) value);
+                        break;
+                    case "episodes":
+                        targetMongo.setEpisodes((int) value);
+                        targetNeo4j.setEpisodes((int) value);
+                        break;
+                    case "genres":
+                        targetMongo.setGenres((List<String>) value);
+                        targetNeo4j.setGenres((List<String>) value);
+                        break;
+                    case "sumScores":
+                        targetMongo.setSumScores((int) value);
+                        break;
+                    case "numScores":
+                        targetMongo.setNumScores((int) value);
+                        break;
+                    case "type":
+                        targetMongo.setType((String) value);
+                        break;
+                    case "source":
+                        targetMongo.setSource((String) value);
+                        break;
+                    case "duration":
+                        targetMongo.setDuration((double) value);
+                        break;
+                    case "studio":
+                        targetMongo.setStudio((String) value);
+                        break;
+                    case "synopsis":
+                        targetMongo.setSynopsis((String) value);
+                        break;
+                    case "reviews":
+                        targetMongo.setReviews((List<ReviewDto>) value);
+                        break;
+                    default:
+                        throw new IllegalArgumentException("Unsupported field: " + key);
+                }
+            });
+            animeMongoRepository.save(targetMongo);
+            animeNeo4jRepository.save(targetNeo4j);
+        }
+        return "Successfully updated media";
     }
 }

@@ -8,7 +8,6 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.neo4j.core.schema.GeneratedValue;
 
-import java.time.LocalDate;
 import java.util.List;
 
 @Document(collection = "manga")

@@ -40,7 +40,8 @@ public class AdminController {
 
 //  update media info
     @PatchMapping("/media/{mediaType}/{mediaId}")
-    public ResponseEntity<?> updateMedia(@PathVariable MediaType mediaType, @PathVariable String mediaId, @RequestBody Map<String, Object> updates) {
+    public ResponseEntity<?> updateMedia(@PathVariable MediaType mediaType, @PathVariable String mediaId,
+                                         @RequestBody Map<String, Object> updates) {
         try {
             mediaService.updateMedia(mediaId, mediaType, updates);
             return ResponseEntity.ok().build();
