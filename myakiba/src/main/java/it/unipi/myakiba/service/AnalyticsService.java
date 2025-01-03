@@ -120,8 +120,4 @@ public class AnalyticsService {
             return animeNeo4jRepository.findAnimeAppearancesInLists();
         }
     }
-
-    public String getUsersOnPar() throws Exception {
-        return "Users on Par";
-    }
 }
