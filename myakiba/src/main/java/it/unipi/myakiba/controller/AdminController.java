@@ -42,7 +42,7 @@ public class AdminController {
     @PatchMapping("/media/{mediaType}/{mediaId}")
     public ResponseEntity<?> updateMedia(@PathVariable MediaType mediaType, @PathVariable String mediaId, @RequestBody Map<String, Object> updates) {
         try {
-            mediaService.updateMedia(mediaId, mediaType, updates);
+            /*mediaService.updateMedia(mediaId, mediaType, updates);*/
             return ResponseEntity.ok().build();
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
@@ -53,7 +53,7 @@ public class AdminController {
     @DeleteMapping("/media/{mediaId}")
     public ResponseEntity<?> deleteMedia(@PathVariable int mediaId) {
         try {
-            mediaService.deleteMedia(mediaId);
+            /*mediaService.deleteMedia(mediaId);*/
             return ResponseEntity.ok().build();
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
@@ -64,7 +64,7 @@ public class AdminController {
     @DeleteMapping("/media/{mediaType}/{mediaId}/review/{reviewId}")
     public ResponseEntity<?> deleteReview(@PathVariable MediaType mediaType, @PathVariable String mediaId, @PathVariable String reviewId) {
         try {
-            mediaService.deleteReview(mediaId, reviewId, mediaType);
+            /*mediaService.deleteReview(mediaId, reviewId, mediaType);*/
             return ResponseEntity.ok().build();
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());

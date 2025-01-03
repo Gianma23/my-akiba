@@ -75,9 +75,9 @@ public class UserController {
     }
 
     @PostMapping("/user/lists/{mediaType}/{mediaId}")
-    public ResponseEntity<String> addMediaToUserList(@PathVariable String mediaId) {
+    public ResponseEntity<String> addMediaToUserList(@PathVariable MediaType mediaType, @PathVariable String mediaId) {
         UserPrincipal user = (UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        return ResponseEntity.ok(userService.addMediaToUserList(user.getUser().getId(), mediaId));
+        return ResponseEntity.ok(userService.addMediaToUserList(user.getUser().getId(), mediaId, mediaType));
     }
 
     @PatchMapping("/user/lists/{mediaId}")

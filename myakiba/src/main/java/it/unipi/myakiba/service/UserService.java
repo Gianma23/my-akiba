@@ -149,8 +149,12 @@ public class UserService {
         }
     }
 
-    public String addMediaToUserList(String userId, String mediaId) {
-        userNeo4jRepository.addAnimeToList(userId, mediaId);
+    public String addMediaToUserList(String userId, String mediaId, MediaType mediaType) {
+        if (mediaType == MediaType.ANIME) {
+            userNeo4jRepository.addAnimeToList(userId, mediaId);
+        } else {
+            userNeo4jRepository.addMangaToList(userId, mediaId);
+        }
         return "Media added to user list";
     }
 

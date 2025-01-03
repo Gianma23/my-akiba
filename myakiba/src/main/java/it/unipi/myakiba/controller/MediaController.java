@@ -15,7 +15,11 @@ public class MediaController {
 
     @GetMapping("/{type}")
     public String getMedia(@PathVariable String type) {
-        return mediaService.getMedia(type);
+        try {
+            return mediaService.getMedia(type);
+        } catch (Exception e) {
+            return "Error: " + e.getMessage();
+        }
     }
 
 }

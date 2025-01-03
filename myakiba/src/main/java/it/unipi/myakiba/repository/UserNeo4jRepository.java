@@ -1,5 +1,6 @@
 package it.unipi.myakiba.repository;
 
+import it.unipi.myakiba.DTO.InfluencersDto;
 import it.unipi.myakiba.DTO.ListElementDto;
 import it.unipi.myakiba.DTO.UsersSimilarityDto;
 import it.unipi.myakiba.model.UserNeo4j;
@@ -12,16 +13,20 @@ import java.util.List;
 @Repository
 public interface UserNeo4jRepository extends Neo4jRepository<UserNeo4j, String> {
     @Query("MATCH (u:User)-[l:LIST_ELEMENT]->(a:Anime) WHERE u.id = $id " +
-            "RETURN a.id, l.progress, a.totalEpisodes as total")
+            "RETURN a.id as id, m.name as name, l.progress as progress, a.episodes as total")
     List<ListElementDto> findAnimeListsById(String id);
 
     @Query("MATCH (u:User)-[l:LIST_ELEMENT]->(m:Manga) WHERE u.id = $id " +
-            "RETURN m.id, l.progress, m.totalEpisodes as total")
+            "RETURN m.id as id, m.name as name, l.progress as progress, m.chapters as total")
     List<ListElementDto> findMangaListsById(String id);
 
     @Query("MATCH (u:User {id: $userId}), (a:Anime {id: $mediaId})" +
             " MERGE (u)-[:LIST_ELEMENT {progress: 0}]->(a)")
     void addAnimeToList(String userId, String mediaId);
+
+    @Query("MATCH (u:User {id: $userId}), (m:Manga {id: $mediaId})" +
+            " MERGE (u)-[:LIST_ELEMENT {progress: 0}]->(m)")
+    void addMangaToList(String userId, String mediaId);
 
     @Query("MATCH (u:User {id: $userId})-[r:LIST_ELEMENT]->(m:Media {id: $mediaId}) DELETE r")
     void removeMediaFromList(String userId, String mediaId);
@@ -37,7 +42,6 @@ public interface UserNeo4jRepository extends Neo4jRepository<UserNeo4j, String> 
 
     @Query("MATCH (u:User {id: $followerId})-[r:FOLLOW]->(f:User {id: $followedId}) DELETE r")
     void unfollowUser(String followerId, String followedId);
-
 
     @Query("""
     MATCH (u:User {id: $userId})-[:LIST_ELEMENT]->(target)<-[:LIST_ELEMENT]-(other:User)
@@ -71,5 +75,14 @@ public interface UserNeo4jRepository extends Neo4jRepository<UserNeo4j, String> 
     LIMIT 10
     """)
     List<UsersSimilarityDto> findUsersWithSimilarTastes(String userId);
+
+    @Query("""
+        MATCH (u:User)<-[:FOLLOW]-(f:User)
+        WITH u, COUNT(f) AS followersCount
+        ORDER BY followersCount DESC
+        LIMIT 20
+        RETURN u.id AS userId, u.name AS userName, followersCount
+    """)
+    List<InfluencersDto> getMostFollowedUsers();
 }
 
