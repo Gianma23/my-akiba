@@ -1,16 +1,12 @@
 package it.unipi.myakiba.DTO;
 
 import it.unipi.myakiba.enumerator.MediaProgress;
-import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
 
-import java.util.List;
-
 @Data
-public class ListCounterAnalyticDto {
-    @NotBlank
+public class AppearancesDto {
     private MediaProgress listType;
-    private List<TopMediaDto> topMedia;
+    private int listCount;
 
     public void setListType(String listType) {
         this.listType = MediaProgress.valueOf(listType);

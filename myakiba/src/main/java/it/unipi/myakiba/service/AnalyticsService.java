@@ -10,7 +10,6 @@ import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.stereotype.Service;
 
-import javax.print.attribute.standard.Media;
 import java.util.List;
 
 @Service
@@ -108,14 +107,18 @@ public class AnalyticsService {
 
     public List<ListCounterAnalyticDto> getListCounter(MediaType mediaType) throws Exception {
         if(mediaType == MediaType.MANGA) {
-            return mangaNeo4jRepository.getMangaAppearancesInLists();
+            return mangaNeo4jRepository.findListCounters();
         } else {
-            return animeNeo4jRepository.getAnimeAppearancesInLists();
+            return animeNeo4jRepository.findListCounters();
         }
     }
 
-    public String getMediaInLists() throws Exception {
-        return "Media in Lists";
+    public List<MediaInListsAnalyticDto> getMediaInLists(MediaType mediaType) throws Exception {
+        if(mediaType == MediaType.MANGA) {
+            return mangaNeo4jRepository.findMangaAppearancesInLists();
+        } else {
+            return animeNeo4jRepository.findAnimeAppearancesInLists();
+        }
     }
 
     public String getUsersOnPar() throws Exception {

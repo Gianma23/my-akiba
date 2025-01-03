@@ -146,12 +146,12 @@ public class AdminController {
         }
     }
 
-    @GetMapping("/analytics/mediainlists")
-    public String getMediaInLists() {
+    @GetMapping("/analytics/mediainlists/{mediaType}")
+    public ResponseEntity getMediaInLists(@PathVariable MediaType mediaType) {
         try {
-            return analyticsService.getMediaInLists();
+            return ResponseEntity.ok(analyticsService.getMediaInLists(mediaType));
         } catch (Exception e) {
-            return e.getMessage();
+            return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
 
