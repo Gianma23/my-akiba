@@ -2,9 +2,7 @@ package it.unipi.myakiba.repository;
 
 import it.unipi.myakiba.DTO.CliqueAnalyticDto;
 import it.unipi.myakiba.DTO.InfluencersDto;
-import it.unipi.myakiba.DTO.ListCounterAnalyticDto;
 import it.unipi.myakiba.DTO.ListElementDto;
-import it.unipi.myakiba.model.CliqueAnalytic;
 import it.unipi.myakiba.DTO.UsersSimilarityDto;
 import it.unipi.myakiba.model.UserNeo4j;
 import org.springframework.data.neo4j.repository.Neo4jRepository;
