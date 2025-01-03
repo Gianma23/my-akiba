@@ -16,7 +16,7 @@ public interface AnimeMongoRepository extends MongoRepository<AnimeMongo, String
             "{ '$group': { " +                                                      // Fase 2: Raggruppamento per anime per calcolare deviazione standard
                     "   '_id': '$_id', " +
                     "   'name': { '$first': '$name' }, " +
-                    "   'genre': { '$first': '$genre' }, " +
+                    "   'genre': { '$first': '$genres' }, " +
                     "   'stdDevScore': { '$stdDevPop': '$reviews.score' } " +
                     "} }",
             "{ '$addFields': { 'variance': { '$pow': ['$stdDevScore', 2] } } }",    // Fase 3: Aggiunta del campo varianza (quadrato della deviazione standard)
