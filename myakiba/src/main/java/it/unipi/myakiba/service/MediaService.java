@@ -13,10 +13,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
 @Service
 public class MediaService {
@@ -192,5 +190,43 @@ public class MediaService {
             animeNeo4jRepository.save(targetNeo4j);
         }
         return "Successfully updated media";
+    }
+
+    public String deleteMedia(String mediaId, MediaType mediaType) throws Exception {
+        if(mediaType == MediaType.MANGA) {
+            MangaMongo targetMongo = mangaMongoRepository.findById(mediaId)
+                    .orElseThrow(() -> new Exception("Media not found with id: " + mediaId));
+            MangaNeo4j targetNeo4j = mangaNeo4jRepository.findById(mediaId)
+                    .orElseThrow(() -> new Exception("Media not found with id: " + mediaId));
+            mangaMongoRepository.delete(targetMongo);
+            mangaNeo4jRepository.delete(targetNeo4j);
+        } else {
+            AnimeMongo targetMongo = animeMongoRepository.findById(mediaId)
+                    .orElseThrow(() -> new Exception("Media not found with id: " + mediaId));
+            AnimeNeo4j targetNeo4j = animeNeo4jRepository.findById(mediaId)
+                    .orElseThrow(() -> new Exception("Media not found with id: " + mediaId));
+            animeMongoRepository.delete(targetMongo);
+            animeNeo4jRepository.delete(targetNeo4j);
+        }
+        return "Successfully deleted media";
+    }
+
+    public String deleteReview(String mediaId, String reviewId, MediaType mediaType) throws Exception {
+        if(mediaType == MediaType.MANGA) {
+            MangaMongo targetMongo = mangaMongoRepository.findById(mediaId)
+                    .orElseThrow(() -> new Exception("Media not found with id: " + mediaId));
+            List<ReviewDto> reviews = targetMongo.getReviews();
+            reviews.removeIf(review -> review.getUserId().equals(reviewId));
+            targetMongo.setReviews(reviews);
+            mangaMongoRepository.save(targetMongo);
+        } else {
+            AnimeMongo targetMongo = animeMongoRepository.findById(mediaId)
+                    .orElseThrow(() -> new Exception("Media not found with id: " + mediaId));
+            List<ReviewDto> reviews = targetMongo.getReviews();
+            reviews.removeIf(review -> review.getUserId().equals(reviewId));
+            targetMongo.setReviews(reviews);
+            animeMongoRepository.save(targetMongo);
+        }
+        return "Successfully deleted review";
     }
 }

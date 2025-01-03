@@ -51,10 +51,10 @@ public class AdminController {
     }
 
 //  delete a specific media
-    @DeleteMapping("/media/{mediaId}")
-    public ResponseEntity<?> deleteMedia(@PathVariable int mediaId) {
+    @DeleteMapping("/media/{mediaType}/{mediaId}")
+    public ResponseEntity<?> deleteMedia(@PathVariable MediaType mediaType, @PathVariable String mediaId) {
         try {
-            mediaService.deleteMedia(mediaId);
+            mediaService.deleteMedia(mediaId, mediaType);
             return ResponseEntity.ok().build();
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
