@@ -47,3 +47,4 @@ public interface UserNeo4jRepository extends Neo4jRepository<UserNeo4j, String> 
     """)
     List<InfluencersDto> getMostFollowedUsers();
 }
+
