@@ -66,22 +66,10 @@ public interface AnimeMongoRepository extends MongoRepository<AnimeMongo, String
 
     @Aggregation(pipeline = {
             "{ '$addFields': { 'averageScore': { '$cond': { if: { '$gt': ['$numScores', 0] }, then: { '$divide': ['$sumScores', '$numScores'] }, else: 0 } } } }",
+            "{ '$match': { '$expr': { '$or': [ { '$eq': [?0, null] }, { '$in': [?0, '$genres'] } ] } } }",
             "{ '$sort': { 'averageScore': -1 } }",
             "{ '$limit': 10 }",
             "{ '$project': { 'id': 1, 'name': 1, 'averageScore': 1, 'status': 1, 'chapters': 1, 'genres': 1 } }"
     })
-    List<AnimeMongo> findTop10Anime();
-
-    @Aggregation(pipeline = {
-            "{ '$unwind': '$genres' }",
-            "{ '$addFields': { 'averageScore': { '$cond': { if: { '$gt': ['$numScores', 0] }, then: { '$divide': ['$sumScores', '$numScores'] }, else: 0 } } } }",
-            "{ '$sort': { 'genres': 1, 'averageScore': -1 } }",
-            "{ '$group': { " +
-                    "   '_id': '$genres', " +
-                    "   'topAnime': { '$push': { 'id': '$_id', 'name': '$name', 'averageScore': '$averageScore' } } " +
-                    "} }",
-            "{ '$addFields': { 'topAnime': { '$slice': ['$topAnime', 10] } } }",
-            "{ '$project': { '_id': 1, 'topAnime': 1 } }"
-    })
-    List<AnimeMongo> findTop10AnimeByGenre(String genre);
+    List<AnimeMongo> findTop10Anime(String genre);
 }

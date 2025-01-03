@@ -65,23 +65,10 @@ public interface MangaMongoRepository extends MongoRepository<MangaMongo, String
 
     @Aggregation(pipeline = {
             "{ '$addFields': { 'averageScore': { '$cond': { if: { '$gt': ['$numScores', 0] }, then: { '$divide': ['$sumScores', '$numScores'] }, else: 0 } } } }",
+            "{ '$match': { '$expr': { '$or': [ { '$eq': [?0, null] }, { '$in': [?0, '$genres'] } ] } } }",
             "{ '$sort': { 'averageScore': -1 } }",
             "{ '$limit': 10 }",
             "{ '$project': { 'id': 1, 'name': 1, 'averageScore': 1, 'status': 1, 'chapters': 1, 'genres': 1 } }"
     })
-    List<MangaMongo> findTop10Manga();
-
-    @Aggregation(pipeline = {
-            "{ '$unwind': '$genres' }",
-            "{ '$addFields': { 'averageScore': { '$cond': { if: { '$gt': ['$numScores', 0] }, then: { '$divide': ['$sumScores', '$numScores'] }, else: 0 } } } }",
-            "{ '$sort': { 'genres': 1, 'averageScore': -1 } }",
-            "{ '$group': { " +
-                    "   '_id': '$genres', " +
-                    "   'topManga': { '$push': { 'id': '$_id', 'name': '$name', 'averageScore': '$averageScore' } } " +
-                    "} }",
-            "{ '$addFields': { 'topManga': { '$slice': ['$topManga', 10] } } }",
-            "{ '$project': { '_id': 1, 'topManga': 1 } }"
-    })
-    List<MangaMongo> findTop10MangaByGenre(String genre);
-
+    List<MangaMongo> findTop10Manga(String genre);
 }

@@ -32,19 +32,10 @@ public class RecommendationService {
     }
 
     public List<?> getTop10Media(MediaType mediaType, String genre) {
-        if (genre == null) {
-            if (mediaType == MediaType.ANIME) {
-                return animeMongoRepository.findTop10Anime();
-            } else if (mediaType == MediaType.MANGA) {
-                return mangaMongoRepository.findTop10Manga();
-            }
-        }
-        else {
-            if (mediaType == MediaType.ANIME) {
-                return animeMongoRepository.findTop10AnimeByGenre(genre);
-            } else if (mediaType == MediaType.MANGA) {
-                return mangaMongoRepository.findTop10MangaByGenre(genre);
-            }
+        if (mediaType == MediaType.ANIME) {
+            return animeMongoRepository.findTop10Anime(genre);
+        } else if (mediaType == MediaType.MANGA) {
+            return mangaMongoRepository.findTop10Manga(genre);
         }
         return null;
     }
