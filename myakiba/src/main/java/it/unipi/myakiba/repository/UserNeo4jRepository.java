@@ -72,3 +72,4 @@ public interface UserNeo4jRepository extends Neo4jRepository<UserNeo4j, String> 
     """)
     List<UsersSimilarityDto> findUsersWithSimilarTastes(String userId);
 }
+

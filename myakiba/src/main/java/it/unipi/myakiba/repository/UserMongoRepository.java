@@ -32,5 +32,5 @@ public interface UserMongoRepository extends MongoRepository<UserMongo, String> 
             "{ '$group': { '_id': '$_id.year', 'maxMonth': { '$first': { 'month': '$_id.month', 'count': '$count' } }, 'year': { '$first': '$_id.year' } } }",
             "{ '$project': { '_id': 0, 'year': '$year', 'month': '$maxMonth.month', 'count': '$maxMonth.count' } }"
     })
-    List<MonthAnalyticDTO> findMaxMonthByYearGreaterThan(int year);
+    List<MonthAnalyticDto> findMaxMonthByYearGreaterThan(int year);
 }
