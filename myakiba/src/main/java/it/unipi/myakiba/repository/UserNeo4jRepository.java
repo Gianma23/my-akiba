@@ -1,7 +1,9 @@
 package it.unipi.myakiba.repository;
 
+import it.unipi.myakiba.DTO.CliqueAnalyticDto;
 import it.unipi.myakiba.DTO.InfluencersDto;
 import it.unipi.myakiba.DTO.ListElementDto;
+import it.unipi.myakiba.model.CliqueAnalytic;
 import it.unipi.myakiba.model.UserNeo4j;
 import org.springframework.data.neo4j.repository.Neo4jRepository;
 import org.springframework.data.neo4j.repository.query.Query;
@@ -43,8 +45,32 @@ public interface UserNeo4jRepository extends Neo4jRepository<UserNeo4j, String> 
         WITH u, COUNT(f) AS followersCount
         ORDER BY followersCount DESC
         LIMIT 20
-        RETURN u.id AS userId, u.name AS userName, followersCount
+        RETURN u.id AS userId, u.name AS username, followersCount
     """)
-    List<InfluencersDto> getMostFollowedUsers();
+    List<InfluencersDto> findMostFollowedUsers();
+
+    @Query("""
+        MATCH (source:User)-[r:FOLLOW]->(target:User)
+        RETURN gds.graph.project(
+          'graph',
+          source,
+          target
+        )         // NON PENSO STA ROBA FUNZIONI
+        CALL gds.scc.stream('graph',{
+          nodeProjection: 'User',
+          relationshipProjection: {
+            FOLLOW: {
+              type: 'FOLLOW',
+              orientation: 'NATURAL'
+            }
+          }
+        })
+        YIELD componentId, nodeId
+        WITH componentId, collect(gds.util.asNode(nodeId)) AS users
+        RETURN componentId AS cliqueId,
+               size(users) AS cliqueSize,
+               [user IN users | {id: user.id, name: user.name}] AS userDetails
+        """)
+    List<CliqueAnalyticDto> findClique();
 }
 

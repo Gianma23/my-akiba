@@ -120,11 +120,11 @@ public class AdminController {
     }
 
     @GetMapping("/analytics/clique")
-    public String getClique() {
+    public ResponseEntity<?> getClique() {
         try {
-            return analyticsService.getClique();
+            return ResponseEntity.ok(analyticsService.getClique());
         } catch (Exception e) {
-            return e.getMessage();
+            return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
 

@@ -1,14 +1,13 @@
 package it.unipi.myakiba.service;
 
-import it.unipi.myakiba.DTO.ControversialMediaDto;
-import it.unipi.myakiba.DTO.InfluencersDto;
-import it.unipi.myakiba.DTO.MonthAnalyticDto;
-import it.unipi.myakiba.DTO.TrendingMediaDto;
+import it.unipi.myakiba.DTO.*;
 import it.unipi.myakiba.enumerator.MediaType;
+import it.unipi.myakiba.model.CliqueAnalytic;
 import it.unipi.myakiba.model.MonthAnalytic;
 import it.unipi.myakiba.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.neo4j.core.Neo4jClient;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.stereotype.Service;
 
@@ -21,24 +20,26 @@ public class AnalyticsService {
     private final UserMongoRepository userMongoRepository;
     private final UserNeo4jRepository userNeo4jRepository;
     private final MonthAnalyticRepository monthAnalyticRepository;
+    private final CliqueAnalyticRepository cliqueAnalyticRepository;
     private final MangaMongoRepository mangaMongoRepository;
     private final AnimeMongoRepository animeMongoRepository;
+    private final MongoTemplate mongoTemplate;
 
     @Autowired
-    public AnalyticsService(AuthenticationManager authManager, UserMongoRepository userMongoRepository, UserNeo4jRepository userNeo4jRepository, MonthAnalyticRepository monthAnalyticRepository, MangaMongoRepository mangaMongoRepository, AnimeMongoRepository animeMongoRepository) {
+    public AnalyticsService(AuthenticationManager authManager, UserMongoRepository userMongoRepository, UserNeo4jRepository userNeo4jRepository, MonthAnalyticRepository monthAnalyticRepository, MangaMongoRepository mangaMongoRepository, AnimeMongoRepository animeMongoRepository, MongoTemplate mongoTemplate, CliqueAnalyticRepository cliqueAnalyticRepository) {
         this.authManager = authManager;
         this.userMongoRepository = userMongoRepository;
         this.userNeo4jRepository = userNeo4jRepository;
         this.monthAnalyticRepository = monthAnalyticRepository;
+        this.cliqueAnalyticRepository = cliqueAnalyticRepository;
         this.mangaMongoRepository = mangaMongoRepository;
         this.animeMongoRepository = animeMongoRepository;
+        this.mongoTemplate = mongoTemplate;
     }
-    @Autowired
-    private MongoTemplate mongoTemplate;
 
 //   For each year, see the month with most registrations
     public List<MonthAnalyticDto> getMonthlyRegistrations() throws Exception {
-        MonthAnalytic maxDocument = monthAnalyticRepository.findTopByOrderByIdDesc();
+        MonthAnalyticDto maxDocument = monthAnalyticRepository.findTopByOrderByIdDesc();
         int lastYearCalculated = maxDocument != null ? maxDocument.getYear() : 2000;
 
         List<MonthAnalyticDto> results = userMongoRepository.findMaxMonthByYearGreaterThan(lastYearCalculated);
@@ -76,12 +77,23 @@ public class AnalyticsService {
         }
     }
 
-    public String getClique() throws Exception {
-        return "Clique";
+    public List<CliqueAnalyticDto> getClique() throws Exception {
+        List<CliqueAnalyticDto> results = userNeo4jRepository.findClique();
+        for(CliqueAnalyticDto result : results) {
+            CliqueAnalytic cliqueAnalytic = new CliqueAnalytic();
+            cliqueAnalytic.setCliqueSize(result.getCliqueSize());
+            cliqueAnalytic.setUserDetails(result.getUserDetails());
+            cliqueAnalyticRepository.save(cliqueAnalytic);
+        }
+        //TODO: Return the results in descending order of clique size
+        //bisogna fare un'altra funzione in modo da separare
+        //la creazione della collezione dalla sua lettura
+        //inoltre, la collezione va svuotata prima della creazione
+        return results;
     }
 
     public List<InfluencersDto> getInfluencers() throws Exception {
-        return userNeo4jRepository.getMostFollowedUsers();
+        return userNeo4jRepository.findMostFollowedUsers();
     }
 
     public String getListCounter() throws Exception {

@@ -30,14 +30,6 @@ public class MediaCreationDto {
     private double duration;    //
     private String studio;      //
 
-    private class Reviews {
-        private String userId;
-        private String username;
-        private int score;
-        private String comment;
-        private LocalDate timestamp;
-    }
-
     @NotBlank
     private MediaType mediaType;
 }

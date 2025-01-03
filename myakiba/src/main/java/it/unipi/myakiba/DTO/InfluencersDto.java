@@ -8,7 +8,7 @@ public class InfluencersDto {
     @NotBlank
     private String userId;
     @NotBlank
-    private String userName;
+    private String username;
     @NotBlank
     private int followersCount;
 }
