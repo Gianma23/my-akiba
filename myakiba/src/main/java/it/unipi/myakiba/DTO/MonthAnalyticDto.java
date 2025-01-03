@@ -7,7 +7,7 @@ import org.springframework.data.annotation.Id;
 
 @Data
 @Builder
-public class MonthAnalyticDTO {
+public class MonthAnalyticDto {
     @Id
     private int year;
 

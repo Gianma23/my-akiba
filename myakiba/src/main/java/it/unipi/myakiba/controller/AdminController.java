@@ -2,11 +2,11 @@ package it.unipi.myakiba.controller;
 
 import io.swagger.v3.oas.annotations.tags.Tag;
 import it.unipi.myakiba.DTO.MediaCreationDto;
+import it.unipi.myakiba.enumerator.MediaType;
 import it.unipi.myakiba.service.AnalyticsService;
 import it.unipi.myakiba.service.MediaService;
 import it.unipi.myakiba.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -32,8 +32,7 @@ public class AdminController {
     @PostMapping("/media/add")
     public ResponseEntity<String> addMedia(@RequestBody MediaCreationDto media) {
         try {
-            mediaService.addMedia(media);
-            return ResponseEntity.ok().build();
+            return ResponseEntity.ok(mediaService.addMedia(media));
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
@@ -41,7 +40,7 @@ public class AdminController {
 
 //  update media info
     @PatchMapping("/media/{mediaType}/{mediaId}")
-    public ResponseEntity<?> updateMedia(@PathVariable MediaType mediaType, @PathVariable int mediaId, @RequestBody Map<String, Object> updates) {
+    public ResponseEntity<?> updateMedia(@PathVariable MediaType mediaType, @PathVariable String mediaId, @RequestBody Map<String, Object> updates) {
         try {
             mediaService.updateMedia(mediaId, mediaType, updates);
             return ResponseEntity.ok().build();
@@ -63,7 +62,7 @@ public class AdminController {
 
 //  delete a review
     @DeleteMapping("/media/{mediaType}/{mediaId}/review/{reviewId}")
-    public ResponseEntity<?> deleteReview(@PathVariable MediaType mediaType, @PathVariable int mediaId, @PathVariable int reviewId) {
+    public ResponseEntity<?> deleteReview(@PathVariable MediaType mediaType, @PathVariable String mediaId, @PathVariable String reviewId) {
         try {
             mediaService.deleteReview(mediaId, reviewId, mediaType);
             return ResponseEntity.ok().build();
@@ -75,7 +74,7 @@ public class AdminController {
 //    USER MANAGEMENT
 //  get info on a specific user
     @GetMapping("/users/{userId}")
-    public ResponseEntity<?> getUserDetails(@PathVariable int userId) {
+    public ResponseEntity<?> getUserDetails(@PathVariable String userId) {
         try {
             return ResponseEntity.ok(userService.getUserById(userId, false));
         } catch (Exception e) {
@@ -93,30 +92,30 @@ public class AdminController {
         }
     }
 
-    @GetMapping("/analytics/controversial")
-    public ResponseEntity<?> getControversialMedia() {
+    @GetMapping("/analytics/controversial/{mediaType}")
+    public ResponseEntity<?> getControversialMedia(@PathVariable MediaType mediaType) {
         try {
-            return ResponseEntity.ok(analyticsService.getControversialMedia());
+            return ResponseEntity.ok(analyticsService.getControversialMedia(mediaType));
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
 
-    @GetMapping("/analytics/worse")
-    public String getWorseningMedia() {
+    @GetMapping("/analytics/worse/{mediaType}")
+    public ResponseEntity<?> getWorseningMedia(@PathVariable MediaType mediaType) {
         try {
-            return analyticsService.getWorseningMedia();
+            return ResponseEntity.ok(analyticsService.getWorseningMedia(mediaType));
         } catch (Exception e) {
-            return e.getMessage();
+            return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
 
-    @GetMapping("/analytics/better")
-    public String getImprovingMedia() {
+    @GetMapping("/analytics/better/{mediaType}")
+    public ResponseEntity<?> getImprovingMedia(@PathVariable MediaType mediaType) {
         try {
-            return analyticsService.getImprovingMedia();
+            return ResponseEntity.ok(analyticsService.getImprovingMedia(mediaType));
         } catch (Exception e) {
-            return e.getMessage();
+            return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
 
@@ -130,11 +129,11 @@ public class AdminController {
     }
 
     @GetMapping("/analytics/influencers")
-    public String getInfluencers() {
+    public ResponseEntity<?> getInfluencers() {
         try {
-            return analyticsService.getInfluencers();
+            return ResponseEntity.ok(analyticsService.getInfluencers());
         } catch (Exception e) {
-            return e.getMessage();
+            return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
 

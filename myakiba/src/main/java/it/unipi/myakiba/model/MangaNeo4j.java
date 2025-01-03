@@ -7,12 +7,13 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.neo4j.core.schema.GeneratedValue;
 import org.springframework.data.neo4j.core.schema.Node;
 import org.springframework.data.neo4j.core.schema.Property;
+import org.springframework.data.neo4j.core.schema.Relationship;
 
 import java.util.List;
 
-@Node("Anime")
+@Node("Manga")
 @Data
-public class AnimeNeo4j {
+public class MangaNeo4j {
 
     @Id
     private String id;
@@ -23,8 +24,8 @@ public class AnimeNeo4j {
     @Property("status")
     private MediaStatus status;
 
-    @Property("episodes")
-    private int episodes;
+    @Property("chapters")
+    private int chapters;
 
     @Property("genres")
     private List<String> genres;
