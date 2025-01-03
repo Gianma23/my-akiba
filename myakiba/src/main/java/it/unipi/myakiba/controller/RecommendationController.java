@@ -37,7 +37,8 @@ public class RecommendationController {
     }
 
     @GetMapping("/best-media/{mediaType}")
-    public ResponseEntity<List<?>> getBestMedia(@PathVariable MediaType mediaType, @RequestParam(required = false) String genre) {
-        return ResponseEntity.ok(recommendationService.getBestMedia(mediaType, genre));
+    public ResponseEntity<List<?>> getTop10Media(@PathVariable MediaType mediaType, @RequestParam(required = false) String genre) {
+        System.out.println(genre);
+        return ResponseEntity.ok(recommendationService.getTop10Media(mediaType, genre));
     }
 }
