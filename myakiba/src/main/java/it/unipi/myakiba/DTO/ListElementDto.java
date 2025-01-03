@@ -1,11 +1,13 @@
 package it.unipi.myakiba.DTO;
 
+import it.unipi.myakiba.enumerator.MediaStatus;
 import lombok.Data;
 
 @Data
 public class ListElementDto {
-    String id;
-    String name;
-    int progress;
-    int total;
+    private String id;
+    private String name;
+    private int progress;
+    private int total;
+    private MediaStatus status;
 }

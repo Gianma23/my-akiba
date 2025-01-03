@@ -1,9 +1,11 @@
 package it.unipi.myakiba.service;
 
+import it.unipi.myakiba.DTO.MediaListsDto;
 import it.unipi.myakiba.DTO.UserLoginDto;
 import it.unipi.myakiba.DTO.UserRegistrationDto;
 import it.unipi.myakiba.DTO.ListElementDto;
 import it.unipi.myakiba.config.JwtUtils;
+import it.unipi.myakiba.enumerator.MediaStatus;
 import it.unipi.myakiba.enumerator.MediaType;
 import it.unipi.myakiba.enumerator.PrivacyStatus;
 import it.unipi.myakiba.model.UserMongo;
@@ -25,6 +27,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -141,12 +144,29 @@ public class UserService {
 
     /* ================================ LISTS CRUD ================================ */
 
-    public List<ListElementDto> getUserLists(String id, MediaType mediaType) {
+    public MediaListsDto getUserLists(String id, MediaType mediaType) {
+        List<ListElementDto> mediaList;
         if (mediaType == MediaType.ANIME) {
-            return userNeo4jRepository.findAnimeListsById(id);
+            mediaList = userNeo4jRepository.findAnimeListsById(id);
         } else {
-            return userNeo4jRepository.findMangaListsById(id);
+            mediaList = userNeo4jRepository.findMangaListsById(id);
         }
+
+        MediaListsDto mediaLists = new MediaListsDto();
+        mediaLists.setPlannedList(new ArrayList<>());
+        mediaLists.setInProgressList(new ArrayList<>());
+        mediaLists.setCompletedList(new ArrayList<>());
+
+        for (ListElementDto element : mediaList) {
+            if (element.getProgress() == 0) {
+                mediaLists.getPlannedList().add(element);
+            } else if (element.getProgress() < element.getTotal() && element.getStatus() != MediaStatus.COMPLETE) {
+                mediaLists.getInProgressList().add(element);
+            } else {
+                mediaLists.getCompletedList().add(element);
+            }
+        }
+        return mediaLists;
     }
 
     public String addMediaToUserList(String userId, String mediaId, MediaType mediaType) {

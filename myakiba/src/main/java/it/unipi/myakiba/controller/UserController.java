@@ -2,6 +2,7 @@ package it.unipi.myakiba.controller;
 
 import io.swagger.v3.oas.annotations.tags.Tag;
 import it.unipi.myakiba.DTO.ListElementDto;
+import it.unipi.myakiba.DTO.MediaListsDto;
 import it.unipi.myakiba.model.AnimeNeo4j;
 import it.unipi.myakiba.model.UserNeo4j;
 import it.unipi.myakiba.model.UserPrincipal;
@@ -69,7 +70,7 @@ public class UserController {
     /* ================================ LISTS CRUD ================================ */
 
     @GetMapping("/user/lists/{mediaType}")
-    public ResponseEntity<List<ListElementDto>> getUserLists(@PathVariable MediaType mediaType) {
+    public ResponseEntity<MediaListsDto> getUserLists(@PathVariable MediaType mediaType) {
         UserPrincipal user = (UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         return ResponseEntity.ok(userService.getUserLists(user.getUser().getId(), mediaType));
     }
