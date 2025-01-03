@@ -1,5 +1,6 @@
 package it.unipi.myakiba.model;
 
+import it.unipi.myakiba.DTO.ReviewDto;
 import it.unipi.myakiba.enumerator.MediaStatus;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
@@ -39,12 +40,5 @@ public class MangaMongo {
 
     private String synopsis;
 
-    @Data
-    private class Reviews {
-        private String userId;
-        private String username;
-        private int score;
-        private String comment;
-        private LocalDate timestamp;
-    }
+    List<ReviewDto> reviews;
 }
