@@ -26,9 +26,10 @@ public class MangaMongo {
     @NotBlank
     private int chapters;
 
-    private int sumScores;
 
-    private int numScores;
+    private int sumScores = 0;
+
+    private int numScores = 0;
 
     @NotBlank
     private List<String> genres;

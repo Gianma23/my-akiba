@@ -1,6 +1,7 @@
 package it.unipi.myakiba.repository;
 
 import it.unipi.myakiba.DTO.MonthAnalyticDto;
+import it.unipi.myakiba.model.MangaMongo;
 import it.unipi.myakiba.model.UserMongo;
 import org.bson.Document;
 import it.unipi.myakiba.projection.UserBrowseProjection;
