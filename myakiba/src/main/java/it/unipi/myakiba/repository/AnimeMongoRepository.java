@@ -3,7 +3,6 @@ package it.unipi.myakiba.repository;
 import it.unipi.myakiba.DTO.ControversialMediaDto;
 import it.unipi.myakiba.DTO.TrendingMediaDto;
 import it.unipi.myakiba.model.AnimeMongo;
-import it.unipi.myakiba.model.MangaMongo;
 import org.springframework.data.mongodb.repository.Aggregation;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.stereotype.Repository;
@@ -17,16 +16,17 @@ public interface AnimeMongoRepository extends MongoRepository<AnimeMongo, String
             "{ '$group': { " +                                                      // Fase 2: Raggruppamento per anime per calcolare deviazione standard
                     "   '_id': '$_id', " +
                     "   'name': { '$first': '$name' }, " +
-                    "   'genre': { '$first': '$genres' }, " +
+                    "   'genres': { '$first': '$genres' }, " +
                     "   'stdDevScore': { '$stdDevPop': '$reviews.score' } " +
                     "} }",
             "{ '$addFields': { 'variance': { '$pow': ['$stdDevScore', 2] } } }",    // Fase 3: Aggiunta del campo varianza (quadrato della deviazione standard)
-            "{ '$sort': { 'genre': 1, 'variance': -1 } }",                          // Fase 4: Ordinamento per varianza decrescente
-            "{ '$group': { " +                                                      // Fase 5: Raggruppamento per genere mantenendo solo l'anime con la varianza massima
-                    "   '_id': '$genre', " +
-                    "   'anime': { '$first': { 'id': '$_id', 'name': '$name', 'genre': '$genre', 'variance': '$variance' } } " +
+            "{ '$unwind': '$genres' }",                                             // Fase 4: Dividi l'array dei generi in righe separate
+            "{ '$sort': { 'genres': 1, 'variance': -1 } }",                          // Fase 5: Ordinamento per varianza decrescente
+            "{ '$group': { " +                                                      // Fase 6: Raggruppamento per genere mantenendo solo l'anime con la varianza massima
+                    "   '_id': '$genres', " +
+                    "   'anime': { '$first': { 'id': '$_id', 'name': '$name', 'genre': '$genres', 'variance': '$variance' } } " +
                     "} }",
-            "{ '$project': { '_id': 0, 'id': '$anime.id', 'name': '$anime.name', 'genre': '$anime.genre' } }"   // Fase 6: Proiezione finale per ritornare solo i campi richiesti
+            "{ '$project': { '_id': 0, 'genre': '$anime.genre', 'id': '$anime.id', 'name': '$anime.name' } }"   // Fase 7: Proiezione finale per ritornare solo i campi richiesti
     })
     List<ControversialMediaDto> findTopVarianceAnime();
     @Aggregation(pipeline = {

@@ -16,16 +16,17 @@ public interface MangaMongoRepository extends MongoRepository<MangaMongo, String
             "{ '$group': { " +                                                      // Fase 2: Raggruppamento per manga per calcolare deviazione standard
                     "   '_id': '$_id', " +
                     "   'name': { '$first': '$name' }, " +
-                    "   'genre': { '$first': '$genre' }, " +
+                    "   'genres': { '$first': '$genres' }, " +
                     "   'stdDevScore': { '$stdDevPop': '$reviews.score' } " +
                     "} }",
             "{ '$addFields': { 'variance': { '$pow': ['$stdDevScore', 2] } } }",    // Fase 3: Aggiunta del campo varianza (quadrato della deviazione standard)
-            "{ '$sort': { 'genre': 1, 'variance': -1 } }",                          // Fase 4: Ordinamento per varianza decrescente
-            "{ '$group': { " +                                                      // Fase 5: Raggruppamento per genere mantenendo solo il manga con la varianza massima
-                    "   '_id': '$genre', " +
-                    "   'manga': { '$first': { 'id': '$_id', 'name': '$name', 'genre': '$genre', 'variance': '$variance' } } " +
+            "{ '$unwind': '$genres' }",                                             // Fase 4: Dividi l'array dei generi in righe separate
+            "{ '$sort': { 'genres': 1, 'variance': -1 } }",                          // Fase 5: Ordinamento per varianza decrescente
+            "{ '$group': { " +                                                      // Fase 6: Raggruppamento per genere mantenendo solo il manga con la varianza massima
+                    "   '_id': '$genres', " +
+                    "   'manga': { '$first': { 'id': '$_id', 'name': '$name', 'genre': '$genres', 'variance': '$variance' } } " +
                     "} }",
-            "{ '$project': { '_id': 0, 'id': '$manga.id', 'name': '$manga.name', 'genre': '$manga.genre' } }"   // Fase 6: Proiezione finale per ritornare solo i campi richiesti
+            "{ '$project': { '_id': 0, 'genre': '$manga.genre', 'id': '$manga.id', 'name': '$manga.name' } }"   // Fase 7: Proiezione finale per ritornare solo i campi richiesti
     })
     List<ControversialMediaDto> findTopVarianceManga();
     @Aggregation(pipeline = {
