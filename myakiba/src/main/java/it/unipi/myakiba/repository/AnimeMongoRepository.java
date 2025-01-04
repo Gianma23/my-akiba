@@ -11,10 +11,12 @@ import org.springframework.stereotype.Repository;
 
 import java.awt.print.Pageable;
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface AnimeMongoRepository extends MongoRepository<AnimeMongo, String> {
     Page<AnimeMongo> findAll(Pageable pageable);
+    Optional<AnimeMongo> findByMediaId(String mediaId);
     @Aggregation(pipeline = {
             "{ '$unwind': '$reviews' }",                                            // Fase 1: Unwind per separare le review embedded
             "{ '$group': { " +                                                      // Fase 2: Raggruppamento per anime per calcolare deviazione standard

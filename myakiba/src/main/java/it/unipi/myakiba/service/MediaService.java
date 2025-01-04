@@ -17,6 +17,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 @Service
 public class MediaService {
@@ -46,7 +47,7 @@ public class MediaService {
         }
     }
 
-    public String getMediaById(MediaType type, int id) throws Exception {
+    public Optional<?> getMediaById(MediaType type, String id){
         switch (type) {
             case ANIME:
                 return animeMongoRepository.findById(id);

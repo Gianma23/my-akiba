@@ -44,7 +44,7 @@ public class MediaController {
     }
 
     @GetMapping("/{type}/{mediaId}")
-    public ResponseEntity<?> getMediaById(@PathVariable String type, @PathVariable int id){
+    public ResponseEntity<?> getMediaById(@PathVariable String type, @PathVariable String id){
         try {
             MediaType mediaType = MediaType.fromString(type);
             return mediaService.getMediaById(mediaType, id)

@@ -9,10 +9,12 @@ import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface MangaMongoRepository extends MongoRepository<MangaMongo, String> {
     Page<MangaMongo> findAll(MangaMongo pageable);
+    Optional<MangaMongo> findByMediaId(String mediaId);
     @Aggregation(pipeline = {
             "{ '$unwind': '$reviews' }",                                            // Fase 1: Unwind per separare le review embedded
             "{ '$group': { " +                                                      // Fase 2: Raggruppamento per manga per calcolare deviazione standard
