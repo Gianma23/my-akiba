@@ -2,6 +2,7 @@ package it.unipi.myakiba.config;
 
 import it.unipi.myakiba.model.UserMongo;
 import it.unipi.myakiba.model.UserPrincipal;
+import it.unipi.myakiba.service.MyUserDetailsService;
 import it.unipi.myakiba.service.UserService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -41,7 +42,7 @@ public class JwtFilter extends OncePerRequestFilter {
 
         // authentication should be null at this point
         if (userId != null && JwtUtils.validateToken(token)) {
-            UserMongo user = context.getBean(UserService.class).getUserById(userId, false);
+            UserMongo user = context.getBean(MyUserDetailsService.class).loadUserById(userId);
             UserPrincipal userPrincipal = new UserPrincipal(user);
             UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(userPrincipal, null, userPrincipal.getAuthorities());
             authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));

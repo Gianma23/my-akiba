@@ -13,13 +13,35 @@ import java.util.List;
 
 @Repository
 public interface UserNeo4jRepository extends Neo4jRepository<UserNeo4j, String> {
-    @Query("MATCH (u:User)-[l:LIST_ELEMENT]->(a:Anime) WHERE u.id = $id " +
-            "RETURN a.id as id, m.name as name, l.progress as progress, a.episodes as total, a.status as status")
-    List<ListElementDto> findAnimeListsById(String id);
+    @Query("""
+    MATCH (u:User)-[l:LIST_ELEMENT]->(a:Anime)
+    WHERE u.id = $id
+      AND (
+        $id = $currentUserId OR
+        u.privacyStatus = 'ALL' OR
+        (u.privacyStatus = 'FOLLOWERS' AND EXISTS {
+            MATCH (follower:User)-[:FOLLOWS]->(u)
+            WHERE follower.id = $currentUserId
+        })
+      )
+    RETURN a.id as id, a.name as name, l.progress as progress, a.episodes as total, a.status as status
+   """)
+    List<ListElementDto> findAnimeListsById(String id, String currentUserId);
 
-    @Query("MATCH (u:User)-[l:LIST_ELEMENT]->(m:Manga) WHERE u.id = $id " +
-            "RETURN m.id as id, m.name as name, l.progress as progress, m.chapters as total, m.status as status")
-    List<ListElementDto> findMangaListsById(String id);
+    @Query("""
+    MATCH (u:User)-[l:LIST_ELEMENT]->(m:Manga)
+    WHERE u.id = $id
+      AND (
+        NOT $id = $currentUserId OR
+        u.privacyStatus = 'ALL' OR
+        (u.privacyStatus = 'FOLLOWERS' AND EXISTS {
+            MATCH (follower:User)-[:FOLLOWS]->(u)
+            WHERE follower.id = $currentUserId
+        })
+      )
+    RETURN m.id as id, m.name as name, l.progress as progress, m.chapters as total, m.status as status
+    """)
+    List<ListElementDto> findMangaListsById(String id, String currentUserId);
 
     @Query("MATCH (u:User {id: $userId}), (a:Anime {id: $mediaId})" +
             " MERGE (u)-[:LIST_ELEMENT {progress: 0}]->(a)")

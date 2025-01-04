@@ -1,6 +1,6 @@
 package it.unipi.myakiba.model;
 
-import it.unipi.myakiba.DTO.user.UserIdNameDto;
+import it.unipi.myakiba.DTO.user.UserIdUsernameDto;
 import lombok.Data;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
@@ -13,5 +13,5 @@ public class CliqueAnalytic {
     @Id
     private String cliqueId;
     private int cliqueSize;
-    List<UserIdNameDto> userDetails;
+    List<UserIdUsernameDto> userDetails;
 }

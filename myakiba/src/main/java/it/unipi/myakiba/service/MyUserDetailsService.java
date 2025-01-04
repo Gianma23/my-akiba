@@ -27,4 +27,9 @@ public class MyUserDetailsService implements UserDetailsService {
         }
         return new UserPrincipal(user);
     }
+
+    public UserMongo loadUserById(String id) throws UsernameNotFoundException {
+        return userMongoRepository.findById(id)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found with ID: " + id));
+    }
 }

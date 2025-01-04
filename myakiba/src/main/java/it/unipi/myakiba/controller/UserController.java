@@ -2,10 +2,11 @@ package it.unipi.myakiba.controller;
 
 import io.swagger.v3.oas.annotations.tags.Tag;
 import it.unipi.myakiba.DTO.media.MediaListsDto;
+import it.unipi.myakiba.DTO.user.UserIdUsernameDto;
+import it.unipi.myakiba.DTO.user.UserNoPwdDto;
 import it.unipi.myakiba.DTO.user.UserUpdateDto;
 import it.unipi.myakiba.model.UserNeo4j;
 import it.unipi.myakiba.model.UserPrincipal;
-import it.unipi.myakiba.projection.UserBrowseProjection;
 import it.unipi.myakiba.service.UserService;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
@@ -36,7 +37,7 @@ public class UserController {
     /* ================================ USERS CRUD ================================ */
 
     @GetMapping("/users")
-    public ResponseEntity<Slice<UserBrowseProjection>> browseUsers(
+    public ResponseEntity<Slice<UserIdUsernameDto>> browseUsers(
             @RequestParam(defaultValue = "") String username,
             @RequestParam(defaultValue = "0") @Min(0) int page,
             @RequestParam(defaultValue = "10") @Min(0) @Max(100) int size
@@ -46,31 +47,33 @@ public class UserController {
     }
 
     @GetMapping("/user")
-    public ResponseEntity<UserMongo> getUser() {
+    public ResponseEntity<UserNoPwdDto> getUser() {
         UserPrincipal user = (UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        return ResponseEntity.ok(user.getUser());
+        UserMongo userMongo = user.getUser();
+        UserNoPwdDto userNoPwdDto = new UserNoPwdDto(userMongo.getUsername(), userMongo.getEmail(), userMongo.getBirthdate(), userMongo.getPrivacyStatus());
+        return ResponseEntity.ok(userNoPwdDto);
     }
 
     @GetMapping("/user/{userId}")
-    public ResponseEntity<UserMongo> getUserById(@PathVariable String userId) {
+    public ResponseEntity<UserNoPwdDto> getUserById(@PathVariable String userId) {
         try {
-            return ResponseEntity.ok(userService.getUserById(userId, false));
+            return ResponseEntity.ok(userService.getUserById(userId, true));
         } catch (Exception e) {
             return ResponseEntity.notFound().build();
         }
     }
 
     @PatchMapping("/user")
-    public ResponseEntity<UserMongo> updateUser(@RequestBody UserUpdateDto updates) {
+    public ResponseEntity<UserNoPwdDto> updateUser(@RequestBody UserUpdateDto updates) {
         UserPrincipal user = (UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        UserMongo updatedUser = userService.updateUser(user.getUser(), updates);
+        UserNoPwdDto updatedUser = userService.updateUser(user.getUser(), updates);
         return ResponseEntity.ok(updatedUser);
     }
 
     @DeleteMapping("/user")
-    public ResponseEntity<UserMongo> deleteUser() {
+    public ResponseEntity<UserNoPwdDto> deleteUser() {
         UserPrincipal user = (UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        UserMongo deletedUser = userService.deleteUser(user.getUser());
+        UserNoPwdDto deletedUser = userService.deleteUser(user.getUser());
         return ResponseEntity.ok(deletedUser);
     }
 
@@ -80,6 +83,11 @@ public class UserController {
     public ResponseEntity<MediaListsDto> getUserLists(@PathVariable MediaType mediaType) {
         UserPrincipal user = (UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         return ResponseEntity.ok(userService.getUserLists(user.getUser().getId(), mediaType));
+    }
+
+    @GetMapping("/user/{userId}/lists/{mediaType}")
+    public ResponseEntity<MediaListsDto> getUserListsById(@PathVariable String userId, @PathVariable MediaType mediaType) {
+        return ResponseEntity.ok(userService.getUserLists(userId, mediaType));
     }
 
     @PostMapping("/user/lists/{mediaType}/{mediaId}")

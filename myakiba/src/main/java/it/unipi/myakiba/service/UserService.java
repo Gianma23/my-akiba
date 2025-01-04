@@ -1,10 +1,8 @@
 package it.unipi.myakiba.service;
 
 import it.unipi.myakiba.DTO.media.MediaListsDto;
-import it.unipi.myakiba.DTO.user.UserLoginDto;
-import it.unipi.myakiba.DTO.user.UserRegistrationDto;
+import it.unipi.myakiba.DTO.user.*;
 import it.unipi.myakiba.DTO.ListElementDto;
-import it.unipi.myakiba.DTO.user.UserUpdateDto;
 import it.unipi.myakiba.config.JwtUtils;
 import it.unipi.myakiba.enumerator.MediaStatus;
 import it.unipi.myakiba.enumerator.MediaType;
@@ -12,7 +10,6 @@ import it.unipi.myakiba.enumerator.PrivacyStatus;
 import it.unipi.myakiba.model.UserMongo;
 import it.unipi.myakiba.model.UserNeo4j;
 import it.unipi.myakiba.model.UserPrincipal;
-import it.unipi.myakiba.projection.UserBrowseProjection;
 import it.unipi.myakiba.repository.UserMongoRepository;
 import it.unipi.myakiba.repository.UserNeo4jRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,29 +41,6 @@ public class UserService {
         this.userMongoRepository = userMongoRepository;
         this.encoder = encoder;
         this.userNeo4jRepository = userNeo4jRepository;
-    }
-
-    public UserMongo getUserById(String id, boolean checkPrivacyStatus) throws UsernameNotFoundException {
-        UserMongo user = userMongoRepository.findById(id)
-                .orElseThrow(() -> new UsernameNotFoundException("User not found with ID: " + id));
-
-        if (!checkPrivacyStatus) {
-            return user;
-        }
-
-        switch (user.getPrivacyStatus()) {
-            case ALL:
-                return user;
-            case FOLLOWERS:
-                UserPrincipal principal = (UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-                if (principal.getUser().getFollowers().contains(user.getId())) {
-                    return user;
-                }
-                break;
-            case NOBODY:
-                throw new IllegalArgumentException("User has set their profile to private");
-        }
-        return null;
     }
 
     /* ================================ AUTHENTICATION ================================ */
@@ -106,12 +80,24 @@ public class UserService {
 
     /* ================================ USERS CRUD ================================ */
 
-    public Slice<UserBrowseProjection> getUsers(String username, String userId, int page, int size) {
+    public UserNoPwdDto getUserById(String id, boolean checkPrivacyStatus) throws UsernameNotFoundException {
+        UserMongo user = userMongoRepository.findById(id)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found with ID: " + id));
+
+        UserNoPwdDto userNoPwdDto = new UserNoPwdDto(user.getUsername(), user.getEmail(), user.getBirthdate(), user.getPrivacyStatus());
+
+        if (!checkPrivacyStatus) {
+            return userNoPwdDto;
+        }
+        return canReturnPrivateDetails(user) ? userNoPwdDto : new UserNoPwdDto(user.getUsername(), null, null, null);
+    }
+
+    public Slice<UserIdUsernameDto> getUsers(String username, String userId, int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
         return userMongoRepository.findByUsernameContaining(username, userId, pageable);
     }
 
-    public UserMongo updateUser(UserMongo user, UserUpdateDto updates) {
+    public UserNoPwdDto updateUser(UserMongo user, UserUpdateDto updates) {
         if (updates.getUsername() != null) {
             user.setUsername(updates.getUsername());
         }
@@ -124,36 +110,39 @@ public class UserService {
         if (updates.getBirthdate() != null) {
             user.setBirthdate(updates.getBirthdate());
         }
-        return userMongoRepository.save(user);
+        userMongoRepository.save(user);
+        return new UserNoPwdDto(user.getUsername(), user.getEmail(), user.getBirthdate(), user.getPrivacyStatus());
     }
 
-    public UserMongo deleteUser(UserMongo user) {
+    public UserNoPwdDto deleteUser(UserMongo user) {
         userMongoRepository.delete(user);
-        return user;
+        return new UserNoPwdDto(user.getUsername(), user.getEmail(), user.getBirthdate(), user.getPrivacyStatus());
     }
 
     /* ================================ LISTS CRUD ================================ */
 
     public MediaListsDto getUserLists(String id, MediaType mediaType) {
         List<ListElementDto> mediaList;
+        UserPrincipal principal = (UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         if (mediaType == MediaType.ANIME) {
-            mediaList = userNeo4jRepository.findAnimeListsById(id);
+            mediaList = userNeo4jRepository.findAnimeListsById(id, principal.getUser().getId());
         } else {
-            mediaList = userNeo4jRepository.findMangaListsById(id);
+            mediaList = userNeo4jRepository.findMangaListsById(id, principal.getUser().getId());
         }
 
-        MediaListsDto mediaLists = new MediaListsDto();
-        mediaLists.setPlannedList(new ArrayList<>());
-        mediaLists.setInProgressList(new ArrayList<>());
-        mediaLists.setCompletedList(new ArrayList<>());
+        MediaListsDto mediaLists = new MediaListsDto(
+                new ArrayList<>(),
+                new ArrayList<>(),
+                new ArrayList<>()
+        );
 
         for (ListElementDto element : mediaList) {
             if (element.getProgress() == 0) {
-                mediaLists.getPlannedList().add(element);
+                mediaLists.plannedList().add(element);
             } else if (element.getProgress() < element.getTotal() && element.getStatus() != MediaStatus.COMPLETE) {
-                mediaLists.getInProgressList().add(element);
+                mediaLists.inProgressList().add(element);
             } else {
-                mediaLists.getCompletedList().add(element);
+                mediaLists.completedList().add(element);
             }
         }
         return mediaLists;
@@ -193,5 +182,18 @@ public class UserService {
         userNeo4jRepository.unfollowUser(followerId, followedId);
         userMongoRepository.findAndPullFollowerById(followedId, followerId);
         return "User unfollowed";
+    }
+
+    private boolean canReturnPrivateDetails(UserMongo user) {
+        switch (user.getPrivacyStatus()) {
+            case ALL:
+                return true;
+            case FOLLOWERS:
+                UserPrincipal principal = (UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+                return principal.getUser().getFollowers().contains(user.getId());
+            case NOBODY:
+                return false;
+        }
+        return false;
     }
 }
