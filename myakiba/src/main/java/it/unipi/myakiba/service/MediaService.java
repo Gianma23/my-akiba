@@ -10,6 +10,8 @@ import it.unipi.myakiba.model.AnimeMongo;
 import it.unipi.myakiba.model.MangaNeo4j;
 import it.unipi.myakiba.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.stereotype.Service;
 
@@ -33,8 +35,26 @@ public class MediaService {
     @Autowired
     private MongoTemplate mongoTemplate;
 
-    public String getMedia(String type) throws Exception {
-        return null;
+    public Page<?> getMedia(MediaType type, Pageable page){
+        switch (type) {
+            case ANIME:
+                return animeMongoRepository.findAll(page);
+            case MANGA:
+                return mangaMongoRepository.findAll(page);
+            default:
+                throw new IllegalArgumentException("Tipo di media non gestito: " + type);
+        }
+    }
+
+    public String getMediaById(MediaType type, int id) throws Exception {
+        switch (type) {
+            case ANIME:
+                return animeMongoRepository.findById(id);
+            case MANGA:
+                return mangaMongoRepository.findById(id);
+            default:
+                throw new IllegalArgumentException("Tipo di media non gestito: " + type);
+        }
     }
 
     public String addMedia(MediaCreationDto mediaCreationDto) throws Exception {

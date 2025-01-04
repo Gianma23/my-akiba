@@ -4,14 +4,17 @@ import it.unipi.myakiba.DTO.ControversialMediaDto;
 import it.unipi.myakiba.DTO.TrendingMediaDto;
 import it.unipi.myakiba.model.AnimeMongo;
 import it.unipi.myakiba.model.MangaMongo;
+import org.springframework.data.domain.Page;
 import org.springframework.data.mongodb.repository.Aggregation;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.stereotype.Repository;
 
+import java.awt.print.Pageable;
 import java.util.List;
 
 @Repository
 public interface AnimeMongoRepository extends MongoRepository<AnimeMongo, String> {
+    Page<AnimeMongo> findAll(Pageable pageable);
     @Aggregation(pipeline = {
             "{ '$unwind': '$reviews' }",                                            // Fase 1: Unwind per separare le review embedded
             "{ '$group': { " +                                                      // Fase 2: Raggruppamento per anime per calcolare deviazione standard

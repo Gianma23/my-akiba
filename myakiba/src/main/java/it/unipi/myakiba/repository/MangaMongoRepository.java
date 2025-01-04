@@ -3,6 +3,7 @@ package it.unipi.myakiba.repository;
 import it.unipi.myakiba.DTO.ControversialMediaDto;
 import it.unipi.myakiba.DTO.TrendingMediaDto;
 import it.unipi.myakiba.model.MangaMongo;
+import org.springframework.data.domain.Page;
 import org.springframework.data.mongodb.repository.Aggregation;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.stereotype.Repository;
@@ -11,6 +12,7 @@ import java.util.List;
 
 @Repository
 public interface MangaMongoRepository extends MongoRepository<MangaMongo, String> {
+    Page<MangaMongo> findAll(MangaMongo pageable);
     @Aggregation(pipeline = {
             "{ '$unwind': '$reviews' }",                                            // Fase 1: Unwind per separare le review embedded
             "{ '$group': { " +                                                      // Fase 2: Raggruppamento per manga per calcolare deviazione standard
