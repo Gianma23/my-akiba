@@ -1,8 +1,7 @@
 package it.unipi.myakiba.service;
 
-import it.unipi.myakiba.DTO.UsersSimilarityDto;
+import it.unipi.myakiba.DTO.user.UsersSimilarityDto;
 import it.unipi.myakiba.enumerator.MediaType;
-import it.unipi.myakiba.projection.UserBrowseProjection;
 import it.unipi.myakiba.repository.AnimeMongoRepository;
 import it.unipi.myakiba.repository.MangaMongoRepository;
 import it.unipi.myakiba.repository.UserMongoRepository;

@@ -1,7 +1,7 @@
 package it.unipi.myakiba.controller;
 
 import io.swagger.v3.oas.annotations.tags.Tag;
-import it.unipi.myakiba.DTO.MediaCreationDto;
+import it.unipi.myakiba.DTO.media.MediaCreationDto;
 import it.unipi.myakiba.enumerator.MediaType;
 import it.unipi.myakiba.service.AnalyticsService;
 import it.unipi.myakiba.service.MediaService;

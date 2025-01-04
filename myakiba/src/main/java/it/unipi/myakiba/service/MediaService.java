@@ -1,6 +1,6 @@
 package it.unipi.myakiba.service;
 
-import it.unipi.myakiba.DTO.MediaCreationDto;
+import it.unipi.myakiba.DTO.media.MediaCreationDto;
 import it.unipi.myakiba.DTO.ReviewDto;
 import it.unipi.myakiba.enumerator.MediaStatus;
 import it.unipi.myakiba.enumerator.MediaType;

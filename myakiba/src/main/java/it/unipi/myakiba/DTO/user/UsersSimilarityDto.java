@@ -1,4 +1,4 @@
-package it.unipi.myakiba.DTO;
+package it.unipi.myakiba.DTO.user;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

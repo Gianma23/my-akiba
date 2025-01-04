@@ -1,5 +1,6 @@
 package it.unipi.myakiba.DTO;
 
+import it.unipi.myakiba.DTO.user.UserIdNameDto;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
 

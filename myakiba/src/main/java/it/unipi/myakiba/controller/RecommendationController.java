@@ -1,12 +1,9 @@
 package it.unipi.myakiba.controller;
 
 import io.swagger.v3.oas.annotations.tags.Tag;
-import it.unipi.myakiba.DTO.UsersSimilarityDto;
+import it.unipi.myakiba.DTO.user.UsersSimilarityDto;
 import it.unipi.myakiba.model.UserPrincipal;
-import it.unipi.myakiba.projection.UserBrowseProjection;
 import it.unipi.myakiba.service.RecommendationService;
-import it.unipi.myakiba.service.UserService;
-import org.springframework.beans.factory.annotation.Autowired;
 import it.unipi.myakiba.enumerator.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;

@@ -1,9 +1,12 @@
 package it.unipi.myakiba.config;
 
+import jakarta.validation.ConstraintViolationException;
+import org.springframework.beans.TypeMismatchException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.MissingPathVariableException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
@@ -15,17 +18,28 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<Map<String, String>> handleValidationException(MethodArgumentNotValidException ex) {
-        // Create a map to hold field-specific error messages
         Map<String, String> errors = new HashMap<>();
-
-        // Loop through each field error
         ex.getBindingResult().getAllErrors().forEach(error -> {
-            String fieldName = ((FieldError) error).getField(); // Get the field name
-            String errorMessage = error.getDefaultMessage();   // Get the error message
-            errors.put(fieldName, errorMessage);               // Map field to message
+            String fieldName = ((FieldError) error).getField();
+            String errorMessage = error.getDefaultMessage();
+            errors.put(fieldName, errorMessage);
         });
+        return ResponseEntity.badRequest().body(errors);
+    }
 
-        // Return a bad request response with the error details
-        return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
+    @ExceptionHandler(ConstraintViolationException.class)
+    public ResponseEntity<Map<String, String>> handleConstraintViolationException(ConstraintViolationException ex) {
+        Map<String, String> errors = new HashMap<>();
+        ex.getConstraintViolations().forEach(violation -> {
+            String fieldName = violation.getPropertyPath().toString();
+            String errorMessage = violation.getMessage();
+            errors.put(fieldName, errorMessage);
+        });
+        return ResponseEntity.badRequest().body(errors);
+    }
+
+    @ExceptionHandler(TypeMismatchException.class)
+    public ResponseEntity<String> handleTypeMismatchException(TypeMismatchException ex) {
+        return ResponseEntity.badRequest().body("Invalid value for field '" + ex.getPropertyName() + "': " + ex.getValue());
     }
 }

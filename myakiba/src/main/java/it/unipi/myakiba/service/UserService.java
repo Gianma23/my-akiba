@@ -1,9 +1,10 @@
 package it.unipi.myakiba.service;
 
-import it.unipi.myakiba.DTO.MediaListsDto;
-import it.unipi.myakiba.DTO.UserLoginDto;
-import it.unipi.myakiba.DTO.UserRegistrationDto;
+import it.unipi.myakiba.DTO.media.MediaListsDto;
+import it.unipi.myakiba.DTO.user.UserLoginDto;
+import it.unipi.myakiba.DTO.user.UserRegistrationDto;
 import it.unipi.myakiba.DTO.ListElementDto;
+import it.unipi.myakiba.DTO.user.UserUpdateDto;
 import it.unipi.myakiba.config.JwtUtils;
 import it.unipi.myakiba.enumerator.MediaStatus;
 import it.unipi.myakiba.enumerator.MediaType;
@@ -26,10 +27,8 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 @Service
 public class UserService {
@@ -112,28 +111,19 @@ public class UserService {
         return userMongoRepository.findByUsernameContaining(username, userId, pageable);
     }
 
-    public UserMongo updateUser(UserMongo user, Map<String, Object> updates) {
-        updates.forEach((key, value) -> {
-            switch (key) {
-                case "email":
-                    user.setEmail((String) value);
-                    break;
-                case "username":
-                    user.setUsername((String) value);
-                    break;
-                case "birthdate":
-                    user.setBirthdate((LocalDate) value);
-                    break;
-                case "password":
-                    user.setPassword(encoder.encode((String) value));
-                    break;
-                case "privacyStatus":
-                    user.setPrivacyStatus((PrivacyStatus) value);
-                    break;
-                default:
-                    throw new IllegalArgumentException("Unsupported field: " + key);
-            }
-        });
+    public UserMongo updateUser(UserMongo user, UserUpdateDto updates) {
+        if (updates.getUsername() != null) {
+            user.setUsername(updates.getUsername());
+        }
+        if (updates.getPassword() != null) {
+            user.setPassword(encoder.encode(updates.getPassword()));
+        }
+        if (updates.getEmail() != null) {
+            user.setEmail(updates.getEmail());
+        }
+        if (updates.getBirthdate() != null) {
+            user.setBirthdate(updates.getBirthdate());
+        }
         return userMongoRepository.save(user);
     }
 

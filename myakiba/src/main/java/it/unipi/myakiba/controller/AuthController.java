@@ -1,9 +1,9 @@
 package it.unipi.myakiba.controller;
 
 import io.swagger.v3.oas.annotations.tags.Tag;
-import it.unipi.myakiba.DTO.UserLoginResponseDto;
-import it.unipi.myakiba.DTO.UserLoginDto;
-import it.unipi.myakiba.DTO.UserRegistrationDto;
+import it.unipi.myakiba.DTO.user.AccessTokenDto;
+import it.unipi.myakiba.DTO.user.UserLoginDto;
+import it.unipi.myakiba.DTO.user.UserRegistrationDto;
 import it.unipi.myakiba.model.UserMongo;
 import it.unipi.myakiba.service.UserService;
 import jakarta.validation.Valid;
@@ -37,7 +37,7 @@ public class AuthController {
         try {
             String token = userService.loginUser(user);
             if (token != null) {
-                return ResponseEntity.ok(new UserLoginResponseDto(token));
+                return ResponseEntity.ok(new AccessTokenDto(token));
             } else try {
                 {
                     return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid credentials");

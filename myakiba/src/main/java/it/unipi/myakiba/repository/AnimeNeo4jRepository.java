@@ -1,7 +1,7 @@
 package it.unipi.myakiba.repository;
 
 import it.unipi.myakiba.DTO.ListCounterAnalyticDto;
-import it.unipi.myakiba.DTO.MediaInListsAnalyticDto;
+import it.unipi.myakiba.DTO.media.MediaInListsAnalyticDto;
 import it.unipi.myakiba.model.AnimeNeo4j;
 import org.springframework.data.neo4j.repository.Neo4jRepository;
 import org.springframework.data.neo4j.repository.query.Query;

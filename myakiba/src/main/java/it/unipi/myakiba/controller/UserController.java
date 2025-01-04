@@ -1,24 +1,26 @@
 package it.unipi.myakiba.controller;
 
 import io.swagger.v3.oas.annotations.tags.Tag;
-import it.unipi.myakiba.DTO.ListElementDto;
-import it.unipi.myakiba.DTO.MediaListsDto;
-import it.unipi.myakiba.model.AnimeNeo4j;
+import it.unipi.myakiba.DTO.media.MediaListsDto;
+import it.unipi.myakiba.DTO.user.UserUpdateDto;
 import it.unipi.myakiba.model.UserNeo4j;
 import it.unipi.myakiba.model.UserPrincipal;
 import it.unipi.myakiba.projection.UserBrowseProjection;
 import it.unipi.myakiba.service.UserService;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Slice;
 import it.unipi.myakiba.enumerator.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import it.unipi.myakiba.model.UserMongo;
 
 import java.util.List;
-import java.util.Map;
 
+@Validated
 @RestController
 @RequestMapping("/api")
 @Tag(name = "User Management", description = "Operations related to user management")
@@ -36,8 +38,8 @@ public class UserController {
     @GetMapping("/users")
     public ResponseEntity<Slice<UserBrowseProjection>> browseUsers(
             @RequestParam(defaultValue = "") String username,
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size
+            @RequestParam(defaultValue = "0") @Min(0) int page,
+            @RequestParam(defaultValue = "10") @Min(0) @Max(100) int size
     ) {
         UserPrincipal user = (UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         return ResponseEntity.ok(userService.getUsers(username, user.getUser().getId(), page, size));
@@ -51,11 +53,15 @@ public class UserController {
 
     @GetMapping("/user/{userId}")
     public ResponseEntity<UserMongo> getUserById(@PathVariable String userId) {
-        return ResponseEntity.ok(userService.getUserById(userId, true));
+        try {
+            return ResponseEntity.ok(userService.getUserById(userId, false));
+        } catch (Exception e) {
+            return ResponseEntity.notFound().build();
+        }
     }
 
     @PatchMapping("/user")
-    public ResponseEntity<UserMongo> updateUser(@RequestBody Map<String, Object> updates) {
+    public ResponseEntity<UserMongo> updateUser(@RequestBody UserUpdateDto updates) {
         UserPrincipal user = (UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         UserMongo updatedUser = userService.updateUser(user.getUser(), updates);
         return ResponseEntity.ok(updatedUser);
@@ -82,9 +88,10 @@ public class UserController {
         return ResponseEntity.ok(userService.addMediaToUserList(user.getUser().getId(), mediaId, mediaType));
     }
 
-    @PatchMapping("/user/lists/{mediaId}")
-    public ResponseEntity<List<UserMongo>> modifyMediaInUserList(@PathVariable String mediaId) {
-        return null;
+    @PatchMapping("/user/lists/{mediaType}/{mediaId}")
+    public ResponseEntity<String> modifyMediaInUserList(@PathVariable MediaType mediaType, @PathVariable String mediaId, @RequestBody @Min(0) int progress) {
+        UserPrincipal user = (UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        return ResponseEntity.ok(userService.addMediaToUserList(user.getUser().getId(), mediaId, mediaType));
     }
 
     @DeleteMapping("/user/lists/{mediaId}")

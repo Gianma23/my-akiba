@@ -1,6 +1,7 @@
 package it.unipi.myakiba.service;
 
 import it.unipi.myakiba.DTO.*;
+import it.unipi.myakiba.DTO.media.MediaInListsAnalyticDto;
 import it.unipi.myakiba.enumerator.MediaType;
 import it.unipi.myakiba.model.CliqueAnalytic;
 import it.unipi.myakiba.model.MonthAnalytic;

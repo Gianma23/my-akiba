@@ -1,6 +1,6 @@
-package it.unipi.myakiba.DTO;
+package it.unipi.myakiba.DTO.media;
 
-import it.unipi.myakiba.enumerator.MediaStatus;
+import it.unipi.myakiba.DTO.ListElementDto;
 import lombok.Data;
 
 import java.util.List;

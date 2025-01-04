@@ -1,6 +1,6 @@
 package it.unipi.myakiba.model;
 
-import it.unipi.myakiba.DTO.UserIdNameDto;
+import it.unipi.myakiba.DTO.user.UserIdNameDto;
 import lombok.Data;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
