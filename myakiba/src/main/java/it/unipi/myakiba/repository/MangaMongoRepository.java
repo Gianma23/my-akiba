@@ -63,4 +63,12 @@ public interface MangaMongoRepository extends MongoRepository<MangaMongo, String
     })
     List<TrendingMediaDto> findTopImprovingManga();
 
+    @Aggregation(pipeline = {
+            "{ '$addFields': { 'averageScore': { '$cond': { if: { '$gt': ['$numScores', 0] }, then: { '$divide': ['$sumScores', '$numScores'] }, else: 0 } } } }",
+            "{ '$match': { '$expr': { '$or': [ { '$eq': [?0, null] }, { '$in': [?0, '$genres'] } ] } } }",
+            "{ '$sort': { 'averageScore': -1 } }",
+            "{ '$limit': 10 }",
+            "{ '$project': { 'id': 1, 'name': 1, 'averageScore': 1, 'status': 1, 'chapters': 1, 'genres': 1 } }"
+    })
+    List<MangaMongo> findTop10Manga(String genre);
 }
