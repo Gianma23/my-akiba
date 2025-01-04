@@ -107,9 +107,9 @@ public class UserService {
 
     /* ================================ USERS CRUD ================================ */
 
-    public Slice<UserBrowseProjection> getUsers(String username, int page, int size) {
+    public Slice<UserBrowseProjection> getUsers(String username, String userId, int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
-        return userMongoRepository.findByUsernameContaining(username, pageable);
+        return userMongoRepository.findByUsernameContaining(username, userId, pageable);
     }
 
     public UserMongo updateUser(UserMongo user, Map<String, Object> updates) {
