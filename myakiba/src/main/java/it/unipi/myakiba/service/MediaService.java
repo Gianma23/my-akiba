@@ -1,15 +1,16 @@
 package it.unipi.myakiba.service;
 
 import it.unipi.myakiba.DTO.media.MediaCreationDto;
-import it.unipi.myakiba.DTO.ReviewDto;
+import it.unipi.myakiba.DTO.media.MediaIdNameDto;
+import it.unipi.myakiba.DTO.media.ReviewDto;
 import it.unipi.myakiba.enumerator.MediaStatus;
 import it.unipi.myakiba.enumerator.MediaType;
-import it.unipi.myakiba.model.AnimeNeo4j;
-import it.unipi.myakiba.model.MangaMongo;
-import it.unipi.myakiba.model.AnimeMongo;
-import it.unipi.myakiba.model.MangaNeo4j;
+import it.unipi.myakiba.model.*;
 import it.unipi.myakiba.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.stereotype.Service;
 
@@ -22,19 +23,31 @@ public class MediaService {
     private final AnimeNeo4jRepository animeNeo4jRepository;
     private final MangaMongoRepository mangaMongoRepository;
     private final AnimeMongoRepository animeMongoRepository;
+    private final MongoTemplate mongoTemplate;
 
     @Autowired
-    public MediaService(MangaNeo4jRepository mangaNeo4jRepository, AnimeNeo4jRepository animeNeo4jRepository, MangaMongoRepository mangaMongoRepository, AnimeMongoRepository animeMongoRepository) {
+    public MediaService(MangaNeo4jRepository mangaNeo4jRepository, AnimeNeo4jRepository animeNeo4jRepository, MangaMongoRepository mangaMongoRepository, AnimeMongoRepository animeMongoRepository, MongoTemplate mongoTemplate) {
         this.mangaNeo4jRepository = mangaNeo4jRepository;
         this.animeNeo4jRepository = animeNeo4jRepository;
         this.mangaMongoRepository = mangaMongoRepository;
         this.animeMongoRepository = animeMongoRepository;
+        this.mongoTemplate = mongoTemplate;
     }
-    @Autowired
-    private MongoTemplate mongoTemplate;
 
-    public String getMedia(String type) throws Exception {
-        return null;
+    public Slice<MediaIdNameDto> browseMedia(MediaType mediaType, String name, int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        if(mediaType == MediaType.MANGA) {
+            return mangaMongoRepository.findByNameContaining(name, pageable);
+        } else {
+            return animeMongoRepository.findByNameContaining(name, pageable);
+        }
+    }
+
+    public MediaMongo getMediaById(MediaType mediaType, String mediaId) throws Exception {
+        return mediaType == MediaType.MANGA ? mangaMongoRepository.findById(mediaId)
+                .orElseThrow(() -> new Exception("Media not found with id: " + mediaId)) :
+                animeMongoRepository.findById(mediaId)
+                        .orElseThrow(() -> new Exception("Media not found with id: " + mediaId));
     }
 
     public String addMedia(MediaCreationDto mediaCreationDto) throws Exception {

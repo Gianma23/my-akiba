@@ -1,9 +1,10 @@
 package it.unipi.myakiba.model;
 
-import it.unipi.myakiba.DTO.ReviewDto;
+import it.unipi.myakiba.DTO.media.ReviewDto;
 import it.unipi.myakiba.enumerator.MediaStatus;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.neo4j.core.schema.GeneratedValue;
@@ -12,33 +13,10 @@ import java.util.List;
 
 @Document(collection = "manga")
 @Data
-public class MangaMongo {
-    @Id
-    @GeneratedValue
-    private String id;
-
-    @NotBlank
-    private String name;
-
-    @NotBlank
-    private MediaStatus status;
-
+@EqualsAndHashCode(callSuper = true)
+public class MangaMongo extends MediaMongo {
     @NotBlank
     private int chapters;
 
-
-    private int sumScores = 0;
-
-    private int numScores = 0;
-
-    @NotBlank
-    private List<String> genres;
-
-    private String type;
-
     private List<String> authors;
-
-    private String synopsis;
-
-    List<ReviewDto> reviews;
 }

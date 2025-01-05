@@ -10,13 +10,15 @@ import java.util.List;
 @Data
 public class MediaCreationDto {
     @NotBlank
+    private MediaType mediaType;
+    @NotBlank
     private String name;
     @NotBlank
     private MediaStatus status;
-    private int chapters;
-    private int episodes;
     @NotBlank
     private List<String> genres;
+    private int chapters;
+    private int episodes;
 
     private int sumScores;
     private int numScores;
@@ -26,9 +28,7 @@ public class MediaCreationDto {
     private List<String> authors;   //solo manga
 
     private String source;      //solo anime
-    private double duration;    //
-    private String studio;      //
+    private double duration;    //solo anime
+    private String studio;      //solo anime
 
-    @NotBlank
-    private MediaType mediaType;
 }

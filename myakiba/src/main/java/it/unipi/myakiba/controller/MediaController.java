@@ -1,25 +1,53 @@
 package it.unipi.myakiba.controller;
 
 import io.swagger.v3.oas.annotations.tags.Tag;
+import it.unipi.myakiba.DTO.media.MediaIdNameDto;
+import it.unipi.myakiba.DTO.user.UserIdUsernameDto;
+import it.unipi.myakiba.enumerator.MediaType;
+import it.unipi.myakiba.model.MediaMongo;
+import it.unipi.myakiba.model.UserPrincipal;
 import it.unipi.myakiba.service.MediaService;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Slice;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
+
+import javax.print.attribute.standard.Media;
 
 @RestController
 @RequestMapping("/api/media")
 @Tag(name = "Media management", description = "Operations related to media catalog")
 public class MediaController {
 
-    @Autowired
-    private MediaService mediaService;
+    private final MediaService mediaService;
 
-    @GetMapping("/{type}")
-    public String getMedia(@PathVariable String type) {
+    @Autowired
+    public MediaController(MediaService mediaService) {
+        this.mediaService = mediaService;
+    }
+
+    @GetMapping("/{mediaType}")
+    public ResponseEntity<Slice<MediaIdNameDto>> browseMedia(
+            @PathVariable MediaType mediaType,
+            @RequestParam(defaultValue = "") String name,
+            @RequestParam(defaultValue = "0") @Min(0) int page,
+            @RequestParam(defaultValue = "10") @Min(0) @Max(100) int size) {
         try {
-            return mediaService.getMedia(type);
+            return ResponseEntity.ok(mediaService.browseMedia(mediaType, name, page, size));
         } catch (Exception e) {
-            return "Error: " + e.getMessage();
+            return ResponseEntity.badRequest().build();
         }
     }
 
+    @GetMapping("/{mediaType}/{mediaId}")
+    public ResponseEntity<MediaMongo> getMediaById(@PathVariable MediaType mediaType, @PathVariable String mediaId) {
+        try {
+            return ResponseEntity.ok(mediaService.getMediaById(mediaType, mediaId));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().build();
+        }
+    }
 }

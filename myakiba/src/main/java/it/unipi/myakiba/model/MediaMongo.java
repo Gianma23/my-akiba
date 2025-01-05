@@ -4,23 +4,35 @@ import it.unipi.myakiba.DTO.media.ReviewDto;
 import it.unipi.myakiba.enumerator.MediaStatus;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.neo4j.core.schema.GeneratedValue;
 
 import java.util.List;
 
-@Document(collection = "anime")
 @Data
-@EqualsAndHashCode(callSuper = true)
-public class AnimeMongo extends MediaMongo{
+public abstract class MediaMongo {
+    @Id
+    @GeneratedValue
+    private String id;
+
     @NotBlank
-    private int episodes;
+    private String name;
 
-    private String source;
+    @NotBlank
+    private MediaStatus status;
 
-    private double duration;
+    @NotBlank
+    private int sumScores = 0;
 
-    private String studio;
+    private int numScores = 0;
+
+    @NotBlank
+    private List<String> genres;
+
+    private String type;
+
+    private String synopsis;
+
+    private List<ReviewDto> reviews;
 }

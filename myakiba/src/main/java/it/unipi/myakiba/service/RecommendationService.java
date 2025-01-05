@@ -6,6 +6,7 @@ import it.unipi.myakiba.repository.AnimeMongoRepository;
 import it.unipi.myakiba.repository.MangaMongoRepository;
 import it.unipi.myakiba.repository.UserMongoRepository;
 import it.unipi.myakiba.repository.UserNeo4jRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -13,14 +14,12 @@ import java.util.List;
 @Service
 public class RecommendationService {
 
-    private final UserMongoRepository userMongoRepository;
     private final UserNeo4jRepository userNeo4jRepository;
-
     private final MangaMongoRepository mangaMongoRepository;
     private final AnimeMongoRepository animeMongoRepository;
 
-    public RecommendationService(UserMongoRepository userMongoRepository, UserNeo4jRepository userNeo4jRepository, MangaMongoRepository mangaMongoRepository, AnimeMongoRepository animeMongoRepository) {
-        this.userMongoRepository = userMongoRepository;
+    @Autowired
+    public RecommendationService(UserNeo4jRepository userNeo4jRepository, MangaMongoRepository mangaMongoRepository, AnimeMongoRepository animeMongoRepository) {
         this.userNeo4jRepository = userNeo4jRepository;
         this.mangaMongoRepository = mangaMongoRepository;
         this.animeMongoRepository = animeMongoRepository;
