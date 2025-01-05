@@ -1,6 +1,6 @@
 package it.unipi.myakiba.repository;
 
-import it.unipi.myakiba.DTO.MonthAnalyticDto;
+import it.unipi.myakiba.DTO.analytic.MonthAnalyticDto;
 import it.unipi.myakiba.model.MonthAnalytic;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.data.mongodb.repository.Query;

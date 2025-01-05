@@ -1,16 +1,14 @@
 package it.unipi.myakiba.service;
 
 import it.unipi.myakiba.DTO.media.MediaIdNameDto;
-import it.unipi.myakiba.DTO.user.UsersSimilarityDto;
+import it.unipi.myakiba.DTO.user.UserIdUsernameDto;
 import it.unipi.myakiba.enumerator.MediaType;
 import it.unipi.myakiba.repository.AnimeMongoRepository;
 import it.unipi.myakiba.repository.MangaMongoRepository;
-import it.unipi.myakiba.repository.UserMongoRepository;
 import it.unipi.myakiba.repository.UserNeo4jRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import javax.print.attribute.standard.Media;
 import java.util.List;
 
 @Service
@@ -27,7 +25,7 @@ public class RecommendationService {
         this.animeMongoRepository = animeMongoRepository;
     }
 
-    public List<UsersSimilarityDto> getUsersWithSimilarTastes(String userId) {
+    public List<UserIdUsernameDto> getUsersWithSimilarTastes(String userId) {
         return userNeo4jRepository.findUsersWithSimilarTastes(userId);
     }
 

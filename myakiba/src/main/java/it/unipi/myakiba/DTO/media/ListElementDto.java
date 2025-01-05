@@ -1,4 +1,4 @@
-package it.unipi.myakiba.DTO;
+package it.unipi.myakiba.DTO.media;
 
 import it.unipi.myakiba.enumerator.MediaStatus;
 import lombok.Data;

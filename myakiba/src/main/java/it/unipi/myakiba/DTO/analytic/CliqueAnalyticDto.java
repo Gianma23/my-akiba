@@ -1,4 +1,4 @@
-package it.unipi.myakiba.DTO;
+package it.unipi.myakiba.DTO.analytic;
 
 import it.unipi.myakiba.DTO.user.UserIdUsernameDto;
 import jakarta.validation.constraints.NotBlank;

@@ -1,9 +1,8 @@
 package it.unipi.myakiba.repository;
 
-import it.unipi.myakiba.DTO.ControversialMediaDto;
-import it.unipi.myakiba.DTO.TrendingMediaDto;
+import it.unipi.myakiba.DTO.analytic.ControversialMediaDto;
+import it.unipi.myakiba.DTO.analytic.TrendingMediaDto;
 import it.unipi.myakiba.DTO.media.MediaIdNameDto;
-import it.unipi.myakiba.DTO.user.UserIdUsernameDto;
 import it.unipi.myakiba.model.MangaMongo;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
@@ -18,6 +17,7 @@ import java.util.List;
 public interface MangaMongoRepository extends MongoRepository<MangaMongo, String> {
     @Query("{ 'name': { $regex: ?0, $options: 'i' } }")
     Slice<MediaIdNameDto> findByNameContaining(String name, Pageable pageable);
+
     @Aggregation(pipeline = {
             "{ '$unwind': '$reviews' }",                                            // Fase 1: Unwind per separare le review embedded
             "{ '$group': { " +                                                      // Fase 2: Raggruppamento per manga per calcolare deviazione standard

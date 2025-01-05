@@ -1,15 +1,20 @@
 package it.unipi.myakiba.controller;
 
 import io.swagger.v3.oas.annotations.tags.Tag;
+import it.unipi.myakiba.DTO.analytic.*;
 import it.unipi.myakiba.DTO.media.MediaCreationDto;
+import it.unipi.myakiba.DTO.media.MediaInListsAnalyticDto;
+import it.unipi.myakiba.DTO.user.UserNoPwdDto;
 import it.unipi.myakiba.enumerator.MediaType;
 import it.unipi.myakiba.service.AnalyticsService;
 import it.unipi.myakiba.service.MediaService;
 import it.unipi.myakiba.service.UserService;
+import org.apache.coyote.Response;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -27,132 +32,93 @@ public class AdminController {
         this.analyticsService = analyticsService;
     }
 
-//    MEDIA MANAGEMENT
-//  add a new media
+    /* ================================ MEDIA MANAGEMENT ================================ */
+
     @PostMapping("/media")
     public ResponseEntity<String> addMedia(@RequestBody MediaCreationDto media) {
-        try {
-            return ResponseEntity.ok(mediaService.addMedia(media));
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
+        return ResponseEntity.ok(mediaService.addMedia(media));
     }
 
-//  update media info
     @PatchMapping("/media/{mediaType}/{mediaId}")
-    public ResponseEntity<?> updateMedia(@PathVariable MediaType mediaType, @PathVariable String mediaId,
-                                         @RequestBody Map<String, Object> updates) {
+    public ResponseEntity<String> updateMedia(@PathVariable MediaType mediaType, @PathVariable String mediaId,
+                                              @RequestBody Map<String, Object> updates) {
         try {
-            mediaService.updateMedia(mediaId, mediaType, updates);
-            return ResponseEntity.ok().build();
+            return ResponseEntity.ok(mediaService.updateMedia(mediaId, mediaType, updates));
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
+            return ResponseEntity.notFound().build();
         }
     }
 
-//  delete a specific media
     @DeleteMapping("/media/{mediaType}/{mediaId}")
-    public ResponseEntity<?> deleteMedia(@PathVariable MediaType mediaType, @PathVariable String mediaId) {
+    public ResponseEntity<String> deleteMedia(@PathVariable MediaType mediaType, @PathVariable String mediaId) {
         try {
-            mediaService.deleteMedia(mediaId, mediaType);
-            return ResponseEntity.ok().build();
+            return ResponseEntity.ok(mediaService.deleteMedia(mediaId, mediaType));
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
+            return ResponseEntity.notFound().build();
         }
     }
 
-//  delete a review
     @DeleteMapping("/media/{mediaType}/{mediaId}/review/{reviewId}")
-    public ResponseEntity<?> deleteReview(@PathVariable MediaType mediaType, @PathVariable String mediaId, @PathVariable String reviewId) {
+    public ResponseEntity<String> deleteReview(@PathVariable MediaType mediaType, @PathVariable String mediaId, @PathVariable String reviewId) {
         try {
-            mediaService.deleteReview(mediaId, reviewId, mediaType);
-            return ResponseEntity.ok().build();
+            return ResponseEntity.ok(mediaService.deleteReview(mediaId, reviewId, mediaType));
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
+            return ResponseEntity.notFound().build();
         }
     }
+    /* ================================ USER MANAGEMENT ================================ */
 
-//    USER MANAGEMENT
-//  get info on a specific user
     @GetMapping("/users/{userId}")
-    public ResponseEntity<?> getUserDetails(@PathVariable String userId) {
-        try {
-            return ResponseEntity.ok(userService.getUserById(userId, false));
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
+    public ResponseEntity<UserNoPwdDto> getUserDetails(@PathVariable String userId) {
+        return ResponseEntity.ok(userService.getUserById(userId, false));
     }
 
-//    ANALYTICS
+    /* ================================ ANALYTICS ================================ */
+
     @GetMapping("/analytics/monthlyregistrations")
-    public ResponseEntity<?> getMonthlyRegistrations() {
-        try {
-            return ResponseEntity.ok(analyticsService.getMonthlyRegistrations());
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
+    public ResponseEntity<List<MonthAnalyticDto>> getMonthlyRegistrations() {
+        return ResponseEntity.ok(analyticsService.getMonthlyRegistrations());
     }
 
     @GetMapping("/analytics/controversial/{mediaType}")
-    public ResponseEntity<?> getControversialMedia(@PathVariable MediaType mediaType) {
-        try {
-            return ResponseEntity.ok(analyticsService.getControversialMedia(mediaType));
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
+    public ResponseEntity<List<ControversialMediaDto>> getControversialMedia(@PathVariable MediaType mediaType) {
+        return ResponseEntity.ok(analyticsService.getControversialMedia(mediaType));
+
     }
 
-    @GetMapping("/analytics/worse/{mediaType}")
-    public ResponseEntity<?> getWorseningMedia(@PathVariable MediaType mediaType) {
-        try {
-            return ResponseEntity.ok(analyticsService.getWorseningMedia(mediaType));
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
+    @GetMapping("/analytics/declining/{mediaType}")
+    public ResponseEntity<List<TrendingMediaDto>> getDecliningMedia(@PathVariable MediaType mediaType) {
+        return ResponseEntity.ok(analyticsService.getDecliningMedia(mediaType));
+
     }
 
-    @GetMapping("/analytics/better/{mediaType}")
-    public ResponseEntity<?> getImprovingMedia(@PathVariable MediaType mediaType) {
-        try {
-            return ResponseEntity.ok(analyticsService.getImprovingMedia(mediaType));
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
+    @GetMapping("/analytics/improving/{mediaType}")
+    public ResponseEntity<List<TrendingMediaDto>> getImprovingMedia(@PathVariable MediaType mediaType) {
+        return ResponseEntity.ok(analyticsService.getImprovingMedia(mediaType));
+
     }
 
-    @GetMapping("/analytics/clique")
-    public ResponseEntity<?> getClique() {
-        try {
-            return ResponseEntity.ok(analyticsService.getClique());
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
+    @GetMapping("/analytics/max-clique")
+    public ResponseEntity<List<CliqueAnalyticDto>> getMaxClique() {
+        return ResponseEntity.ok(analyticsService.getMaxClique());
+
     }
 
     @GetMapping("/analytics/influencers")
-    public ResponseEntity<?> getInfluencers() {
-        try {
-            return ResponseEntity.ok(analyticsService.getInfluencers());
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
+    public ResponseEntity<List<InfluencersDto>> getInfluencers() {
+        return ResponseEntity.ok(analyticsService.getInfluencers());
+
     }
 
     @GetMapping("/analytics/listcounter/{mediaType}")
-    public ResponseEntity<?> getListCounter(@PathVariable MediaType mediaType) {
-        try {
-            return ResponseEntity.ok(analyticsService.getListCounter(mediaType));
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
+    public ResponseEntity<List<ListCounterAnalyticDto>> getListCounter(@PathVariable MediaType mediaType) {
+        return ResponseEntity.ok(analyticsService.getListCounter(mediaType));
+
     }
 
     @GetMapping("/analytics/mediainlists/{mediaType}")
-    public ResponseEntity<?> getMediaInLists(@PathVariable MediaType mediaType) {
-        try {
-            return ResponseEntity.ok(analyticsService.getMediaInLists(mediaType));
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
+    public ResponseEntity<List<MediaInListsAnalyticDto>> getMediaInLists(@PathVariable MediaType mediaType) {
+        return ResponseEntity.ok(analyticsService.getMediaInLists(mediaType));
+
     }
 }

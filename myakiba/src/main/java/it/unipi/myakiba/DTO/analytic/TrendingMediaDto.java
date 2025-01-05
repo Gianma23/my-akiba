@@ -1,4 +1,4 @@
-package it.unipi.myakiba.DTO;
+package it.unipi.myakiba.DTO.analytic;
 
 import jakarta.validation.constraints.NotBlank;
 import lombok.Data;

@@ -1,6 +1,6 @@
 package it.unipi.myakiba.DTO.media;
 
-import it.unipi.myakiba.DTO.AppearancesDto;
+import it.unipi.myakiba.DTO.analytic.AppearancesDto;
 import lombok.Data;
 
 import java.util.List;

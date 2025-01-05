@@ -1,6 +1,6 @@
 package it.unipi.myakiba.service;
 
-import it.unipi.myakiba.DTO.*;
+import it.unipi.myakiba.DTO.analytic.*;
 import it.unipi.myakiba.DTO.media.MediaInListsAnalyticDto;
 import it.unipi.myakiba.enumerator.MediaType;
 import it.unipi.myakiba.model.CliqueAnalytic;
@@ -47,13 +47,13 @@ public class AnalyticsService {
         this.mongoTemplate = mongoTemplate;
     }
 
-//   For each year, see the month with most registrations
-    public List<MonthAnalyticDto> getMonthlyRegistrations() throws Exception {
+    //   For each year, see the month with most registrations
+    public List<MonthAnalyticDto> getMonthlyRegistrations() {
         MonthAnalyticDto maxDocument = monthAnalyticRepository.findTopByOrderByIdDesc();
         int lastYearCalculated = maxDocument != null ? maxDocument.getYear() : 2000;
 
         List<MonthAnalyticDto> results = userMongoRepository.findMaxMonthByYearGreaterThan(lastYearCalculated);
-        for(MonthAnalyticDto result : results) {
+        for (MonthAnalyticDto result : results) {
             MonthAnalytic monthAnalytic = new MonthAnalytic();
             monthAnalytic.setYear(result.getYear());
             monthAnalytic.setMonth(result.getMonth());
@@ -63,33 +63,33 @@ public class AnalyticsService {
         return mongoTemplate.findAll(MonthAnalyticDto.class, "month_analytics");
     }
 
-    public List<ControversialMediaDto> getControversialMedia(MediaType mediaType) throws Exception {
-        if(mediaType == MediaType.MANGA) {
+    public List<ControversialMediaDto> getControversialMedia(MediaType mediaType) {
+        if (mediaType == MediaType.MANGA) {
             return mangaMongoRepository.findTopVarianceManga();
         } else {
             return animeMongoRepository.findTopVarianceAnime();
         }
     }
 
-    public List<TrendingMediaDto> getWorseningMedia(MediaType mediaType) throws Exception {
-        if(mediaType == MediaType.MANGA) {
+    public List<TrendingMediaDto> getDecliningMedia(MediaType mediaType) {
+        if (mediaType == MediaType.MANGA) {
             return mangaMongoRepository.findTopDecliningManga();
         } else {
             return animeMongoRepository.findTopDecliningAnime();
         }
     }
 
-    public List<TrendingMediaDto> getImprovingMedia(MediaType mediaType) throws Exception {
-        if(mediaType == MediaType.MANGA) {
+    public List<TrendingMediaDto> getImprovingMedia(MediaType mediaType) {
+        if (mediaType == MediaType.MANGA) {
             return mangaMongoRepository.findTopImprovingManga();
         } else {
             return animeMongoRepository.findTopImprovingAnime();
         }
     }
 
-    public List<CliqueAnalyticDto> getClique() throws Exception {
+    public List<CliqueAnalyticDto> getMaxClique() {
         List<CliqueAnalyticDto> results = userNeo4jRepository.findClique();
-        for(CliqueAnalyticDto result : results) {
+        for (CliqueAnalyticDto result : results) {
             CliqueAnalytic cliqueAnalytic = new CliqueAnalytic();
             cliqueAnalytic.setCliqueSize(result.getCliqueSize());
             cliqueAnalytic.setUserDetails(result.getUserDetails());
@@ -102,20 +102,20 @@ public class AnalyticsService {
         return results;
     }
 
-    public List<InfluencersDto> getInfluencers() throws Exception {
+    public List<InfluencersDto> getInfluencers() {
         return userNeo4jRepository.findMostFollowedUsers();
     }
 
-    public List<ListCounterAnalyticDto> getListCounter(MediaType mediaType) throws Exception {
-        if(mediaType == MediaType.MANGA) {
+    public List<ListCounterAnalyticDto> getListCounter(MediaType mediaType) {
+        if (mediaType == MediaType.MANGA) {
             return mangaNeo4jRepository.findListCounters();
         } else {
             return animeNeo4jRepository.findListCounters();
         }
     }
 
-    public List<MediaInListsAnalyticDto> getMediaInLists(MediaType mediaType) throws Exception {
-        if(mediaType == MediaType.MANGA) {
+    public List<MediaInListsAnalyticDto> getMediaInLists(MediaType mediaType) {
+        if (mediaType == MediaType.MANGA) {
             return mangaNeo4jRepository.findMangaAppearancesInLists();
         } else {
             return animeNeo4jRepository.findAnimeAppearancesInLists();

@@ -1,9 +1,8 @@
 package it.unipi.myakiba.repository;
 
-import it.unipi.myakiba.DTO.ControversialMediaDto;
-import it.unipi.myakiba.DTO.TrendingMediaDto;
+import it.unipi.myakiba.DTO.analytic.ControversialMediaDto;
+import it.unipi.myakiba.DTO.analytic.TrendingMediaDto;
 import it.unipi.myakiba.DTO.media.MediaIdNameDto;
-import it.unipi.myakiba.DTO.user.UserIdUsernameDto;
 import it.unipi.myakiba.model.AnimeMongo;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;

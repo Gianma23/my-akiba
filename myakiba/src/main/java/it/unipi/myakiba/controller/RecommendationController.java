@@ -2,7 +2,7 @@ package it.unipi.myakiba.controller;
 
 import io.swagger.v3.oas.annotations.tags.Tag;
 import it.unipi.myakiba.DTO.media.MediaIdNameDto;
-import it.unipi.myakiba.DTO.user.UsersSimilarityDto;
+import it.unipi.myakiba.DTO.user.UserIdUsernameDto;
 import it.unipi.myakiba.model.UserPrincipal;
 import it.unipi.myakiba.service.RecommendationService;
 import it.unipi.myakiba.enumerator.MediaType;
@@ -24,7 +24,7 @@ public class RecommendationController {
     }
 
     @GetMapping("/similar-users")
-    public ResponseEntity<List<UsersSimilarityDto>> getUsersWithSimilarTastes() {
+    public ResponseEntity<List<UserIdUsernameDto>> getUsersWithSimilarTastes() {
         UserPrincipal user = (UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         return ResponseEntity.ok(recommendationService.getUsersWithSimilarTastes(user.getUser().getId()));
     }

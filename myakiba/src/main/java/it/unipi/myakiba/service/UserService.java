@@ -2,7 +2,7 @@ package it.unipi.myakiba.service;
 
 import it.unipi.myakiba.DTO.media.MediaListsDto;
 import it.unipi.myakiba.DTO.user.*;
-import it.unipi.myakiba.DTO.ListElementDto;
+import it.unipi.myakiba.DTO.media.ListElementDto;
 import it.unipi.myakiba.config.JwtUtils;
 import it.unipi.myakiba.enumerator.MediaStatus;
 import it.unipi.myakiba.enumerator.MediaType;

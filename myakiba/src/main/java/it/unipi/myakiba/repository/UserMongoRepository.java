@@ -1,6 +1,6 @@
 package it.unipi.myakiba.repository;
 
-import it.unipi.myakiba.DTO.MonthAnalyticDto;
+import it.unipi.myakiba.DTO.analytic.MonthAnalyticDto;
 import it.unipi.myakiba.DTO.user.UserIdUsernameDto;
 import it.unipi.myakiba.model.UserMongo;
 import org.springframework.data.domain.Pageable;
@@ -23,7 +23,7 @@ public interface UserMongoRepository extends MongoRepository<UserMongo, String> 
     @Update("{ $addToSet: { followers: ?1 } }")
     void findAndPushFollowerById(String id, String followerId);
     @Update("{ $pull: { followers: ?1 } }")
-    void findAndPullFollowerById(String id, String followerId);
+    void findAndPullFollowerById(String id, String followerId); //TODO vedere se void va bene
     @Aggregation(pipeline = {
             "{ '$match': { '$expr': { '$gt': [ { '$year': '$date' }, ?0 ] } } }",
             "{ '$group': { '_id': { 'year': { '$year': '$date' }, 'month': { '$month': '$date' } }, 'count': { '$sum': 1 } } }",
