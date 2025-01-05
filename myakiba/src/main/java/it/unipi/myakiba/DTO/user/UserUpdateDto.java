@@ -1,5 +1,6 @@
 package it.unipi.myakiba.DTO.user;
 
+import it.unipi.myakiba.enumerator.PrivacyStatus;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
@@ -17,4 +18,5 @@ public class UserUpdateDto {
     private String email;
     @Past
     private LocalDate birthdate;
+    private PrivacyStatus privacyStatus;
 }

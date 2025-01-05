@@ -99,7 +99,7 @@ public class UserController {
     @PatchMapping("/user/lists/{mediaType}/{mediaId}")
     public ResponseEntity<String> modifyMediaInUserList(@PathVariable MediaType mediaType, @PathVariable String mediaId, @RequestBody @Min(0) int progress) {
         UserPrincipal user = (UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        return ResponseEntity.ok(userService.addMediaToUserList(user.getUser().getId(), mediaId, mediaType));
+        return ResponseEntity.ok(userService.modifyMediaInUserList(user.getUser().getId(), mediaId, mediaType, progress));
     }
 
     @DeleteMapping("/user/lists/{mediaId}")
@@ -111,15 +111,25 @@ public class UserController {
     /* ================================ FOLLOWERS CRUD ================================ */
 
     @GetMapping("/user/followers")
-    public ResponseEntity<List<UserNeo4j>> getUserFollowers() {
+    public ResponseEntity<List<UserIdUsernameDto>> getUserFollowers() {
         UserPrincipal user = (UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         return ResponseEntity.ok(userService.getUserFollowers(user.getUser().getId()));
     }
 
+    @GetMapping("/user/{userId}/followers")
+    public ResponseEntity<List<UserIdUsernameDto>> getUserFollowersById(@PathVariable String userId) {
+        return ResponseEntity.ok(userService.getUserFollowers(userId));
+    }
+
     @GetMapping("/user/following")
-    public ResponseEntity<List<UserNeo4j>> getUserFollowing() {
+    public ResponseEntity<List<UserIdUsernameDto>> getUserFollowing() {
         UserPrincipal user = (UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         return ResponseEntity.ok(userService.getUserFollowing(user.getUser().getId()));
+    }
+
+    @GetMapping("/user/{userId}/following")
+    public ResponseEntity<List<UserIdUsernameDto>> getUserFollowingById(@PathVariable String userId) {
+        return ResponseEntity.ok(userService.getUserFollowing(userId));
     }
 
     @PostMapping("/user/follow/{userId}")

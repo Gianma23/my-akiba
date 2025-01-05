@@ -3,6 +3,7 @@ package it.unipi.myakiba.repository;
 import it.unipi.myakiba.DTO.CliqueAnalyticDto;
 import it.unipi.myakiba.DTO.InfluencersDto;
 import it.unipi.myakiba.DTO.ListElementDto;
+import it.unipi.myakiba.DTO.user.UserIdUsernameDto;
 import it.unipi.myakiba.DTO.user.UsersSimilarityDto;
 import it.unipi.myakiba.model.UserNeo4j;
 import org.springframework.data.neo4j.repository.Neo4jRepository;
@@ -20,7 +21,7 @@ public interface UserNeo4jRepository extends Neo4jRepository<UserNeo4j, String> 
         $id = $currentUserId OR
         u.privacyStatus = 'ALL' OR
         (u.privacyStatus = 'FOLLOWERS' AND EXISTS {
-            MATCH (follower:User)-[:FOLLOWS]->(u)
+            MATCH (follower:User)-[:FOLLOW]->(u)
             WHERE follower.id = $currentUserId
         })
       )
@@ -35,7 +36,7 @@ public interface UserNeo4jRepository extends Neo4jRepository<UserNeo4j, String> 
         NOT $id = $currentUserId OR
         u.privacyStatus = 'ALL' OR
         (u.privacyStatus = 'FOLLOWERS' AND EXISTS {
-            MATCH (follower:User)-[:FOLLOWS]->(u)
+            MATCH (follower:User)-[:FOLLOW]->(u)
             WHERE follower.id = $currentUserId
         })
       )
@@ -43,6 +44,7 @@ public interface UserNeo4jRepository extends Neo4jRepository<UserNeo4j, String> 
     """)
     List<ListElementDto> findMangaListsById(String id, String currentUserId);
 
+    //TODO: controllare che mediaId esista
     @Query("MATCH (u:User {id: $userId}), (a:Anime {id: $mediaId})" +
             " MERGE (u)-[:LIST_ELEMENT {progress: 0}]->(a)")
     void addAnimeToList(String userId, String mediaId);
@@ -51,14 +53,52 @@ public interface UserNeo4jRepository extends Neo4jRepository<UserNeo4j, String> 
             " MERGE (u)-[:LIST_ELEMENT {progress: 0}]->(m)")
     void addMangaToList(String userId, String mediaId);
 
+    @Query("""
+        MATCH (u:User {id: $userId})-[rel:LIST_ELEMENT]->(a:Anime {id: $animeId})
+        SET rel.progress = $episodesWatched
+        RETURN rel
+    """)
+    void modifyAnimeInList(String userId, String animeId, int episodesWatched);
+
+    @Query("""
+        MATCH (u:User {id: $userId})-[rel:LIST_ELEMENT]->(m:Manga {id: $mangaId})
+        SET rel.progress = $chaptersRead
+        RETURN rel
+    """)
+    void modifyMangaInList(String userId, String mangaId, int chaptersRead);
+
     @Query("MATCH (u:User {id: $userId})-[r:LIST_ELEMENT]->(m:Media {id: $mediaId}) DELETE r")
     void removeMediaFromList(String userId, String mediaId);
 
-    @Query("MATCH (u:User)<-[:FOLLOW]-(f:User) WHERE u.id = $id RETURN f")
-    List<UserNeo4j> findFollowersById(String id);
+    @Query("""
+    MATCH (u:User)<-[:FOLLOW]-(f:User)
+    WHERE u.id = $id
+      AND (
+        NOT $id = $currentUserId OR
+        u.privacyStatus = 'ALL' OR
+        (u.privacyStatus = 'FOLLOWERS' AND EXISTS {
+            MATCH (follower:User)-[:FOLLOW]->(u)
+            WHERE follower.id = $currentUserId
+        })
+      )
+    RETURN f.id as id, f.username as username
+    """)
+    List<UserIdUsernameDto> findFollowersById(String id, String currentUserId);
 
-    @Query("MATCH (u:User)-[:FOLLOW]->(f:User) WHERE u.id = $id RETURN f")
-    List<UserNeo4j> findFollowedById(String id);
+    @Query("""
+    MATCH (u:User)-[:FOLLOW]->(f:User)
+    WHERE u.id = $id
+      AND (
+        NOT $id = $currentUserId OR
+        u.privacyStatus = 'ALL' OR
+        (u.privacyStatus = 'FOLLOWERS' AND EXISTS {
+            MATCH (follower:User)-[:FOLLOW]->(u)
+            WHERE follower.id = $currentUserId
+        })
+      )
+    RETURN f.id as id, f.username as username
+    """)
+    List<UserIdUsernameDto> findFollowedById(String id, String currentUserId);
 
     @Query("MATCH (u:User {id: $followerId}), (f:User {id: $followedId}) MERGE (u)-[:FOLLOW]->(f)")
     void followUser(String followerId, String followedId);

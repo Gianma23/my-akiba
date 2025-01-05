@@ -24,6 +24,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -59,13 +60,14 @@ public class UserService {
         newUserMongo.setEmail(user.getEmail());
         newUserMongo.setBirthdate(user.getBirthdate());
         newUserMongo.setRole("USER");
+        newUserMongo.setCreatedAt(LocalDate.now());
         newUserMongo.setPrivacyStatus(PrivacyStatus.ALL);
         userMongoRepository.save(newUserMongo);
 
         UserNeo4j newUserNeo4j = new UserNeo4j();
         newUserNeo4j.setId(newUserMongo.getId());
         newUserNeo4j.setUsername(user.getUsername());
-        newUserNeo4j.setEmail(user.getEmail());
+        newUserNeo4j.setPrivacyStatus(PrivacyStatus.ALL);
         userNeo4jRepository.save(newUserNeo4j);
     }
 
@@ -110,12 +112,17 @@ public class UserService {
         if (updates.getBirthdate() != null) {
             user.setBirthdate(updates.getBirthdate());
         }
+        if (updates.getPrivacyStatus() != null) {
+            user.setPrivacyStatus(updates.getPrivacyStatus());
+        }
+        //TODO: update neo4j user
         userMongoRepository.save(user);
         return new UserNoPwdDto(user.getUsername(), user.getEmail(), user.getBirthdate(), user.getPrivacyStatus());
     }
 
     public UserNoPwdDto deleteUser(UserMongo user) {
         userMongoRepository.delete(user);
+        //TODO: delete neo4j user
         return new UserNoPwdDto(user.getUsername(), user.getEmail(), user.getBirthdate(), user.getPrivacyStatus());
     }
 
@@ -137,6 +144,7 @@ public class UserService {
         );
 
         for (ListElementDto element : mediaList) {
+            System.out.println(element);
             if (element.getProgress() == 0) {
                 mediaLists.plannedList().add(element);
             } else if (element.getProgress() < element.getTotal() && element.getStatus() != MediaStatus.COMPLETE) {
@@ -157,6 +165,15 @@ public class UserService {
         return "Media added to user list";
     }
 
+    public String modifyMediaInUserList(String userId, String mediaId, MediaType mediaType, int progress) {
+        if (mediaType == MediaType.ANIME) {
+            userNeo4jRepository.modifyAnimeInList(userId, mediaId, progress);
+        } else {
+            userNeo4jRepository.modifyMangaInList(userId, mediaId, progress);
+        }
+        return "Media modified in user list";
+    }
+
     public String removeMediaFromUserList(String userId, String mediaId) {
         userNeo4jRepository.removeMediaFromList(userId, mediaId);
         return "Media removed from user list";
@@ -164,12 +181,14 @@ public class UserService {
 
     /* ================================ FOLLOWERS CRUD ================================ */
 
-    public List<UserNeo4j> getUserFollowers(String id) {
-        return userNeo4jRepository.findFollowersById(id);
+    public List<UserIdUsernameDto> getUserFollowers(String id) {
+        UserPrincipal principal = (UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        return userNeo4jRepository.findFollowersById(id, principal.getUser().getId());
     }
 
-    public List<UserNeo4j> getUserFollowing(String id) {
-        return userNeo4jRepository.findFollowedById(id);
+    public List<UserIdUsernameDto> getUserFollowing(String id) {
+        UserPrincipal principal = (UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        return userNeo4jRepository.findFollowedById(id, principal.getUser().getId());
     }
 
     public String followUser(String followerId, String followedId) {
