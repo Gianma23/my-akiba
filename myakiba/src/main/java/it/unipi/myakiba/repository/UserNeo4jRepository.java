@@ -3,8 +3,11 @@ package it.unipi.myakiba.repository;
 import it.unipi.myakiba.DTO.CliqueAnalyticDto;
 import it.unipi.myakiba.DTO.InfluencersDto;
 import it.unipi.myakiba.DTO.ListElementDto;
+import it.unipi.myakiba.DTO.media.MediaIdNameDto;
 import it.unipi.myakiba.DTO.user.UserIdUsernameDto;
 import it.unipi.myakiba.DTO.user.UsersSimilarityDto;
+import it.unipi.myakiba.enumerator.MediaType;
+import it.unipi.myakiba.model.MediaMongo;
 import it.unipi.myakiba.model.UserNeo4j;
 import org.springframework.data.neo4j.repository.Neo4jRepository;
 import org.springframework.data.neo4j.repository.query.Query;
@@ -138,6 +141,15 @@ public interface UserNeo4jRepository extends Neo4jRepository<UserNeo4j, String> 
     LIMIT 10
     """)
     List<UsersSimilarityDto> findUsersWithSimilarTastes(String userId);
+
+    @Query("""
+    MATCH (user:User)-[:FOLLOWS]->(:User)-[:LIST_ELEMENT]->(media)
+    WHERE (media:Anime AND $mediaType = 'ANIME') OR (media:Manga AND $mediaType = 'MANGA')
+    RETURN media.id AS id, media.name AS name, COUNT(*) AS popularity
+    ORDER BY popularity DESC
+    LIMIT 10
+    """)
+    List<MediaIdNameDto> findPopularMediaAmongFollows(MediaType mediaType);
 
     @Query("""
         MATCH (u:User)<-[:FOLLOW]-(f:User)

@@ -1,6 +1,7 @@
 package it.unipi.myakiba.controller;
 
 import io.swagger.v3.oas.annotations.tags.Tag;
+import it.unipi.myakiba.DTO.media.MediaIdNameDto;
 import it.unipi.myakiba.DTO.user.UsersSimilarityDto;
 import it.unipi.myakiba.model.UserPrincipal;
 import it.unipi.myakiba.service.RecommendationService;
@@ -28,9 +29,10 @@ public class RecommendationController {
         return ResponseEntity.ok(recommendationService.getUsersWithSimilarTastes(user.getUser().getId()));
     }
 
-    @GetMapping("/popular-among-follows")
-    public String getPopularMediaAmongFollows() {
-        return "";
+    @GetMapping("/popular-among-follows/{mediaType}")
+    public ResponseEntity<List<MediaIdNameDto>> getPopularMediaAmongFollows(@PathVariable MediaType mediaType) {
+        UserPrincipal user = (UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        return ResponseEntity.ok(recommendationService.getPopularMediaAmongFollows(mediaType));
     }
 
     @GetMapping("/top10media/{mediaType}")
