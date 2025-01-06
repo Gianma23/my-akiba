@@ -17,7 +17,6 @@ public record UserRegistrationDto (
     @NotBlank
     @Email
     String email,
-    @NotBlank
     @Past
     LocalDate birthdate
 ) {}

@@ -1,5 +1,6 @@
 package it.unipi.myakiba.service;
 
+import it.unipi.myakiba.DTO.media.AddReviewDto;
 import it.unipi.myakiba.DTO.media.MediaCreationDto;
 import it.unipi.myakiba.DTO.media.MediaIdNameDto;
 import it.unipi.myakiba.DTO.media.ReviewDto;
@@ -14,6 +15,7 @@ import org.springframework.data.domain.Slice;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 
@@ -23,16 +25,16 @@ public class MediaService {
     private final AnimeNeo4jRepository animeNeo4jRepository;
     private final MangaMongoRepository mangaMongoRepository;
     private final AnimeMongoRepository animeMongoRepository;
-    private final MongoTemplate mongoTemplate;
 
     @Autowired
-    public MediaService(MangaNeo4jRepository mangaNeo4jRepository, AnimeNeo4jRepository animeNeo4jRepository, MangaMongoRepository mangaMongoRepository, AnimeMongoRepository animeMongoRepository, MongoTemplate mongoTemplate) {
+    public MediaService(MangaNeo4jRepository mangaNeo4jRepository, AnimeNeo4jRepository animeNeo4jRepository, MangaMongoRepository mangaMongoRepository, AnimeMongoRepository animeMongoRepository) {
         this.mangaNeo4jRepository = mangaNeo4jRepository;
         this.animeNeo4jRepository = animeNeo4jRepository;
         this.mangaMongoRepository = mangaMongoRepository;
         this.animeMongoRepository = animeMongoRepository;
-        this.mongoTemplate = mongoTemplate;
     }
+
+    /* ================================ MEDIA CRUD ================================ */
 
     public Slice<MediaIdNameDto> browseMedia(MediaType mediaType, String name, int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
@@ -222,6 +224,35 @@ public class MediaService {
             animeNeo4jRepository.delete(targetNeo4j);
         }
         return "Successfully deleted media";
+    }
+
+    /* ================================ REVIEWS ================================ */
+
+    public String addReview(MediaType mediaType, String mediaId, UserMongo user, AddReviewDto review) throws Exception {
+        ReviewDto newReview = new ReviewDto();
+        newReview.setUserId(user.getId());
+        newReview.setUsername(user.getUsername());
+        newReview.setScore(review.getScore());
+        newReview.setComment(review.getComment());
+        newReview.setDate(LocalDate.now());
+
+        if(mediaType == MediaType.MANGA) {
+            MangaMongo targetMongo = mangaMongoRepository.findById(mediaId)
+                    .orElseThrow(() -> new Exception("Media not found with id: " + mediaId));
+            List<ReviewDto> reviews = targetMongo.getReviews();
+            reviews.add(newReview);
+            targetMongo.setReviews(reviews);
+            mangaMongoRepository.save(targetMongo);
+        } else {
+            AnimeMongo targetMongo = animeMongoRepository.findById(mediaId)
+                    .orElseThrow(() -> new Exception("Media not found with id: " + mediaId));
+            List<ReviewDto> reviews = targetMongo.getReviews();
+            reviews.add(newReview);
+            targetMongo.setReviews(reviews);
+            animeMongoRepository.save(targetMongo);
+        }
+        return "Successfully added review";
+
     }
 
     public String deleteReview(String mediaId, String reviewId, MediaType mediaType) throws Exception {

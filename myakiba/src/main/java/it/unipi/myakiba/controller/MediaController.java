@@ -1,6 +1,7 @@
 package it.unipi.myakiba.controller;
 
 import io.swagger.v3.oas.annotations.tags.Tag;
+import it.unipi.myakiba.DTO.media.AddReviewDto;
 import it.unipi.myakiba.DTO.media.MediaIdNameDto;
 import it.unipi.myakiba.DTO.user.UserIdUsernameDto;
 import it.unipi.myakiba.enumerator.MediaType;
@@ -47,5 +48,13 @@ public class MediaController {
         }
     }
 
-    //TODO aggiunta recensione
+    @PostMapping("/{mediaType}/{mediaId}/review")
+    public ResponseEntity<String> addReview(@PathVariable MediaType mediaType, @PathVariable String mediaId, @RequestBody AddReviewDto review) {
+        UserPrincipal user = (UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        try {
+            return ResponseEntity.ok(mediaService.addReview(mediaType, mediaId, user.getUser(), review));
+        } catch (Exception e) {
+            return ResponseEntity.notFound().build();
+        }
+    }
 }

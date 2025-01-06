@@ -25,6 +25,7 @@ public interface UserMongoRepository extends MongoRepository<UserMongo, String> 
     @Update("{ $pull: { followers: ?1 } }")
     void findAndPullFollowerById(String id, String followerId); //TODO vedere se void va bene
 
+    @Query("{ 'followers': ?0 }")
     @Update("{ $pull: { followers: ?0 } }")
     void deleteUserFromFollowers(String id);
 
