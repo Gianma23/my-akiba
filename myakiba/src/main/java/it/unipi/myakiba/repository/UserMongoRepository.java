@@ -24,6 +24,10 @@ public interface UserMongoRepository extends MongoRepository<UserMongo, String> 
     void findAndPushFollowerById(String id, String followerId);
     @Update("{ $pull: { followers: ?1 } }")
     void findAndPullFollowerById(String id, String followerId); //TODO vedere se void va bene
+
+    @Update("{ $pull: { followers: ?0 } }")
+    void deleteUserFromFollowers(String id);
+
     @Aggregation(pipeline = {
             "{ '$match': { '$expr': { '$gt': [ { '$year': '$date' }, ?0 ] } } }",
             "{ '$group': { '_id': { 'year': { '$year': '$date' }, 'month': { '$month': '$date' } }, 'count': { '$sum': 1 } } }",

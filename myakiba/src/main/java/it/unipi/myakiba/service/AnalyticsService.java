@@ -51,7 +51,7 @@ public class AnalyticsService {
     public List<MonthAnalyticDto> getMonthlyRegistrations() {
         MonthAnalyticDto maxDocument = monthAnalyticRepository.findTopByOrderByIdDesc();
         int lastYearCalculated = maxDocument != null ? maxDocument.getYear() : 2000;
-
+        // TODO: non mi torna cosa fa
         List<MonthAnalyticDto> results = userMongoRepository.findMaxMonthByYearGreaterThan(lastYearCalculated);
         for (MonthAnalyticDto result : results) {
             MonthAnalytic monthAnalytic = new MonthAnalytic();

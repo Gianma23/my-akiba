@@ -10,6 +10,8 @@ import it.unipi.myakiba.enumerator.PrivacyStatus;
 import it.unipi.myakiba.model.UserMongo;
 import it.unipi.myakiba.model.UserNeo4j;
 import it.unipi.myakiba.model.UserPrincipal;
+import it.unipi.myakiba.repository.AnimeMongoRepository;
+import it.unipi.myakiba.repository.MangaMongoRepository;
 import it.unipi.myakiba.repository.UserMongoRepository;
 import it.unipi.myakiba.repository.UserNeo4jRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,30 +37,34 @@ public class UserService {
     private final UserMongoRepository userMongoRepository;
     private final PasswordEncoder encoder;
     private final UserNeo4jRepository userNeo4jRepository;
+    private final AnimeMongoRepository animeMongoRepository;
+    private final MangaMongoRepository mangaMongoRepository;
 
     @Autowired
-    public UserService(AuthenticationManager authManager, UserMongoRepository userMongoRepository, PasswordEncoder encoder, UserNeo4jRepository userNeo4jRepository) {
+    public UserService(AuthenticationManager authManager, UserMongoRepository userMongoRepository, PasswordEncoder encoder, UserNeo4jRepository userNeo4jRepository, AnimeMongoRepository animeMongoRepository, MangaMongoRepository mangaMongoRepository) {
         this.authManager = authManager;
         this.userMongoRepository = userMongoRepository;
         this.encoder = encoder;
         this.userNeo4jRepository = userNeo4jRepository;
+        this.animeMongoRepository = animeMongoRepository;
+        this.mangaMongoRepository = mangaMongoRepository;
     }
 
     /* ================================ AUTHENTICATION ================================ */
 
     public void registerUser(UserRegistrationDto user) {
-        if (userMongoRepository.existsByUsername((user.getUsername()))) {
+        if (userMongoRepository.existsByUsername(user.username())) {
             throw new IllegalArgumentException("Username already exists");
         }
-        if (userMongoRepository.existsByEmail((user.getEmail()))) {
+        if (userMongoRepository.existsByEmail(user.email())) {
             throw new IllegalArgumentException("Email already exists");
         }
 
         UserMongo newUserMongo = new UserMongo();
-        newUserMongo.setUsername(user.getUsername());
-        newUserMongo.setPassword(encoder.encode(user.getPassword()));
-        newUserMongo.setEmail(user.getEmail());
-        newUserMongo.setBirthdate(user.getBirthdate());
+        newUserMongo.setUsername(user.username());
+        newUserMongo.setPassword(encoder.encode(user.password()));
+        newUserMongo.setEmail(user.email());
+        newUserMongo.setBirthdate(user.birthdate());
         newUserMongo.setRole("USER");
         newUserMongo.setCreatedAt(LocalDate.now());
         newUserMongo.setPrivacyStatus(PrivacyStatus.ALL);
@@ -66,7 +72,7 @@ public class UserService {
 
         UserNeo4j newUserNeo4j = new UserNeo4j();
         newUserNeo4j.setId(newUserMongo.getId());
-        newUserNeo4j.setUsername(user.getUsername());
+        newUserNeo4j.setUsername(user.username());
         newUserNeo4j.setPrivacyStatus(PrivacyStatus.ALL);
         userNeo4jRepository.save(newUserNeo4j);
     }
@@ -100,29 +106,49 @@ public class UserService {
     }
 
     public UserNoPwdDto updateUser(UserMongo user, UserUpdateDto updates) {
-        if (updates.getUsername() != null) {
-            user.setUsername(updates.getUsername());
+        if (updates.username() != null) {
+            if (userMongoRepository.existsByUsername(updates.username())) {
+                throw new IllegalArgumentException("Username already exists");
+            }
+            //updates reviews username
+            animeMongoRepository.updateReviewsByUsername(user.getUsername(), updates.username());
+            mangaMongoRepository.updateReviewsByUsername(user.getUsername(), updates.username());
+            user.setUsername(updates.username());
         }
-        if (updates.getPassword() != null) {
-            user.setPassword(encoder.encode(updates.getPassword()));
+        if (updates.password() != null) {
+            user.setPassword(encoder.encode(updates.password()));
         }
-        if (updates.getEmail() != null) {
-            user.setEmail(updates.getEmail());
+        if (updates.email() != null) {
+            if (userMongoRepository.existsByEmail(updates.email())) {
+                throw new IllegalArgumentException("Email already exists");
+            }
+            user.setEmail(updates.email());
         }
-        if (updates.getBirthdate() != null) {
-            user.setBirthdate(updates.getBirthdate());
+        if (updates.birthdate() != null) {
+            user.setBirthdate(updates.birthdate());
         }
-        if (updates.getPrivacyStatus() != null) {
-            user.setPrivacyStatus(updates.getPrivacyStatus());
+        if (updates.privacyStatus() != null) {
+            user.setPrivacyStatus(updates.privacyStatus());
         }
-        //TODO: update neo4j user
         userMongoRepository.save(user);
+
+        UserNeo4j userNeo4j = userNeo4jRepository.findById(user.getId())
+                .orElseThrow(() -> new IllegalArgumentException("User not found"));
+        userNeo4j.setUsername(user.getUsername());
+        userNeo4j.setPrivacyStatus(user.getPrivacyStatus());
+        userNeo4jRepository.save(userNeo4j);
+
         return new UserNoPwdDto(user.getUsername(), user.getEmail(), user.getBirthdate(), user.getPrivacyStatus());
     }
 
     public UserNoPwdDto deleteUser(UserMongo user) {
         userMongoRepository.delete(user);
-        //TODO: delete neo4j user
+
+        animeMongoRepository.deleteReviewsByUsername(user.getUsername());
+        mangaMongoRepository.deleteReviewsByUsername(user.getUsername());
+        userMongoRepository.deleteUserFromFollowers(user.getId());
+
+        userNeo4jRepository.deleteById(user.getId());
         return new UserNoPwdDto(user.getUsername(), user.getEmail(), user.getBirthdate(), user.getPrivacyStatus());
     }
 
@@ -157,26 +183,45 @@ public class UserService {
     }
 
     public String addMediaToUserList(String userId, String mediaId, MediaType mediaType) {
+        boolean success;
         if (mediaType == MediaType.ANIME) {
-            userNeo4jRepository.addAnimeToList(userId, mediaId);
+            success = userNeo4jRepository.addAnimeToList(userId, mediaId);
         } else {
-            userNeo4jRepository.addMangaToList(userId, mediaId);
+            success = userNeo4jRepository.addMangaToList(userId, mediaId);
+        }
+
+        if (!success) {
+            throw new IllegalArgumentException("Media not found");
         }
         return "Media added to user list";
     }
 
     public String modifyMediaInUserList(String userId, String mediaId, MediaType mediaType, int progress) {
+        boolean success;
         if (mediaType == MediaType.ANIME) {
-            userNeo4jRepository.modifyAnimeInList(userId, mediaId, progress);
+            success = userNeo4jRepository.modifyAnimeInList(userId, mediaId, progress);
         } else {
-            userNeo4jRepository.modifyMangaInList(userId, mediaId, progress);
+            success = userNeo4jRepository.modifyMangaInList(userId, mediaId, progress);
+        }
+
+        if (!success) {
+            throw new IllegalArgumentException("Media not found");
         }
         return "Media modified in user list";
     }
 
-    public String removeMediaFromUserList(String userId, String mediaId) {
-        userNeo4jRepository.removeMediaFromList(userId, mediaId);
-        return "Media removed from user list";
+    public String removeMediaFromUserList(String userId, String mediaId, MediaType mediaType) {
+        boolean success;
+        if (mediaType == MediaType.ANIME) {
+            success = userNeo4jRepository.removeAnimeFromList(userId, mediaId);
+        } else {
+            success = userNeo4jRepository.removeMangaFromList(userId, mediaId);
+        }
+
+        if (!success) {
+            throw new IllegalArgumentException("Media not found");
+        }
+        return "Media deleted in user list";
     }
 
     /* ================================ FOLLOWERS CRUD ================================ */
@@ -192,13 +237,20 @@ public class UserService {
     }
 
     public String followUser(String followerId, String followedId) {
-        userNeo4jRepository.followUser(followerId, followedId);
+        // TODO controllare che non si segua da solo
+        boolean success = userNeo4jRepository.followUser(followerId, followedId);
+        if (!success) {
+            throw new IllegalArgumentException("User not found");
+        }
         userMongoRepository.findAndPushFollowerById(followedId, followerId);
         return "User followed";
     }
 
     public String unfollowUser(String followerId, String followedId) {
-        userNeo4jRepository.unfollowUser(followerId, followedId);
+        boolean success = userNeo4jRepository.unfollowUser(followerId, followedId);
+        if (!success) {
+            throw new IllegalArgumentException("User not found");
+        }
         userMongoRepository.findAndPullFollowerById(followedId, followerId);
         return "User unfollowed";
     }

@@ -43,7 +43,7 @@ public class MediaService {
         }
     }
 
-    public MediaMongo getMediaById(MediaType mediaType, String mediaId) throws Exception{
+    public MediaMongo getMediaById(MediaType mediaType, String mediaId) throws Exception {
         return mediaType == MediaType.MANGA ? mangaMongoRepository.findById(mediaId)
                 .orElseThrow(() -> new Exception("Media not found with id: " + mediaId)) :
                 animeMongoRepository.findById(mediaId)

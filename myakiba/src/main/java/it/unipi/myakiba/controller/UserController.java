@@ -19,6 +19,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import it.unipi.myakiba.model.UserMongo;
 
+import javax.print.attribute.standard.Media;
 import java.util.List;
 
 @Validated
@@ -102,10 +103,10 @@ public class UserController {
         return ResponseEntity.ok(userService.modifyMediaInUserList(user.getUser().getId(), mediaId, mediaType, progress));
     }
 
-    @DeleteMapping("/user/lists/{mediaId}")
-    public ResponseEntity<String> removeMediaFromUserList(@PathVariable String mediaId) {
+    @DeleteMapping("/user/lists/{mediaType}/{mediaId}")
+public ResponseEntity<String> removeMediaFromUserList(@PathVariable MediaType mediaType, @PathVariable String mediaId) {
         UserPrincipal user = (UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        return ResponseEntity.ok(userService.removeMediaFromUserList(user.getUser().getId(), mediaId));
+        return ResponseEntity.ok(userService.removeMediaFromUserList(user.getUser().getId(), mediaId, mediaType));
     }
 
     /* ================================ FOLLOWERS CRUD ================================ */

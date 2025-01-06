@@ -9,6 +9,7 @@ import org.springframework.data.domain.Slice;
 import org.springframework.data.mongodb.repository.Aggregation;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.data.mongodb.repository.Query;
+import org.springframework.data.mongodb.repository.Update;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -17,6 +18,14 @@ import java.util.List;
 public interface MangaMongoRepository extends MongoRepository<MangaMongo, String> {
     @Query("{ 'name': { $regex: ?0, $options: 'i' } }")
     Slice<MediaIdNameDto> findByNameContaining(String name, Pageable pageable);
+
+    @Query("{ 'reviews.username': ?0 }")
+    @Update("{ '$set': { 'reviews.$.username': ?1 } }")
+    void updateReviewsByUsername(String oldUsername, String newUsername);
+
+    @Query("{ 'reviews.username': ?0 }")
+    @Update("{ '$pull': { 'reviews': { 'username': ?0 } } }")
+    void deleteReviewsByUsername(String username);
 
     @Aggregation(pipeline = {
             "{ '$unwind': '$reviews' }",                                            // Fase 1: Unwind per separare le review embedded

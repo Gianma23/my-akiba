@@ -1,22 +1,19 @@
 package it.unipi.myakiba.DTO.user;
 
 import it.unipi.myakiba.enumerator.PrivacyStatus;
-import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.Min;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Past;
+import jakarta.validation.constraints.*;
 import lombok.Data;
 
 import java.time.LocalDate;
 
-@Data
-public class UserUpdateDto {
-    private String username;
-    @Min(4)
-    private String password;
-    @Email
-    private String email;
-    @Past
-    private LocalDate birthdate;
-    private PrivacyStatus privacyStatus;
-}
+public record UserUpdateDto(
+        @NotEmpty
+        String username,
+        @Min(4)
+        String password,
+        @Email
+        String email,
+        @Past
+        LocalDate birthdate,
+        PrivacyStatus privacyStatus
+){}

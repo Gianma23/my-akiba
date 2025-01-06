@@ -45,31 +45,41 @@ public interface UserNeo4jRepository extends Neo4jRepository<UserNeo4j, String> 
             """)
     List<ListElementDto> findMangaListsById(String id, String currentUserId);
 
-    //TODO: controllare che mediaId esista
-    @Query("MATCH (u:User {id: $userId}), (a:Anime {id: $mediaId})" +
-            " MERGE (u)-[:LIST_ELEMENT {progress: 0}]->(a)")
-    void addAnimeToList(String userId, String mediaId);
+    @Query("MATCH (u:User {id: $userId})" +
+            " MATCH (a:Anime {id: $mediaId})" +
+            " MERGE (u)-[:LIST_ELEMENT {progress: 0}]->(a)" +
+            " RETURN count(a) > 0")
+    boolean addAnimeToList(String userId, String mediaId);
 
-    @Query("MATCH (u:User {id: $userId}), (m:Manga {id: $mediaId})" +
-            " MERGE (u)-[:LIST_ELEMENT {progress: 0}]->(m)")
-    void addMangaToList(String userId, String mediaId);
-
-    @Query("""
-                MATCH (u:User {id: $userId})-[rel:LIST_ELEMENT]->(a:Anime {id: $animeId})
-                SET rel.progress = $episodesWatched
-                RETURN rel
-            """)
-    void modifyAnimeInList(String userId, String animeId, int episodesWatched);
+    @Query("MATCH (u:User {id: $userId})" +
+            " MATCH (m:Manga {id: $mediaId})" +
+            " MERGE (u)-[:LIST_ELEMENT {progress: 0}]->(m)" +
+            "RETURN count(m) > 0")
+    boolean addMangaToList(String userId, String mediaId);
 
     @Query("""
-                MATCH (u:User {id: $userId})-[rel:LIST_ELEMENT]->(m:Manga {id: $mangaId})
-                SET rel.progress = $chaptersRead
-                RETURN rel
+            MATCH (u:User {id: $userId})-[rel:LIST_ELEMENT]->(a:Anime {id: $animeId})
+            SET rel.progress = $episodesWatched
+            RETURN COUNT(a) > 0
             """)
-    void modifyMangaInList(String userId, String mangaId, int chaptersRead);
+    boolean modifyAnimeInList(String userId, String animeId, int episodesWatched);
 
-    @Query("MATCH (u:User {id: $userId})-[r:LIST_ELEMENT]->(m:Media {id: $mediaId}) DELETE r")
-    void removeMediaFromList(String userId, String mediaId);
+    @Query("""
+            MATCH (u:User {id: $userId})-[rel:LIST_ELEMENT]->(m:Manga {id: $mangaId})
+            SET rel.progress = $chaptersRead
+            RETURN count(m) > 0
+            """)
+    boolean modifyMangaInList(String userId, String mangaId, int chaptersRead);
+
+    @Query("MATCH (u:User {id: $userId})-[r:LIST_ELEMENT]->(a:Anime {id: $mediaId})" +
+            " DELETE r" +
+            " RETURN count(a) > 0")
+    boolean removeAnimeFromList(String userId, String mediaId);
+
+    @Query("MATCH (u:User {id: $userId})-[r:LIST_ELEMENT]->(m:Manga {id: $mediaId})" +
+            " DELETE r" +
+            " RETURN count(m) > 0")
+    boolean removeMangaFromList(String userId, String mediaId);
 
     @Query("""
             MATCH (u:User)<-[:FOLLOW]-(f:User)
@@ -101,11 +111,13 @@ public interface UserNeo4jRepository extends Neo4jRepository<UserNeo4j, String> 
             """)
     List<UserIdUsernameDto> findFollowedById(String id, String currentUserId);
 
-    @Query("MATCH (u:User {id: $followerId}), (f:User {id: $followedId}) MERGE (u)-[:FOLLOW]->(f)")
-    void followUser(String followerId, String followedId);
+    @Query("MATCH (u:User {id: $followerId}), (f:User {id: $followedId}) MERGE (u)-[:FOLLOW]->(f)" +
+            " RETURN count(f) > 0")
+    boolean followUser(String followerId, String followedId);
 
-    @Query("MATCH (u:User {id: $followerId})-[r:FOLLOW]->(f:User {id: $followedId}) DELETE r")
-    void unfollowUser(String followerId, String followedId);
+    @Query("MATCH (u:User {id: $followerId})-[r:FOLLOW]->(f:User {id: $followedId}) DELETE r" +
+            " RETURN count(f) > 0")
+    boolean unfollowUser(String followerId, String followedId);
 
     @Query("""
             MATCH (u:User {id: $userId})-[:LIST_ELEMENT]->(target)<-[:LIST_ELEMENT]-(other:User)

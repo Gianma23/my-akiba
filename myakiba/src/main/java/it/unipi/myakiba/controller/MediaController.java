@@ -35,11 +35,7 @@ public class MediaController {
             @RequestParam(defaultValue = "") String name,
             @RequestParam(defaultValue = "0") @Min(0) int page,
             @RequestParam(defaultValue = "10") @Min(0) @Max(100) int size) {
-        try {
-            return ResponseEntity.ok(mediaService.browseMedia(mediaType, name, page, size));
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().build();
-        }
+        return ResponseEntity.ok(mediaService.browseMedia(mediaType, name, page, size));
     }
 
     @GetMapping("/{mediaType}/{mediaId}")
@@ -47,7 +43,9 @@ public class MediaController {
         try {
             return ResponseEntity.ok(mediaService.getMediaById(mediaType, mediaId));
         } catch (Exception e) {
-            return ResponseEntity.badRequest().build();
+            return ResponseEntity.notFound().build();
         }
     }
+
+    //TODO aggiunta recensione
 }
