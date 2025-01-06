@@ -8,15 +8,16 @@ import lombok.Data;
 
 import java.time.LocalDate;
 
-public record UserRegistrationDto (
-    @NotBlank
-    String username,
-    @NotBlank
-    @Min(4)
-    String password,
-    @NotBlank
-    @Email
-    String email,
-    @Past
-    LocalDate birthdate
-) {}
+public record UserRegistrationDto(
+        @NotBlank
+        String username,
+        @NotBlank
+        @Min(4)
+        String password,
+        @NotBlank
+        @Email
+        String email,
+        @Past
+        LocalDate birthdate
+) {
+}

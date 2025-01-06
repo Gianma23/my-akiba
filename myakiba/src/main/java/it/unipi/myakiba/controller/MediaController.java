@@ -41,7 +41,7 @@ public class MediaController {
 
     @GetMapping("/{mediaType}/{mediaId}")
     public ResponseEntity<MediaMongo> getMediaById(@PathVariable MediaType mediaType, @PathVariable String mediaId) {
-        try {
+        try {//TODO return DTO with average score
             return ResponseEntity.ok(mediaService.getMediaById(mediaType, mediaId));
         } catch (Exception e) {
             return ResponseEntity.notFound().build();

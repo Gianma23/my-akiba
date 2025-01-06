@@ -19,7 +19,6 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import it.unipi.myakiba.model.UserMongo;
 
-import javax.print.attribute.standard.Media;
 import java.util.List;
 
 @Validated
@@ -104,7 +103,7 @@ public class UserController {
     }
 
     @DeleteMapping("/user/lists/{mediaType}/{mediaId}")
-public ResponseEntity<String> removeMediaFromUserList(@PathVariable MediaType mediaType, @PathVariable String mediaId) {
+    public ResponseEntity<String> removeMediaFromUserList(@PathVariable MediaType mediaType, @PathVariable String mediaId) {
         UserPrincipal user = (UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         return ResponseEntity.ok(userService.removeMediaFromUserList(user.getUser().getId(), mediaId, mediaType));
     }
@@ -136,6 +135,9 @@ public ResponseEntity<String> removeMediaFromUserList(@PathVariable MediaType me
     @PostMapping("/user/follow/{userId}")
     public ResponseEntity<String> followUser(@PathVariable String userId) {
         UserPrincipal user = (UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        if (user.getUser().getId().equals(userId)) {
+            return ResponseEntity.badRequest().body("You can't follow yourself");
+        }
         return ResponseEntity.ok(userService.followUser(user.getUser().getId(), userId));
     }
 

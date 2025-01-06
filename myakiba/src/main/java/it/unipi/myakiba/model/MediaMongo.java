@@ -3,6 +3,7 @@ package it.unipi.myakiba.model;
 import it.unipi.myakiba.DTO.media.ReviewDto;
 import it.unipi.myakiba.enumerator.MediaStatus;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotEmpty;
 import lombok.Data;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
@@ -30,8 +31,10 @@ public abstract class MediaMongo {
     @NotBlank
     private List<String> genres;
 
+    @NotEmpty
     private String type;
 
+    @NotEmpty
     private String synopsis;
 
     private List<ReviewDto> reviews;

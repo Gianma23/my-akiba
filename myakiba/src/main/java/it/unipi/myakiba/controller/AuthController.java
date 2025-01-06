@@ -5,6 +5,7 @@ import it.unipi.myakiba.DTO.user.AccessTokenDto;
 import it.unipi.myakiba.DTO.user.UserLoginDto;
 import it.unipi.myakiba.DTO.user.UserRegistrationDto;
 import it.unipi.myakiba.model.UserMongo;
+import it.unipi.myakiba.service.AuthService;
 import it.unipi.myakiba.service.UserService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,25 +18,25 @@ import org.springframework.web.bind.annotation.*;
 @Tag(name = "Authentication", description = "User authentication operations")
 public class AuthController {
 
-    private final UserService userService;
+    private final AuthService authService;
 
     @Autowired
-    public AuthController(UserService userService) {
-        this.userService = userService;
+    public AuthController(AuthService authService) {
+        this.authService = authService;
     }
 
     /* ================================ AUTHENTICATION ================================ */
 
     @PostMapping("/register")
     public ResponseEntity<UserMongo> registerUser(@Valid @RequestBody UserRegistrationDto user) {
-        userService.registerUser(user);
+        authService.registerUser(user);
         return ResponseEntity.ok().build();
     }
 
     @PostMapping("/login")
     public ResponseEntity<?> loginUser(@RequestBody UserLoginDto user) {
         try {
-            String token = userService.loginUser(user);
+            String token = authService.loginUser(user);
             if (token != null) {
                 return ResponseEntity.ok(new AccessTokenDto(token));
             } else try {

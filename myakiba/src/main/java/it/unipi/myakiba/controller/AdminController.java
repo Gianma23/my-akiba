@@ -4,6 +4,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import it.unipi.myakiba.DTO.analytic.*;
 import it.unipi.myakiba.DTO.media.MediaCreationDto;
 import it.unipi.myakiba.DTO.media.MediaInListsAnalyticDto;
+import it.unipi.myakiba.DTO.media.MediaUpdateDto;
 import it.unipi.myakiba.DTO.user.UserNoPwdDto;
 import it.unipi.myakiba.enumerator.MediaType;
 import it.unipi.myakiba.service.AnalyticsService;
@@ -14,6 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.print.attribute.standard.Media;
 import java.util.List;
 import java.util.Map;
 
@@ -34,14 +36,14 @@ public class AdminController {
 
     /* ================================ MEDIA MANAGEMENT ================================ */
 
-    @PostMapping("/media")
-    public ResponseEntity<String> addMedia(@RequestBody MediaCreationDto media) {
-        return ResponseEntity.ok(mediaService.addMedia(media));
+    @PostMapping("/media/{mediaType}")
+    public ResponseEntity<String> addMedia(@PathVariable MediaType mediaType, @RequestBody MediaCreationDto media) {
+        return ResponseEntity.ok(mediaService.addMedia(mediaType, media));
     }
 
     @PatchMapping("/media/{mediaType}/{mediaId}")
     public ResponseEntity<String> updateMedia(@PathVariable MediaType mediaType, @PathVariable String mediaId,
-                                              @RequestBody Map<String, Object> updates) {
+                                              @RequestBody MediaUpdateDto updates) {
         try {
             return ResponseEntity.ok(mediaService.updateMedia(mediaId, mediaType, updates));
         } catch (Exception e) {

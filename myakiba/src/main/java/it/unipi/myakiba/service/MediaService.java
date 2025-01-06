@@ -1,9 +1,6 @@
 package it.unipi.myakiba.service;
 
-import it.unipi.myakiba.DTO.media.AddReviewDto;
-import it.unipi.myakiba.DTO.media.MediaCreationDto;
-import it.unipi.myakiba.DTO.media.MediaIdNameDto;
-import it.unipi.myakiba.DTO.media.ReviewDto;
+import it.unipi.myakiba.DTO.media.*;
 import it.unipi.myakiba.enumerator.MediaStatus;
 import it.unipi.myakiba.enumerator.MediaType;
 import it.unipi.myakiba.model.*;
@@ -38,7 +35,7 @@ public class MediaService {
 
     public Slice<MediaIdNameDto> browseMedia(MediaType mediaType, String name, int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
-        if(mediaType == MediaType.MANGA) {
+        if (mediaType == MediaType.MANGA) {
             return mangaMongoRepository.findByNameContaining(name, pageable);
         } else {
             return animeMongoRepository.findByNameContaining(name, pageable);
@@ -52,101 +49,90 @@ public class MediaService {
                         .orElseThrow(() -> new Exception("Media not found with id: " + mediaId));
     }
 
-    public String addMedia(MediaCreationDto mediaCreationDto) {
-        if(mediaCreationDto.getMediaType() == MediaType.MANGA) {
+    public String addMedia(MediaType mediaType, MediaCreationDto mediaCreationDto) {
+        if (mediaType == MediaType.MANGA) {
+            MangaCreationDto mangaCreationDto = (MangaCreationDto) mediaCreationDto;
             MangaMongo newMangaMongo = new MangaMongo();
-            newMangaMongo.setName(mediaCreationDto.getName());
-            newMangaMongo.setStatus(mediaCreationDto.getStatus());
-            newMangaMongo.setChapters(mediaCreationDto.getChapters());
+            newMangaMongo.setName(mangaCreationDto.getName());
+            newMangaMongo.setStatus(mangaCreationDto.getStatus());
+            newMangaMongo.setChapters(mangaCreationDto.getChapters());
             newMangaMongo.setSumScores(0);
             newMangaMongo.setNumScores(0);
-            newMangaMongo.setGenres(mediaCreationDto.getGenres());
-            newMangaMongo.setType(mediaCreationDto.getType());
-            newMangaMongo.setAuthors(mediaCreationDto.getAuthors());
-            newMangaMongo.setSynopsis(mediaCreationDto.getSynopsis());
+            newMangaMongo.setGenres(mangaCreationDto.getGenres());
+            newMangaMongo.setType(mangaCreationDto.getType());
+            newMangaMongo.setAuthors(mangaCreationDto.getAuthors());
+            newMangaMongo.setSynopsis(mangaCreationDto.getSynopsis());
             mangaMongoRepository.save(newMangaMongo);
 
             MangaNeo4j newMangaNeo4j = new MangaNeo4j();
             newMangaNeo4j.setId(newMangaMongo.getId());
-            newMangaNeo4j.setName(mediaCreationDto.getName());
-            newMangaNeo4j.setStatus(mediaCreationDto.getStatus());
-            newMangaNeo4j.setChapters(mediaCreationDto.getChapters());
-            newMangaNeo4j.setGenres(mediaCreationDto.getGenres());
+            newMangaNeo4j.setName(mangaCreationDto.getName());
+            newMangaNeo4j.setStatus(mangaCreationDto.getStatus());
+            newMangaNeo4j.setChapters(mangaCreationDto.getChapters());
+            newMangaNeo4j.setGenres(mangaCreationDto.getGenres());
             mangaNeo4jRepository.save(newMangaNeo4j);
 
             return "Successfully added manga";
         } else {
+            AnimeCreationDto animeCreationDto = (AnimeCreationDto) mediaCreationDto;
             AnimeMongo newAnimeMongo = new AnimeMongo();
-            newAnimeMongo.setName(mediaCreationDto.getName());
-            newAnimeMongo.setStatus(mediaCreationDto.getStatus());
-            newAnimeMongo.setEpisodes(mediaCreationDto.getEpisodes());
+            newAnimeMongo.setName(animeCreationDto.getName());
+            newAnimeMongo.setStatus(animeCreationDto.getStatus());
+            newAnimeMongo.setEpisodes(animeCreationDto.getEpisodes());
             newAnimeMongo.setSumScores(0);
             newAnimeMongo.setNumScores(0);
-            newAnimeMongo.setGenres(mediaCreationDto.getGenres());
-            newAnimeMongo.setType(mediaCreationDto.getType());
-            newAnimeMongo.setSource(mediaCreationDto.getSource());
-            newAnimeMongo.setDuration(mediaCreationDto.getDuration());
-            newAnimeMongo.setStudio(mediaCreationDto.getStudio());
-            newAnimeMongo.setSynopsis(mediaCreationDto.getSynopsis());
+            newAnimeMongo.setGenres(animeCreationDto.getGenres());
+            newAnimeMongo.setType(animeCreationDto.getType());
+            newAnimeMongo.setSource(animeCreationDto.getSource());
+            newAnimeMongo.setDuration(animeCreationDto.getDuration());
+            newAnimeMongo.setStudio(animeCreationDto.getStudio());
+            newAnimeMongo.setSynopsis(animeCreationDto.getSynopsis());
             animeMongoRepository.save(newAnimeMongo);
 
             AnimeNeo4j newAnimeNeo4j = new AnimeNeo4j();
             newAnimeNeo4j.setId(newAnimeMongo.getId());
-            newAnimeNeo4j.setName(mediaCreationDto.getName());
-            newAnimeNeo4j.setStatus(mediaCreationDto.getStatus());
-            newAnimeNeo4j.setEpisodes(mediaCreationDto.getEpisodes());
-            newAnimeNeo4j.setGenres(mediaCreationDto.getGenres());
+            newAnimeNeo4j.setName(animeCreationDto.getName());
+            newAnimeNeo4j.setStatus(animeCreationDto.getStatus());
+            newAnimeNeo4j.setEpisodes(animeCreationDto.getEpisodes());
+            newAnimeNeo4j.setGenres(animeCreationDto.getGenres());
             animeNeo4jRepository.save(newAnimeNeo4j);
             return "Successfully added anime";
         }
     }
-    public String updateMedia(String mediaId, MediaType mediaType, Map<String, Object> updates) throws Exception {
-        if(mediaType == MediaType.MANGA) {
+
+    public String updateMedia(String mediaId, MediaType mediaType, MediaUpdateDto updates) throws Exception {
+        if (mediaType == MediaType.MANGA) {
             MangaMongo targetMongo = mangaMongoRepository.findById(mediaId)
                     .orElseThrow(() -> new Exception("Media not found with id: " + mediaId));
             MangaNeo4j targetNeo4j = mangaNeo4jRepository.findById(mediaId)
                     .orElseThrow(() -> new Exception("Media not found with id: " + mediaId));
 
-        updates.forEach((key, value) -> {
-            switch (key) {
-                case "name":
-                    targetMongo.setName((String) value);
-                    targetNeo4j.setName((String) value);
-                    break;
-                case "status":
-                    targetMongo.setStatus((MediaStatus) value);
-                    targetNeo4j.setStatus((MediaStatus) value);
-                    break;
-                case "chapters":
-                    targetMongo.setChapters((int) value);
-                    targetNeo4j.setChapters((int) value);
-                    break;
-                case "genres":
-                    targetMongo.setGenres((List<String>) value);
-                    targetNeo4j.setGenres((List<String>) value);
-                    break;
-                case "sumScores":
-                    targetMongo.setSumScores((int) value);
-                    break;
-                case "numScores":
-                    targetMongo.setNumScores((int) value);
-                    break;
-                case "type":
-                    targetMongo.setType((String) value);
-                    break;
-                case "authors":
-                    targetMongo.setAuthors((List<String>) value);
-                    break;
-                case "synopsis":
-                    targetMongo.setSynopsis((String) value);
-                    break;
-                case "reviews":
-                    targetMongo.setReviews((List<ReviewDto>) value);
-                    break;
-                default:
-                    throw new IllegalArgumentException("Unsupported field: " + key);
+            MangaUpdateDto mangaUpdateDto = (MangaUpdateDto) updates;
+            if (mangaUpdateDto.getName() != null) {
+                targetMongo.setName(mangaUpdateDto.getName());
+                targetNeo4j.setName(mangaUpdateDto.getName());
             }
-        });
+            if (mangaUpdateDto.getStatus() != null) {
+                targetMongo.setStatus(mangaUpdateDto.getStatus());
+                targetNeo4j.setStatus(mangaUpdateDto.getStatus());
+            }
+            if (mangaUpdateDto.getChapters() != 0) {
+                targetMongo.setChapters(mangaUpdateDto.getChapters());
+                targetNeo4j.setChapters(mangaUpdateDto.getChapters());
+            }
+            if (mangaUpdateDto.getGenres() != null) {
+                targetMongo.setGenres(mangaUpdateDto.getGenres());
+                targetNeo4j.setGenres(mangaUpdateDto.getGenres());
+            }
+            if (mangaUpdateDto.getAuthors() != null) {
+                targetMongo.setAuthors(mangaUpdateDto.getAuthors());
+            }
+            if (mangaUpdateDto.getSynopsis() != null) {
+                targetMongo.setSynopsis(mangaUpdateDto.getSynopsis());
+            }
+            if (mangaUpdateDto.getType() != null) {
+                targetMongo.setType(mangaUpdateDto.getType());
+            }
             mangaMongoRepository.save(targetMongo);
             mangaNeo4jRepository.save(targetNeo4j);
         } else {
@@ -155,52 +141,39 @@ public class MediaService {
             AnimeNeo4j targetNeo4j = animeNeo4jRepository.findById(mediaId)
                     .orElseThrow(() -> new Exception("Media not found with id: " + mediaId));
 
-            updates.forEach((key, value) -> {
-                switch (key) {
-                    case "name":
-                        targetMongo.setName((String) value);
-                        targetNeo4j.setName((String) value);
-                        break;
-                    case "status":
-                        targetMongo.setStatus((MediaStatus) value);
-                        targetNeo4j.setStatus((MediaStatus) value);
-                        break;
-                    case "episodes":
-                        targetMongo.setEpisodes((int) value);
-                        targetNeo4j.setEpisodes((int) value);
-                        break;
-                    case "genres":
-                        targetMongo.setGenres((List<String>) value);
-                        targetNeo4j.setGenres((List<String>) value);
-                        break;
-                    case "sumScores":
-                        targetMongo.setSumScores((int) value);
-                        break;
-                    case "numScores":
-                        targetMongo.setNumScores((int) value);
-                        break;
-                    case "type":
-                        targetMongo.setType((String) value);
-                        break;
-                    case "source":
-                        targetMongo.setSource((String) value);
-                        break;
-                    case "duration":
-                        targetMongo.setDuration((double) value);
-                        break;
-                    case "studio":
-                        targetMongo.setStudio((String) value);
-                        break;
-                    case "synopsis":
-                        targetMongo.setSynopsis((String) value);
-                        break;
-                    case "reviews":
-                        targetMongo.setReviews((List<ReviewDto>) value);
-                        break;
-                    default:
-                        throw new IllegalArgumentException("Unsupported field: " + key);
-                }
-            });
+            AnimeUpdateDto animeUpdateDto = (AnimeUpdateDto) updates;
+            if (animeUpdateDto.getName() != null) {
+                targetMongo.setName(animeUpdateDto.getName());
+                targetNeo4j.setName(animeUpdateDto.getName());
+            }
+            if (animeUpdateDto.getStatus() != null) {
+                targetMongo.setStatus(animeUpdateDto.getStatus());
+                targetNeo4j.setStatus(animeUpdateDto.getStatus());
+            }
+            if (animeUpdateDto.getEpisodes() != 0) {
+                targetMongo.setEpisodes(animeUpdateDto.getEpisodes());
+                targetNeo4j.setEpisodes(animeUpdateDto.getEpisodes());
+            }
+            if (animeUpdateDto.getGenres() != null) {
+                targetMongo.setGenres(animeUpdateDto.getGenres());
+                targetNeo4j.setGenres(animeUpdateDto.getGenres());
+            }
+            if (animeUpdateDto.getSynopsis() != null) {
+                targetMongo.setSynopsis(animeUpdateDto.getSynopsis());
+            }
+            if (animeUpdateDto.getType() != null) {
+                targetMongo.setType(animeUpdateDto.getType());
+            }
+            if (animeUpdateDto.getSource() != null) {
+                targetMongo.setSource(animeUpdateDto.getSource());
+            }
+            if (animeUpdateDto.getDuration() != 0) {
+                targetMongo.setDuration(animeUpdateDto.getDuration());
+            }
+            if (animeUpdateDto.getStudio() != null) {
+                targetMongo.setStudio(animeUpdateDto.getStudio());
+            }
+
             animeMongoRepository.save(targetMongo);
             animeNeo4jRepository.save(targetNeo4j);
         }
@@ -208,7 +181,7 @@ public class MediaService {
     }
 
     public String deleteMedia(String mediaId, MediaType mediaType) throws Exception {
-        if(mediaType == MediaType.MANGA) {
+        if (mediaType == MediaType.MANGA) {
             MangaMongo targetMongo = mangaMongoRepository.findById(mediaId)
                     .orElseThrow(() -> new Exception("Media not found with id: " + mediaId));
             MangaNeo4j targetNeo4j = mangaNeo4jRepository.findById(mediaId)
@@ -236,12 +209,14 @@ public class MediaService {
         newReview.setComment(review.getComment());
         newReview.setDate(LocalDate.now());
 
-        if(mediaType == MediaType.MANGA) {
+        if (mediaType == MediaType.MANGA) {
             MangaMongo targetMongo = mangaMongoRepository.findById(mediaId)
                     .orElseThrow(() -> new Exception("Media not found with id: " + mediaId));
             List<ReviewDto> reviews = targetMongo.getReviews();
             reviews.add(newReview);
             targetMongo.setReviews(reviews);
+            targetMongo.setSumScores(targetMongo.getSumScores() + review.getScore());
+            targetMongo.setNumScores(targetMongo.getNumScores() + 1);
             mangaMongoRepository.save(targetMongo);
         } else {
             AnimeMongo targetMongo = animeMongoRepository.findById(mediaId)
@@ -249,6 +224,8 @@ public class MediaService {
             List<ReviewDto> reviews = targetMongo.getReviews();
             reviews.add(newReview);
             targetMongo.setReviews(reviews);
+            targetMongo.setSumScores(targetMongo.getSumScores() + review.getScore());
+            targetMongo.setNumScores(targetMongo.getNumScores() + 1);
             animeMongoRepository.save(targetMongo);
         }
         return "Successfully added review";
@@ -256,7 +233,7 @@ public class MediaService {
     }
 
     public String deleteReview(String mediaId, String reviewId, MediaType mediaType) throws Exception {
-        if(mediaType == MediaType.MANGA) {
+        if (mediaType == MediaType.MANGA) {
             MangaMongo targetMongo = mangaMongoRepository.findById(mediaId)
                     .orElseThrow(() -> new Exception("Media not found with id: " + mediaId));
             List<ReviewDto> reviews = targetMongo.getReviews();
