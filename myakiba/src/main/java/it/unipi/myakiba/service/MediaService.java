@@ -42,7 +42,6 @@ public class MediaService {
         }
     }
 
-    //TODO: l'utente dovrebbe vedere la media degli score
     public MediaDetailsDto getMediaById(MediaType mediaType, String mediaId) {
         MediaMongo media = mediaType == MediaType.MANGA ? mangaMongoRepository.findById(mediaId)
                 .orElseThrow(() -> new NoSuchElementException("Media not found with id: " + mediaId)) :
@@ -260,7 +259,6 @@ public class MediaService {
         return "Successfully added review";
     }
 
-    //TODO: aggiornare sumScores e numScores
     public String deleteReview(String mediaId, String reviewId, MediaType mediaType) {
         if (mediaType == MediaType.MANGA) {
             MangaMongo targetMongo = mangaMongoRepository.findById(mediaId)
@@ -270,6 +268,8 @@ public class MediaService {
                     .findFirst().orElseThrow(() -> new NoSuchElementException("Review not found with id: " + reviewId));
             reviews.remove(review);
             targetMongo.setReviews(reviews);
+            targetMongo.setSumScores(targetMongo.getSumScores() - review.getScore());
+            targetMongo.setNumScores(targetMongo.getNumScores() - 1);
             mangaMongoRepository.save(targetMongo);
         } else {
             AnimeMongo targetMongo = animeMongoRepository.findById(mediaId)
@@ -279,6 +279,8 @@ public class MediaService {
                     .findFirst().orElseThrow(() -> new NoSuchElementException("Review not found with id: " + reviewId));
             reviews.remove(review);
             targetMongo.setReviews(reviews);
+            targetMongo.setSumScores(targetMongo.getSumScores() - review.getScore());
+            targetMongo.setNumScores(targetMongo.getNumScores() - 1);
             animeMongoRepository.save(targetMongo);
         }
         return "Successfully deleted review";
