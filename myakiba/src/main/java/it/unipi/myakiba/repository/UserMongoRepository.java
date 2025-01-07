@@ -23,7 +23,7 @@ public interface UserMongoRepository extends MongoRepository<UserMongo, String> 
     @Update("{ $addToSet: { followers: ?1 } }")
     void findAndPushFollowerById(String id, String followerId);
     @Update("{ $pull: { followers: ?1 } }")
-    void findAndPullFollowerById(String id, String followerId); //TODO vedere se void va bene
+    void findAndPullFollowerById(String id, String followerId);
 
     @Query("{ 'followers': ?0 }")
     @Update("{ $pull: { followers: ?0 } }")

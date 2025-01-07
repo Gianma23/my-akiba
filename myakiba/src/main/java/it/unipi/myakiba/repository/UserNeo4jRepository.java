@@ -170,7 +170,7 @@ public interface UserNeo4jRepository extends Neo4jRepository<UserNeo4j, String> 
             LIMIT 20
             RETURN u.id AS userId, u.name AS username, followersCount
             """)
-    List<InfluencersDto> findMostFollowedUsers(); //TODO: cambiare logica per trovare influencer
+    List<InfluencersDto> findMostFollowedUsers();
 
     @Query("""
             CALL gds.graph.project(
