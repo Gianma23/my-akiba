@@ -5,7 +5,6 @@ import it.unipi.myakiba.DTO.media.MediaListsDto;
 import it.unipi.myakiba.DTO.user.UserIdUsernameDto;
 import it.unipi.myakiba.DTO.user.UserNoPwdDto;
 import it.unipi.myakiba.DTO.user.UserUpdateDto;
-import it.unipi.myakiba.model.UserNeo4j;
 import it.unipi.myakiba.model.UserPrincipal;
 import it.unipi.myakiba.service.UserService;
 import jakarta.validation.constraints.Max;
@@ -35,7 +34,6 @@ public class UserController {
     }
 
     /* ================================ USERS CRUD ================================ */
-    //TODO: questa non dovrebbero poterla fare pure i non autenticati? in quel caso userPrincipal sarebbe null
     @GetMapping("/users")
     public ResponseEntity<?> browseUsers(
             @RequestParam(defaultValue = "") String username,
@@ -54,9 +52,6 @@ public class UserController {
     public ResponseEntity<UserNoPwdDto> getUser() {
         UserPrincipal user = (UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         UserMongo userMongo = user.getUser();
-        if(userMongo == null) {
-            return ResponseEntity.internalServerError().build();
-        }
         UserNoPwdDto userNoPwdDto = new UserNoPwdDto(userMongo.getUsername(), userMongo.getEmail(), userMongo.getBirthdate(), userMongo.getPrivacyStatus());
         return ResponseEntity.ok(userNoPwdDto);
     }
@@ -76,9 +71,6 @@ public class UserController {
     @DeleteMapping("/user")
     public ResponseEntity<UserNoPwdDto> deleteUser() {
         UserPrincipal user = (UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        if(user == null) {
-            return ResponseEntity.internalServerError().build();
-        }
         UserNoPwdDto deletedUser = userService.deleteUser(user.getUser());
         return ResponseEntity.ok(deletedUser);
     }
@@ -141,9 +133,6 @@ public class UserController {
     @PostMapping("/user/follow/{userId}")
     public ResponseEntity<String> followUser(@PathVariable String userId) {
         UserPrincipal user = (UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        if (user.getUser().getId().equals(userId)) {
-            return ResponseEntity.badRequest().body("You can't follow yourself");
-        }
         return ResponseEntity.ok(userService.followUser(user.getUser().getId(), userId));
     }
 

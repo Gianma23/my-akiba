@@ -13,5 +13,5 @@ public class AddReviewDto {
     @NotBlank @Min(1) @Max(10)
     private int score;
     @NotEmpty
-    private String comment; //TODO: perchè not empty?? non sarebbe meglio un valore di default?
+    private String comment;
 }

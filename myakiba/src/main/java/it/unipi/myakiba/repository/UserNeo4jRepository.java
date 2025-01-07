@@ -59,6 +59,7 @@ public interface UserNeo4jRepository extends Neo4jRepository<UserNeo4j, String> 
 
     @Query("""
             MATCH (u:User {id: $userId})-[rel:LIST_ELEMENT]->(a:Anime {id: $animeId})
+            WHERE $episodesWatched <= a.episodes
             SET rel.progress = $episodesWatched
             RETURN COUNT(a) > 0
             """)
@@ -66,6 +67,7 @@ public interface UserNeo4jRepository extends Neo4jRepository<UserNeo4j, String> 
 
     @Query("""
             MATCH (u:User {id: $userId})-[rel:LIST_ELEMENT]->(m:Manga {id: $mangaId})
+            WHERE $chaptersRead <= m.chapters
             SET rel.progress = $chaptersRead
             RETURN count(m) > 0
             """)

@@ -19,14 +19,12 @@ public class RecommendationService {
     private final UserNeo4jRepository userNeo4jRepository;
     private final MangaMongoRepository mangaMongoRepository;
     private final AnimeMongoRepository animeMongoRepository;
-    private final UserService userService;
 
     @Autowired
-    public RecommendationService(UserNeo4jRepository userNeo4jRepository, MangaMongoRepository mangaMongoRepository, AnimeMongoRepository animeMongoRepository, UserService userService) {
+    public RecommendationService(UserNeo4jRepository userNeo4jRepository, MangaMongoRepository mangaMongoRepository, AnimeMongoRepository animeMongoRepository) {
         this.userNeo4jRepository = userNeo4jRepository;
         this.mangaMongoRepository = mangaMongoRepository;
         this.animeMongoRepository = animeMongoRepository;
-        this.userService = userService;
     }
 
     public List<UserIdUsernameDto> getUsersWithSimilarTastes(String userId) {
@@ -35,17 +33,14 @@ public class RecommendationService {
     }
 
     public List<MediaIdNameDto> getPopularMediaAmongFollows(MediaType mediaType) {
-        if(mediaType == null)
-            throw new IllegalArgumentException("Media type cannot be null");
         return userNeo4jRepository.findPopularMediaAmongFollows(mediaType);
     }
 
     public List<?> getTop10Media(MediaType mediaType, String genre) {
         if (mediaType == MediaType.ANIME) {
             return animeMongoRepository.findTop10Anime(genre);
-        } else if (mediaType == MediaType.MANGA) {
+        } else {
             return mangaMongoRepository.findTop10Manga(genre);
-        } else
-            throw new IllegalArgumentException("Invalid media type");
+        }
     }
 }

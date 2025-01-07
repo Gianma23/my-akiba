@@ -3,10 +3,8 @@ package it.unipi.myakiba.service;
 import it.unipi.myakiba.DTO.media.MediaListsDto;
 import it.unipi.myakiba.DTO.user.*;
 import it.unipi.myakiba.DTO.media.ListElementDto;
-import it.unipi.myakiba.config.JwtUtils;
 import it.unipi.myakiba.enumerator.MediaStatus;
 import it.unipi.myakiba.enumerator.MediaType;
-import it.unipi.myakiba.enumerator.PrivacyStatus;
 import it.unipi.myakiba.model.UserMongo;
 import it.unipi.myakiba.model.UserNeo4j;
 import it.unipi.myakiba.model.UserPrincipal;
@@ -18,14 +16,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -50,7 +43,7 @@ public class UserService {
 
     /* ================================ USERS CRUD ================================ */
 
-    public UserNoPwdDto getUserById(String id, boolean checkPrivacyStatus) throws NoSuchElementException {
+    public UserNoPwdDto getUserById(String id, boolean checkPrivacyStatus) {
         UserMongo user = userMongoRepository.findById(id)
                 .orElseThrow(() -> new NoSuchElementException("User not found with ID: " + id));
 
@@ -122,10 +115,9 @@ public class UserService {
         UserPrincipal principal = (UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         if (mediaType == MediaType.ANIME) {
             mediaList = userNeo4jRepository.findAnimeListsById(id, principal.getUser().getId());
-        } else if (mediaType == MediaType.MANGA) {
+        } else {
             mediaList = userNeo4jRepository.findMangaListsById(id, principal.getUser().getId());
-        } else
-            throw new IllegalArgumentException("Media type not found");
+        }
 
         MediaListsDto mediaLists = new MediaListsDto(
                 new ArrayList<>(),
@@ -152,32 +144,28 @@ public class UserService {
         boolean success;
         if (mediaType == MediaType.ANIME) {
             success = userNeo4jRepository.addAnimeToList(userId, mediaId);
-        } else if (mediaType == MediaType.MANGA) {
+        } else {
             success = userNeo4jRepository.addMangaToList(userId, mediaId);
-        } else
-            throw new IllegalArgumentException("Media type not found");
+        }
 
         if (!success) {
-            throw new IllegalArgumentException("Media not found");
+            throw new NoSuchElementException("Media not found");
         }
         return "Media added to user list";
     }
 
-    //TODO: controllare che l'utente non scriva di aver visto più episodi di quelli totali (?)
     public String modifyMediaInUserList(String userId, String mediaId, MediaType mediaType, int progress) {
         userNeo4jRepository.findById(userId)
                 .orElseThrow(() -> new NoSuchElementException("User not found"));
         boolean success;
-        //TODO check that progress <= total
         if (mediaType == MediaType.ANIME) {
             success = userNeo4jRepository.modifyAnimeInList(userId, mediaId, progress);
-        } else  if (mediaType == MediaType.MANGA) {
+        } else {
             success = userNeo4jRepository.modifyMangaInList(userId, mediaId, progress);
-        } else
-            throw new IllegalArgumentException("Media type not found");
+        }
 
         if (!success) {
-            throw new IllegalArgumentException("Media not found");
+            throw new NoSuchElementException("Media not found");
         }
         return "Media modified in user list";
     }
@@ -188,13 +176,12 @@ public class UserService {
         boolean success;
         if (mediaType == MediaType.ANIME) {
             success = userNeo4jRepository.removeAnimeFromList(userId, mediaId);
-        } else if (mediaType == MediaType.MANGA) {
+        } else {
             success = userNeo4jRepository.removeMangaFromList(userId, mediaId);
-        } else
-            throw new IllegalArgumentException("Media type not found");
+        }
 
         if (!success) {
-            throw new IllegalArgumentException("Media not found");
+            throw new NoSuchElementException("Media not found");
         }
         return "Media deleted in user list";
     }
@@ -216,7 +203,6 @@ public class UserService {
     }
 
     public String followUser(String followerId, String followedId) {
-        // TODO controllare che non si segua da solo
         if (followerId.equals(followedId)) {
             throw new IllegalArgumentException("You can't follow yourself");
         }

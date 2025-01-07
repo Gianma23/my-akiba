@@ -37,16 +37,12 @@ public class MediaService {
         Pageable pageable = PageRequest.of(page, size);
         if (mediaType == MediaType.MANGA) {
             return mangaMongoRepository.findByNameContaining(name, pageable);
-        } else if(mediaType == MediaType.ANIME) {
-            return animeMongoRepository.findByNameContaining(name, pageable);
         } else {
-            throw new IllegalArgumentException("Media type does not exist");
+            return animeMongoRepository.findByNameContaining(name, pageable);
         }
     }
     //TODO: l'utente dovrebbe vedere la media degli score
     public MediaMongo getMediaById(MediaType mediaType, String mediaId) {
-        if(mediaType == null)
-            throw new IllegalArgumentException("Media type not specified");
         return mediaType == MediaType.MANGA ? mangaMongoRepository.findById(mediaId)
                 .orElseThrow(() -> new NoSuchElementException("Media not found with id: " + mediaId)) :
                 animeMongoRepository.findById(mediaId)
@@ -77,7 +73,7 @@ public class MediaService {
             mangaNeo4jRepository.save(newMangaNeo4j);
 
             return "Successfully added manga";
-        } else if (mediaType == MediaType.ANIME) {
+        } else {
             AnimeCreationDto animeCreationDto = (AnimeCreationDto) mediaCreationDto;
             AnimeMongo newAnimeMongo = new AnimeMongo();
             newAnimeMongo.setName(animeCreationDto.getName());
@@ -101,13 +97,10 @@ public class MediaService {
             newAnimeNeo4j.setGenres(animeCreationDto.getGenres());
             animeNeo4jRepository.save(newAnimeNeo4j);
             return "Successfully added anime";
-        } else
-            throw new IllegalArgumentException("Media type does not exists");
+        }
     }
-    //TODO: ha senso che l'admin possa toccare review, numScores e sumScores?
+
     public String updateMedia(String mediaId, MediaType mediaType,  MediaUpdateDto updates) {
-        if(mediaType == null)
-            throw new IllegalArgumentException("Media type not specified");
         if(mediaType == MediaType.MANGA) {
             MangaMongo targetMongo = mangaMongoRepository.findById(mediaId)
                         .orElseThrow(() -> new NoSuchElementException("Media not found with id: " + mediaId));
@@ -188,8 +181,6 @@ public class MediaService {
     }
 
     public String deleteMedia(String mediaId, MediaType mediaType) {
-        if(mediaType == null)
-            throw new IllegalArgumentException("Media type not specified");
         if (mediaType == MediaType.MANGA) {
             MangaMongo targetMongo = mangaMongoRepository.findById(mediaId)
                     .orElseThrow(() -> new NoSuchElementException("Media not found with id: " + mediaId));
@@ -227,7 +218,7 @@ public class MediaService {
             targetMongo.setSumScores(targetMongo.getSumScores() + review.getScore());
             targetMongo.setNumScores(targetMongo.getNumScores() + 1);
             mangaMongoRepository.save(targetMongo);
-        } else if (mediaType == MediaType.ANIME) {
+        } else {
             AnimeMongo targetMongo = animeMongoRepository.findById(mediaId)
                     .orElseThrow(() -> new NoSuchElementException("Media not found with id: " + mediaId));
             List<ReviewDto> reviews = targetMongo.getReviews();
@@ -236,15 +227,12 @@ public class MediaService {
             targetMongo.setSumScores(targetMongo.getSumScores() + review.getScore());
             targetMongo.setNumScores(targetMongo.getNumScores() + 1);
             animeMongoRepository.save(targetMongo);
-        } else
-            throw new IllegalArgumentException("Media type does not exist");
+        }
         return "Successfully added review";
     }
 
     //TODO: aggiornare sumScores e numScores
     public String deleteReview(String mediaId, String reviewId, MediaType mediaType) {
-        if(mediaType == null)
-            throw new IllegalArgumentException("Media type not specified");
         if (mediaType == MediaType.MANGA) {
             MangaMongo targetMongo = mangaMongoRepository.findById(mediaId)
                     .orElseThrow(() -> new NoSuchElementException("Media not found with id: " + mediaId));

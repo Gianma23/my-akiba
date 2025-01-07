@@ -15,7 +15,6 @@ import java.util.List;
 @Service
 public class AnalyticsService {
 
-    private final AuthenticationManager authManager;
     private final UserMongoRepository userMongoRepository;
     private final UserNeo4jRepository userNeo4jRepository;
     private final MonthAnalyticRepository monthAnalyticRepository;
@@ -27,13 +26,11 @@ public class AnalyticsService {
     private final MongoTemplate mongoTemplate;
 
     @Autowired
-    public AnalyticsService(AuthenticationManager authManager,
-                            UserMongoRepository userMongoRepository, UserNeo4jRepository userNeo4jRepository,
+    public AnalyticsService(UserMongoRepository userMongoRepository, UserNeo4jRepository userNeo4jRepository,
                             MangaMongoRepository mangaMongoRepository, AnimeMongoRepository animeMongoRepository,
                             MangaNeo4jRepository mangaNeo4jRepository, AnimeNeo4jRepository animeNeo4jRepository,
                             MonthAnalyticRepository monthAnalyticRepository,
                             MongoTemplate mongoTemplate) {
-        this.authManager = authManager;
         this.userMongoRepository = userMongoRepository;
         this.userNeo4jRepository = userNeo4jRepository;
         this.monthAnalyticRepository = monthAnalyticRepository;
@@ -63,28 +60,25 @@ public class AnalyticsService {
     public List<ControversialMediaDto> getControversialMedia(MediaType mediaType) {
         if (mediaType == MediaType.MANGA) {
             return mangaMongoRepository.findTopVarianceManga();
-        } else if (mediaType == MediaType.ANIME) {
+        } else {
             return animeMongoRepository.findTopVarianceAnime();
-        } else
-            throw new IllegalArgumentException("Invalid media type");
+        }
     }
 
     public List<TrendingMediaDto> getDecliningMedia(MediaType mediaType) {
         if (mediaType == MediaType.MANGA) {
             return mangaMongoRepository.findTopDecliningManga();
-        } else if (mediaType == MediaType.ANIME) {
+        } else {
             return animeMongoRepository.findTopDecliningAnime();
-        } else
-            throw new IllegalArgumentException("Invalid media type");
+        }
     }
 
     public List<TrendingMediaDto> getImprovingMedia(MediaType mediaType) {
         if (mediaType == MediaType.MANGA) {
             return mangaMongoRepository.findTopImprovingManga();
-        } else if (mediaType == MediaType.ANIME) {
+        } else {
             return animeMongoRepository.findTopImprovingAnime();
-        } else
-            throw new IllegalArgumentException("Invalid media type");
+        }
     }
 
     public List<CliqueAnalyticDto> getMaxClique() {
@@ -98,18 +92,16 @@ public class AnalyticsService {
     public List<ListCounterAnalyticDto> getListCounter(MediaType mediaType) {
         if (mediaType == MediaType.MANGA) {
             return mangaNeo4jRepository.findListCounters();
-        } else if (mediaType == MediaType.ANIME) {
+        } else {
             return animeNeo4jRepository.findListCounters();
-        } else
-            throw new IllegalArgumentException("Invalid media type");
+        }
     }
 
     public List<MediaInListsAnalyticDto> getMediaInLists(MediaType mediaType) {
         if (mediaType == MediaType.MANGA) {
             return mangaNeo4jRepository.findMangaAppearancesInLists();
-        } else if (mediaType == MediaType.ANIME) {
+        } else {
             return animeNeo4jRepository.findAnimeAppearancesInLists();
-        } else
-            throw new IllegalArgumentException("Invalid media type");
+        }
     }
 }
