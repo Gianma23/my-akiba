@@ -2,6 +2,7 @@ package it.unipi.myakiba.controller;
 
 import io.swagger.v3.oas.annotations.tags.Tag;
 import it.unipi.myakiba.DTO.media.AddReviewDto;
+import it.unipi.myakiba.DTO.media.MediaDetailsDto;
 import it.unipi.myakiba.DTO.media.MediaIdNameDto;
 import it.unipi.myakiba.DTO.user.UserIdUsernameDto;
 import it.unipi.myakiba.enumerator.MediaType;
@@ -44,7 +45,7 @@ public class MediaController {
     }
 
     @GetMapping("/{mediaType}/{mediaId}")
-    public ResponseEntity<MediaMongo> getMediaById(@PathVariable MediaType mediaType, @PathVariable String mediaId) {
+    public ResponseEntity<MediaDetailsDto> getMediaById(@PathVariable MediaType mediaType, @PathVariable String mediaId) {
         return ResponseEntity.ok(mediaService.getMediaById(mediaType, mediaId)); //TODO return DTO with average score
     }
 

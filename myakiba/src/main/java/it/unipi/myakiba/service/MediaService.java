@@ -37,20 +37,48 @@ public class MediaService {
         Pageable pageable = PageRequest.of(page, size);
         if (mediaType == MediaType.MANGA) {
             return mangaMongoRepository.findByNameContaining(name, pageable);
-        } else if(mediaType == MediaType.ANIME) {
+        } else if (mediaType == MediaType.ANIME) {
             return animeMongoRepository.findByNameContaining(name, pageable);
         } else {
             throw new IllegalArgumentException("Media type does not exist");
         }
     }
+
     //TODO: l'utente dovrebbe vedere la media degli score
-    public MediaMongo getMediaById(MediaType mediaType, String mediaId) {
-        if(mediaType == null)
-            throw new IllegalArgumentException("Media type not specified");
-        return mediaType == MediaType.MANGA ? mangaMongoRepository.findById(mediaId)
+    public MediaDetailsDto getMediaById(MediaType mediaType, String mediaId) {
+
+        MediaMongo media = mediaType == MediaType.MANGA ? mangaMongoRepository.findById(mediaId)
                 .orElseThrow(() -> new NoSuchElementException("Media not found with id: " + mediaId)) :
                 animeMongoRepository.findById(mediaId)
                         .orElseThrow(() -> new NoSuchElementException("Media not found with id: " + mediaId));
+
+        if (mediaType == MediaType.MANGA) {
+            MangaMongo manga = (MangaMongo) media;
+            return MangaDetailsDto.builder()
+                    .name(manga.getName())
+                    .status(manga.getStatus())
+                    .avgScore(manga.getNumScores() == 0 ? 0 : (double) manga.getSumScores() / manga.getNumScores())
+                    .genres(manga.getGenres())
+                    .synopsis(manga.getSynopsis())
+                    .type(manga.getType())
+                    .chapters(manga.getChapters())
+                    .authors(manga.getAuthors())
+                    .build();
+        } else {
+            AnimeMongo anime = (AnimeMongo) media;
+            return AnimeDetailsDto.builder()
+                    .name(anime.getName())
+                    .status(anime.getStatus())
+                    .avgScore(anime.getNumScores() == 0 ? 0 : (double) anime.getSumScores() / anime.getNumScores())
+                    .genres(anime.getGenres())
+                    .synopsis(anime.getSynopsis())
+                    .type(anime.getType())
+                    .episodes(anime.getEpisodes())
+                    .source(anime.getSource())
+                    .duration(anime.getDuration())
+                    .studio(anime.getStudio())
+                    .build();
+        }
     }
 
     public String addMedia(MediaType mediaType, MediaCreationDto mediaCreationDto) {
@@ -104,13 +132,14 @@ public class MediaService {
         } else
             throw new IllegalArgumentException("Media type does not exists");
     }
+
     //TODO: ha senso che l'admin possa toccare review, numScores e sumScores?
-    public String updateMedia(String mediaId, MediaType mediaType,  MediaUpdateDto updates) {
-        if(mediaType == null)
+    public String updateMedia(String mediaId, MediaType mediaType, MediaUpdateDto updates) {
+        if (mediaType == null)
             throw new IllegalArgumentException("Media type not specified");
-        if(mediaType == MediaType.MANGA) {
+        if (mediaType == MediaType.MANGA) {
             MangaMongo targetMongo = mangaMongoRepository.findById(mediaId)
-                        .orElseThrow(() -> new NoSuchElementException("Media not found with id: " + mediaId));
+                    .orElseThrow(() -> new NoSuchElementException("Media not found with id: " + mediaId));
             MangaNeo4j targetNeo4j = mangaNeo4jRepository.findById(mediaId)
                     .orElseThrow(() -> new NoSuchElementException("Media not found with id: " + mediaId));
 
@@ -188,7 +217,7 @@ public class MediaService {
     }
 
     public String deleteMedia(String mediaId, MediaType mediaType) {
-        if(mediaType == null)
+        if (mediaType == null)
             throw new IllegalArgumentException("Media type not specified");
         if (mediaType == MediaType.MANGA) {
             MangaMongo targetMongo = mangaMongoRepository.findById(mediaId)
@@ -243,7 +272,7 @@ public class MediaService {
 
     //TODO: aggiornare sumScores e numScores
     public String deleteReview(String mediaId, String reviewId, MediaType mediaType) {
-        if(mediaType == null)
+        if (mediaType == null)
             throw new IllegalArgumentException("Media type not specified");
         if (mediaType == MediaType.MANGA) {
             MangaMongo targetMongo = mangaMongoRepository.findById(mediaId)
