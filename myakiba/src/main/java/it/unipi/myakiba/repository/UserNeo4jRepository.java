@@ -143,7 +143,7 @@ public interface UserNeo4jRepository extends Neo4jRepository<UserNeo4j, String> 
             )
             YIELD graphName
             
-            CALL gds.nodeSimilarity.filtered.stream('myGraph')
+            CALL gds.nodeSimilarity.stream('myGraph')
             YIELD node1, node2, similarity
             WITH gds.util.asNode(node2).id AS userId, gds.util.asNode(node2).username AS username, similarity
             WHERE gds.util.asNode(node1).id = $userId
@@ -155,20 +155,20 @@ public interface UserNeo4jRepository extends Neo4jRepository<UserNeo4j, String> 
     List<UserIdUsernameDto> findUsersWithSimilarTastes(String userId);
 
     @Query("""
-            MATCH (user:User)-[:FOLLOWS]->(:User)-[:LIST_ELEMENT]->(media)
+            MATCH (user:User {id: $userId})-[:FOLLOWS]->(:User)-[:LIST_ELEMENT]->(media)
             WHERE (media:Anime AND $mediaType = 'ANIME') OR (media:Manga AND $mediaType = 'MANGA')
             RETURN media.id AS id, media.name AS name, COUNT(*) AS popularity
             ORDER BY popularity DESC
             LIMIT 10
             """)
-    List<MediaIdNameDto> findPopularMediaAmongFollows(MediaType mediaType);
+    List<MediaIdNameDto> findPopularMediaAmongFollows(MediaType mediaType, String userId);
 
     @Query("""
-                MATCH (u:User)<-[:FOLLOW]-(f:User)
-                WITH u, count(f) AS followersCount
-                ORDER BY followersCount DESC
-                LIMIT 20
-                RETURN u.id AS userId, u.name AS username, followersCount
+            MATCH (u:User)<-[:FOLLOW]-(f:User)
+            WITH u, count(f) AS followersCount
+            ORDER BY followersCount DESC
+            LIMIT 20
+            RETURN u.id AS userId, u.name AS username, followersCount
             """)
     List<InfluencersDto> findMostFollowedUsers(); //TODO: cambiare logica per trovare influencer
 

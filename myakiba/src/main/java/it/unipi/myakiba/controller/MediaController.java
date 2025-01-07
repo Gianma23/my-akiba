@@ -2,6 +2,7 @@ package it.unipi.myakiba.controller;
 
 import io.swagger.v3.oas.annotations.tags.Tag;
 import it.unipi.myakiba.DTO.media.AddReviewDto;
+import it.unipi.myakiba.DTO.media.MediaAverageDto;
 import it.unipi.myakiba.DTO.media.MediaDetailsDto;
 import it.unipi.myakiba.DTO.media.MediaIdNameDto;
 import it.unipi.myakiba.enumerator.MediaType;
@@ -33,7 +34,7 @@ public class MediaController {
             @RequestParam(defaultValue = "") String name,
             @RequestParam(defaultValue = "0") @Min(0) int page,
             @RequestParam(defaultValue = "10") @Min(0) @Max(100) int size) {
-        Slice<MediaIdNameDto> results = mediaService.browseMedia(mediaType, name, page, size);
+        Slice<MediaAverageDto> results = mediaService.browseMedia(mediaType, name, page, size);
         if (results.isEmpty()) {
             return ResponseEntity.ok("No media found with this name");
         } else

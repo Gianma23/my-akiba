@@ -2,6 +2,7 @@ package it.unipi.myakiba.repository;
 
 import it.unipi.myakiba.DTO.analytic.ControversialMediaDto;
 import it.unipi.myakiba.DTO.analytic.TrendingMediaDto;
+import it.unipi.myakiba.DTO.media.MediaAverageDto;
 import it.unipi.myakiba.DTO.media.MediaIdNameDto;
 import it.unipi.myakiba.model.MangaMongo;
 import org.springframework.data.domain.Pageable;
@@ -16,8 +17,12 @@ import java.util.List;
 
 @Repository
 public interface MangaMongoRepository extends MongoRepository<MangaMongo, String> {
-    @Query("{ 'name': { $regex: ?0, $options: 'i' } }")
-    Slice<MediaIdNameDto> findByNameContaining(String name, Pageable pageable);
+    @Aggregation(pipeline = {
+            "{ '$match': { 'name': { $regex: ?0, $options: 'i' } } }",
+            "{ '$addFields': { 'averageScore': { $cond: { if: { $eq: ['$numScores', 0] }, then: 0, else: { $divide: ['$sumScores', '$numScores'] } } } } }",
+            "{ '$project': { 'id': '$_id', 'name': 1, 'averageScore': 1 } }"
+    })
+    Slice<MediaAverageDto> findByNameContaining(String name, Pageable pageable);
 
     @Query("{ 'reviews.username': ?0 }")
     @Update("{ '$set': { 'reviews.$.username': ?1 } }")
@@ -85,7 +90,7 @@ public interface MangaMongoRepository extends MongoRepository<MangaMongo, String
             "{ '$match': { '$expr': { '$or': [ { '$eq': [?0, null] }, { '$in': [?0, '$genres'] } ] } } }",
             "{ '$sort': { 'averageScore': -1 } }",
             "{ '$limit': 10 }",
-            "{ '$project': { 'id': 1, 'name': 1, 'averageScore': 1, 'status': 1, 'chapters': 1, 'genres': 1 } }"
+            "{ '$project': { 'id': 1, 'name': 1, 'averageScore': 1 } }"
     })
-    List<MangaMongo> findTop10Manga(String genre);
+    List<MediaAverageDto> findTop10Manga(String genre);
 }

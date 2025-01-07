@@ -18,6 +18,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.time.ZoneOffset;
 
 @Service
 public class AuthService {
@@ -48,7 +49,7 @@ public class AuthService {
         newUserMongo.setEmail(user.email());
         newUserMongo.setBirthdate(user.birthdate());
         newUserMongo.setRole("USER");
-        newUserMongo.setCreatedAt(LocalDate.now());
+        newUserMongo.setCreatedAt(LocalDate.now(ZoneOffset.UTC));
         newUserMongo.setPrivacyStatus(PrivacyStatus.ALL);
         userMongoRepository.save(newUserMongo);
 

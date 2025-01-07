@@ -11,6 +11,7 @@ import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.time.ZoneOffset;
 import java.util.List;
 import java.util.NoSuchElementException;
 
@@ -31,7 +32,7 @@ public class MediaService {
 
     /* ================================ MEDIA CRUD ================================ */
 
-    public Slice<MediaIdNameDto> browseMedia(MediaType mediaType, String name, int page, int size) {
+    public Slice<MediaAverageDto> browseMedia(MediaType mediaType, String name, int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
         if (mediaType == MediaType.MANGA) {
             return mangaMongoRepository.findByNameContaining(name, pageable);
@@ -233,7 +234,7 @@ public class MediaService {
         newReview.setUsername(user.getUsername());
         newReview.setScore(review.getScore());
         newReview.setComment(review.getComment());
-        newReview.setDate(LocalDate.now());
+        newReview.setDate(LocalDate.now(ZoneOffset.UTC));
 
         if (mediaType == MediaType.MANGA) {
             MangaMongo targetMongo = mangaMongoRepository.findById(mediaId)

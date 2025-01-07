@@ -1,5 +1,6 @@
 package it.unipi.myakiba.service;
 
+import it.unipi.myakiba.DTO.media.MediaAverageDto;
 import it.unipi.myakiba.DTO.media.MediaIdNameDto;
 import it.unipi.myakiba.DTO.user.UserIdUsernameDto;
 import it.unipi.myakiba.enumerator.MediaType;
@@ -31,11 +32,11 @@ public class RecommendationService {
         return userNeo4jRepository.findUsersWithSimilarTastes(userId);
     }
 
-    public List<MediaIdNameDto> getPopularMediaAmongFollows(MediaType mediaType) {
-        return userNeo4jRepository.findPopularMediaAmongFollows(mediaType);
+    public List<MediaIdNameDto> getPopularMediaAmongFollows(MediaType mediaType, String userId) {
+        return userNeo4jRepository.findPopularMediaAmongFollows(mediaType, userId);
     }
 
-    public List<?> getTop10Media(MediaType mediaType, String genre) {
+    public List<MediaAverageDto> getTop10Media(MediaType mediaType, String genre) {
         if (mediaType == MediaType.ANIME) {
             return animeMongoRepository.findTop10Anime(genre);
         } else {

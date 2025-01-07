@@ -70,7 +70,6 @@ public class AdminController {
     @GetMapping("/analytics/controversial/{mediaType}")
     public ResponseEntity<List<ControversialMediaDto>> getControversialMedia(@PathVariable MediaType mediaType) {
         return ResponseEntity.ok(analyticsService.getControversialMedia(mediaType));
-
     }
 
     @GetMapping("/analytics/declining/{mediaType}")
