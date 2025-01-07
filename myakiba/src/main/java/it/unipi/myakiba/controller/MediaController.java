@@ -31,30 +31,26 @@ public class MediaController {
     }
 
     @GetMapping("/{mediaType}")
-    public ResponseEntity<Slice<MediaIdNameDto>> browseMedia(
+    public ResponseEntity<?> browseMedia(
             @PathVariable MediaType mediaType,
             @RequestParam(defaultValue = "") String name,
             @RequestParam(defaultValue = "0") @Min(0) int page,
             @RequestParam(defaultValue = "10") @Min(0) @Max(100) int size) {
-        return ResponseEntity.ok(mediaService.browseMedia(mediaType, name, page, size));
+        Slice<MediaIdNameDto> results = mediaService.browseMedia(mediaType, name, page, size);
+        if (results.isEmpty()) {
+            return ResponseEntity.ok("No media found with this name");
+        } else
+            return ResponseEntity.ok(results);
     }
 
     @GetMapping("/{mediaType}/{mediaId}")
     public ResponseEntity<MediaMongo> getMediaById(@PathVariable MediaType mediaType, @PathVariable String mediaId) {
-        try {
-            return ResponseEntity.ok(mediaService.getMediaById(mediaType, mediaId));
-        } catch (Exception e) {
-            return ResponseEntity.notFound().build();
-        }
+        return ResponseEntity.ok(mediaService.getMediaById(mediaType, mediaId));
     }
 
     @PostMapping("/{mediaType}/{mediaId}/review")
     public ResponseEntity<String> addReview(@PathVariable MediaType mediaType, @PathVariable String mediaId, @RequestBody AddReviewDto review) {
         UserPrincipal user = (UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        try {
-            return ResponseEntity.ok(mediaService.addReview(mediaType, mediaId, user.getUser(), review));
-        } catch (Exception e) {
-            return ResponseEntity.notFound().build();
-        }
+        return ResponseEntity.ok(mediaService.addReview(mediaType, mediaId, user.getUser(), review));
     }
 }

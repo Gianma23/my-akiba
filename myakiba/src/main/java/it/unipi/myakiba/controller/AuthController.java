@@ -34,20 +34,10 @@ public class AuthController {
 
     @PostMapping("/login")
     public ResponseEntity<?> loginUser(@RequestBody UserLoginDto user) {
-        try {
-            String token = userService.loginUser(user);
-            if (token != null) {
-                return ResponseEntity.ok(new AccessTokenDto(token));
-            } else try {
-                {
-                    return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid credentials");
-                }
-            } catch (Exception e) {
-                throw new RuntimeException(e);
-            }
-        } catch (Exception e) {
-            System.out.println(e.getMessage());
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An error occurred while processing the request");
-        }
+        String token = userService.loginUser(user);
+        if (token != null)
+            return ResponseEntity.ok(new AccessTokenDto(token));
+        else
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid credentials");
     }
 }

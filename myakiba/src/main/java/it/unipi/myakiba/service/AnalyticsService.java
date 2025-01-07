@@ -3,7 +3,6 @@ package it.unipi.myakiba.service;
 import it.unipi.myakiba.DTO.analytic.*;
 import it.unipi.myakiba.DTO.media.MediaInListsAnalyticDto;
 import it.unipi.myakiba.enumerator.MediaType;
-import it.unipi.myakiba.model.CliqueAnalytic;
 import it.unipi.myakiba.model.MonthAnalytic;
 import it.unipi.myakiba.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,7 +19,6 @@ public class AnalyticsService {
     private final UserMongoRepository userMongoRepository;
     private final UserNeo4jRepository userNeo4jRepository;
     private final MonthAnalyticRepository monthAnalyticRepository;
-    private final CliqueAnalyticRepository cliqueAnalyticRepository;
     private final MangaMongoRepository mangaMongoRepository;
     private final AnimeMongoRepository animeMongoRepository;
     private final MangaNeo4jRepository mangaNeo4jRepository;
@@ -33,13 +31,12 @@ public class AnalyticsService {
                             UserMongoRepository userMongoRepository, UserNeo4jRepository userNeo4jRepository,
                             MangaMongoRepository mangaMongoRepository, AnimeMongoRepository animeMongoRepository,
                             MangaNeo4jRepository mangaNeo4jRepository, AnimeNeo4jRepository animeNeo4jRepository,
-                            MonthAnalyticRepository monthAnalyticRepository, CliqueAnalyticRepository cliqueAnalyticRepository,
+                            MonthAnalyticRepository monthAnalyticRepository,
                             MongoTemplate mongoTemplate) {
         this.authManager = authManager;
         this.userMongoRepository = userMongoRepository;
         this.userNeo4jRepository = userNeo4jRepository;
         this.monthAnalyticRepository = monthAnalyticRepository;
-        this.cliqueAnalyticRepository = cliqueAnalyticRepository;
         this.mangaMongoRepository = mangaMongoRepository;
         this.animeMongoRepository = animeMongoRepository;
         this.mangaNeo4jRepository = mangaNeo4jRepository;
@@ -51,7 +48,7 @@ public class AnalyticsService {
     public List<MonthAnalyticDto> getMonthlyRegistrations() {
         MonthAnalyticDto maxDocument = monthAnalyticRepository.findTopByOrderByIdDesc();
         int lastYearCalculated = maxDocument != null ? maxDocument.getYear() : 2000;
-        // TODO: non mi torna cosa fa
+        // TODO: non mi torna cosa fa (perchè sei gay)
         List<MonthAnalyticDto> results = userMongoRepository.findMaxMonthByYearGreaterThan(lastYearCalculated);
         for (MonthAnalyticDto result : results) {
             MonthAnalytic monthAnalytic = new MonthAnalytic();
@@ -66,40 +63,32 @@ public class AnalyticsService {
     public List<ControversialMediaDto> getControversialMedia(MediaType mediaType) {
         if (mediaType == MediaType.MANGA) {
             return mangaMongoRepository.findTopVarianceManga();
-        } else {
+        } else if (mediaType == MediaType.ANIME) {
             return animeMongoRepository.findTopVarianceAnime();
-        }
+        } else
+            throw new IllegalArgumentException("Invalid media type");
     }
 
     public List<TrendingMediaDto> getDecliningMedia(MediaType mediaType) {
         if (mediaType == MediaType.MANGA) {
             return mangaMongoRepository.findTopDecliningManga();
-        } else {
+        } else if (mediaType == MediaType.ANIME) {
             return animeMongoRepository.findTopDecliningAnime();
-        }
+        } else
+            throw new IllegalArgumentException("Invalid media type");
     }
 
     public List<TrendingMediaDto> getImprovingMedia(MediaType mediaType) {
         if (mediaType == MediaType.MANGA) {
             return mangaMongoRepository.findTopImprovingManga();
-        } else {
+        } else if (mediaType == MediaType.ANIME) {
             return animeMongoRepository.findTopImprovingAnime();
-        }
+        } else
+            throw new IllegalArgumentException("Invalid media type");
     }
 
     public List<CliqueAnalyticDto> getMaxClique() {
-        List<CliqueAnalyticDto> results = userNeo4jRepository.findClique();
-        for (CliqueAnalyticDto result : results) {
-            CliqueAnalytic cliqueAnalytic = new CliqueAnalytic();
-            cliqueAnalytic.setCliqueSize(result.getCliqueSize());
-            cliqueAnalytic.setUserDetails(result.getUserDetails());
-            cliqueAnalyticRepository.save(cliqueAnalytic);
-        }
-        //TODO: Return the results in descending order of clique size
-        //bisogna fare un'altra funzione in modo da separare
-        //la creazione della collezione dalla sua lettura
-        //inoltre, la collezione va svuotata prima della creazione
-        return results;
+        return userNeo4jRepository.findClique();
     }
 
     public List<InfluencersDto> getInfluencers() {
@@ -109,16 +98,18 @@ public class AnalyticsService {
     public List<ListCounterAnalyticDto> getListCounter(MediaType mediaType) {
         if (mediaType == MediaType.MANGA) {
             return mangaNeo4jRepository.findListCounters();
-        } else {
+        } else if (mediaType == MediaType.ANIME) {
             return animeNeo4jRepository.findListCounters();
-        }
+        } else
+            throw new IllegalArgumentException("Invalid media type");
     }
 
     public List<MediaInListsAnalyticDto> getMediaInLists(MediaType mediaType) {
         if (mediaType == MediaType.MANGA) {
             return mangaNeo4jRepository.findMangaAppearancesInLists();
-        } else {
+        } else if (mediaType == MediaType.ANIME) {
             return animeNeo4jRepository.findAnimeAppearancesInLists();
-        }
+        } else
+            throw new IllegalArgumentException("Invalid media type");
     }
 }

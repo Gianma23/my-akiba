@@ -36,32 +36,35 @@ public class UserController {
     }
 
     /* ================================ USERS CRUD ================================ */
-
+    //TODO: questa non dovrebbero poterla fare pure i non autenticati? in quel caso userPrincipal sarebbe null
     @GetMapping("/users")
-    public ResponseEntity<Slice<UserIdUsernameDto>> browseUsers(
+    public ResponseEntity<?> browseUsers(
             @RequestParam(defaultValue = "") String username,
             @RequestParam(defaultValue = "0") @Min(0) int page,
             @RequestParam(defaultValue = "10") @Min(0) @Max(100) int size
     ) {
         UserPrincipal user = (UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        return ResponseEntity.ok(userService.getUsers(username, user.getUser().getId(), page, size));
+        Slice<UserIdUsernameDto> results = userService.getUsers(username, user.getUser().getId(), page, size);
+        if (results.isEmpty()) {
+            return ResponseEntity.ok("No user found with this name");
+        } else
+            return ResponseEntity.ok(results);
     }
 
     @GetMapping("/user")
     public ResponseEntity<UserNoPwdDto> getUser() {
         UserPrincipal user = (UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         UserMongo userMongo = user.getUser();
+        if(userMongo == null) {
+            return ResponseEntity.internalServerError().build();
+        }
         UserNoPwdDto userNoPwdDto = new UserNoPwdDto(userMongo.getUsername(), userMongo.getEmail(), userMongo.getBirthdate(), userMongo.getPrivacyStatus());
         return ResponseEntity.ok(userNoPwdDto);
     }
 
     @GetMapping("/user/{userId}")
     public ResponseEntity<UserNoPwdDto> getUserById(@PathVariable String userId) {
-        try {
-            return ResponseEntity.ok(userService.getUserById(userId, true));
-        } catch (Exception e) {
-            return ResponseEntity.notFound().build();
-        }
+        return ResponseEntity.ok(userService.getUserById(userId, true));
     }
 
     @PatchMapping("/user")
@@ -74,6 +77,9 @@ public class UserController {
     @DeleteMapping("/user")
     public ResponseEntity<UserNoPwdDto> deleteUser() {
         UserPrincipal user = (UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        if(user == null) {
+            return ResponseEntity.internalServerError().build();
+        }
         UserNoPwdDto deletedUser = userService.deleteUser(user.getUser());
         return ResponseEntity.ok(deletedUser);
     }
@@ -104,7 +110,7 @@ public class UserController {
     }
 
     @DeleteMapping("/user/lists/{mediaType}/{mediaId}")
-public ResponseEntity<String> removeMediaFromUserList(@PathVariable MediaType mediaType, @PathVariable String mediaId) {
+    public ResponseEntity<String> removeMediaFromUserList(@PathVariable MediaType mediaType, @PathVariable String mediaId) {
         UserPrincipal user = (UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         return ResponseEntity.ok(userService.removeMediaFromUserList(user.getUser().getId(), mediaId, mediaType));
     }

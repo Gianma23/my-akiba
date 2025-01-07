@@ -12,12 +12,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
-import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
+import java.util.NoSuchElementException;
 
 @Service
 public class MediaService {
@@ -40,72 +40,83 @@ public class MediaService {
         Pageable pageable = PageRequest.of(page, size);
         if(mediaType == MediaType.MANGA) {
             return mangaMongoRepository.findByNameContaining(name, pageable);
-        } else {
+        } else if(mediaType == MediaType.ANIME) {
             return animeMongoRepository.findByNameContaining(name, pageable);
+        } else {
+            throw new IllegalArgumentException("Media type does not exist");
         }
     }
-
-    public MediaMongo getMediaById(MediaType mediaType, String mediaId) throws Exception {
+    //TODO: l'utente dovrebbe vedere la media degli score
+    public MediaMongo getMediaById(MediaType mediaType, String mediaId) {
+        if(mediaType == null)
+            throw new IllegalArgumentException("Media type not specified");
         return mediaType == MediaType.MANGA ? mangaMongoRepository.findById(mediaId)
-                .orElseThrow(() -> new Exception("Media not found with id: " + mediaId)) :
+                .orElseThrow(() -> new NoSuchElementException("Media not found with id: " + mediaId)) :
                 animeMongoRepository.findById(mediaId)
-                        .orElseThrow(() -> new Exception("Media not found with id: " + mediaId));
+                        .orElseThrow(() -> new NoSuchElementException("Media not found with id: " + mediaId));
     }
 
     public String addMedia(MediaCreationDto mediaCreationDto) {
-        if(mediaCreationDto.getMediaType() == MediaType.MANGA) {
-            MangaMongo newMangaMongo = new MangaMongo();
-            newMangaMongo.setName(mediaCreationDto.getName());
-            newMangaMongo.setStatus(mediaCreationDto.getStatus());
-            newMangaMongo.setChapters(mediaCreationDto.getChapters());
-            newMangaMongo.setSumScores(0);
-            newMangaMongo.setNumScores(0);
-            newMangaMongo.setGenres(mediaCreationDto.getGenres());
-            newMangaMongo.setType(mediaCreationDto.getType());
-            newMangaMongo.setAuthors(mediaCreationDto.getAuthors());
-            newMangaMongo.setSynopsis(mediaCreationDto.getSynopsis());
-            mangaMongoRepository.save(newMangaMongo);
+        try {
+            if (mediaCreationDto.getMediaType() == MediaType.MANGA) {
+                MangaMongo newMangaMongo = new MangaMongo();
+                newMangaMongo.setName(mediaCreationDto.getName());
+                newMangaMongo.setStatus(mediaCreationDto.getStatus());
+                newMangaMongo.setChapters(mediaCreationDto.getChapters());
+                newMangaMongo.setSumScores(0);
+                newMangaMongo.setNumScores(0);
+                newMangaMongo.setGenres(mediaCreationDto.getGenres());
+                newMangaMongo.setType(mediaCreationDto.getType());
+                newMangaMongo.setAuthors(mediaCreationDto.getAuthors());
+                newMangaMongo.setSynopsis(mediaCreationDto.getSynopsis());
+                mangaMongoRepository.save(newMangaMongo);
 
-            MangaNeo4j newMangaNeo4j = new MangaNeo4j();
-            newMangaNeo4j.setId(newMangaMongo.getId());
-            newMangaNeo4j.setName(mediaCreationDto.getName());
-            newMangaNeo4j.setStatus(mediaCreationDto.getStatus());
-            newMangaNeo4j.setChapters(mediaCreationDto.getChapters());
-            newMangaNeo4j.setGenres(mediaCreationDto.getGenres());
-            mangaNeo4jRepository.save(newMangaNeo4j);
+                MangaNeo4j newMangaNeo4j = new MangaNeo4j();
+                newMangaNeo4j.setId(newMangaMongo.getId());
+                newMangaNeo4j.setName(mediaCreationDto.getName());
+                newMangaNeo4j.setStatus(mediaCreationDto.getStatus());
+                newMangaNeo4j.setChapters(mediaCreationDto.getChapters());
+                newMangaNeo4j.setGenres(mediaCreationDto.getGenres());
+                mangaNeo4jRepository.save(newMangaNeo4j);
 
-            return "Successfully added manga";
-        } else {
-            AnimeMongo newAnimeMongo = new AnimeMongo();
-            newAnimeMongo.setName(mediaCreationDto.getName());
-            newAnimeMongo.setStatus(mediaCreationDto.getStatus());
-            newAnimeMongo.setEpisodes(mediaCreationDto.getEpisodes());
-            newAnimeMongo.setSumScores(0);
-            newAnimeMongo.setNumScores(0);
-            newAnimeMongo.setGenres(mediaCreationDto.getGenres());
-            newAnimeMongo.setType(mediaCreationDto.getType());
-            newAnimeMongo.setSource(mediaCreationDto.getSource());
-            newAnimeMongo.setDuration(mediaCreationDto.getDuration());
-            newAnimeMongo.setStudio(mediaCreationDto.getStudio());
-            newAnimeMongo.setSynopsis(mediaCreationDto.getSynopsis());
-            animeMongoRepository.save(newAnimeMongo);
+                return "Successfully added manga";
+            } else {
+                AnimeMongo newAnimeMongo = new AnimeMongo();
+                newAnimeMongo.setName(mediaCreationDto.getName());
+                newAnimeMongo.setStatus(mediaCreationDto.getStatus());
+                newAnimeMongo.setEpisodes(mediaCreationDto.getEpisodes());
+                newAnimeMongo.setSumScores(0);
+                newAnimeMongo.setNumScores(0);
+                newAnimeMongo.setGenres(mediaCreationDto.getGenres());
+                newAnimeMongo.setType(mediaCreationDto.getType());
+                newAnimeMongo.setSource(mediaCreationDto.getSource());
+                newAnimeMongo.setDuration(mediaCreationDto.getDuration());
+                newAnimeMongo.setStudio(mediaCreationDto.getStudio());
+                newAnimeMongo.setSynopsis(mediaCreationDto.getSynopsis());
+                animeMongoRepository.save(newAnimeMongo);
 
-            AnimeNeo4j newAnimeNeo4j = new AnimeNeo4j();
-            newAnimeNeo4j.setId(newAnimeMongo.getId());
-            newAnimeNeo4j.setName(mediaCreationDto.getName());
-            newAnimeNeo4j.setStatus(mediaCreationDto.getStatus());
-            newAnimeNeo4j.setEpisodes(mediaCreationDto.getEpisodes());
-            newAnimeNeo4j.setGenres(mediaCreationDto.getGenres());
-            animeNeo4jRepository.save(newAnimeNeo4j);
-            return "Successfully added anime";
+                AnimeNeo4j newAnimeNeo4j = new AnimeNeo4j();
+                newAnimeNeo4j.setId(newAnimeMongo.getId());
+                newAnimeNeo4j.setName(mediaCreationDto.getName());
+                newAnimeNeo4j.setStatus(mediaCreationDto.getStatus());
+                newAnimeNeo4j.setEpisodes(mediaCreationDto.getEpisodes());
+                newAnimeNeo4j.setGenres(mediaCreationDto.getGenres());
+                animeNeo4jRepository.save(newAnimeNeo4j);
+                return "Successfully added anime";
+            }
+        } catch (Exception e) {
+            return "Error adding media";
         }
     }
-    public String updateMedia(String mediaId, MediaType mediaType, Map<String, Object> updates) throws Exception {
+    //TODO: ha senso che l'admin possa toccare review, numScores e sumScores?
+    public String updateMedia(String mediaId, MediaType mediaType, Map<String, Object> updates) {
+        if(mediaType == null)
+            throw new IllegalArgumentException("Media type not specified");
         if(mediaType == MediaType.MANGA) {
             MangaMongo targetMongo = mangaMongoRepository.findById(mediaId)
-                    .orElseThrow(() -> new Exception("Media not found with id: " + mediaId));
+                        .orElseThrow(() -> new NoSuchElementException("Media not found with id: " + mediaId));
             MangaNeo4j targetNeo4j = mangaNeo4jRepository.findById(mediaId)
-                    .orElseThrow(() -> new Exception("Media not found with id: " + mediaId));
+                    .orElseThrow(() -> new NoSuchElementException("Media not found with id: " + mediaId));
 
         updates.forEach((key, value) -> {
             switch (key) {
@@ -151,9 +162,9 @@ public class MediaService {
             mangaNeo4jRepository.save(targetNeo4j);
         } else {
             AnimeMongo targetMongo = animeMongoRepository.findById(mediaId)
-                    .orElseThrow(() -> new Exception("Media not found with id: " + mediaId));
+                    .orElseThrow(() -> new NoSuchElementException("Media not found with id: " + mediaId));
             AnimeNeo4j targetNeo4j = animeNeo4jRepository.findById(mediaId)
-                    .orElseThrow(() -> new Exception("Media not found with id: " + mediaId));
+                    .orElseThrow(() -> new NoSuchElementException("Media not found with id: " + mediaId));
 
             updates.forEach((key, value) -> {
                 switch (key) {
@@ -207,19 +218,21 @@ public class MediaService {
         return "Successfully updated media";
     }
 
-    public String deleteMedia(String mediaId, MediaType mediaType) throws Exception {
+    public String deleteMedia(String mediaId, MediaType mediaType) {
+        if(mediaType == null)
+            throw new IllegalArgumentException("Media type not specified");
         if(mediaType == MediaType.MANGA) {
             MangaMongo targetMongo = mangaMongoRepository.findById(mediaId)
-                    .orElseThrow(() -> new Exception("Media not found with id: " + mediaId));
+                    .orElseThrow(() -> new NoSuchElementException("Media not found with id: " + mediaId));
             MangaNeo4j targetNeo4j = mangaNeo4jRepository.findById(mediaId)
-                    .orElseThrow(() -> new Exception("Media not found with id: " + mediaId));
+                    .orElseThrow(() -> new NoSuchElementException("Media not found with id: " + mediaId));
             mangaMongoRepository.delete(targetMongo);
             mangaNeo4jRepository.delete(targetNeo4j);
         } else {
             AnimeMongo targetMongo = animeMongoRepository.findById(mediaId)
-                    .orElseThrow(() -> new Exception("Media not found with id: " + mediaId));
+                    .orElseThrow(() -> new NoSuchElementException("Media not found with id: " + mediaId));
             AnimeNeo4j targetNeo4j = animeNeo4jRepository.findById(mediaId)
-                    .orElseThrow(() -> new Exception("Media not found with id: " + mediaId));
+                    .orElseThrow(() -> new NoSuchElementException("Media not found with id: " + mediaId));
             animeMongoRepository.delete(targetMongo);
             animeNeo4jRepository.delete(targetNeo4j);
         }
@@ -228,7 +241,8 @@ public class MediaService {
 
     /* ================================ REVIEWS ================================ */
 
-    public String addReview(MediaType mediaType, String mediaId, UserMongo user, AddReviewDto review) throws Exception {
+    //TODO: aggiornare sumScores e numScores
+    public String addReview(MediaType mediaType, String mediaId, UserMongo user, AddReviewDto review) {
         ReviewDto newReview = new ReviewDto();
         newReview.setUserId(user.getId());
         newReview.setUsername(user.getUsername());
@@ -238,36 +252,43 @@ public class MediaService {
 
         if(mediaType == MediaType.MANGA) {
             MangaMongo targetMongo = mangaMongoRepository.findById(mediaId)
-                    .orElseThrow(() -> new Exception("Media not found with id: " + mediaId));
+                    .orElseThrow(() -> new NoSuchElementException("Media not found with id: " + mediaId));
             List<ReviewDto> reviews = targetMongo.getReviews();
             reviews.add(newReview);
             targetMongo.setReviews(reviews);
             mangaMongoRepository.save(targetMongo);
-        } else {
+        } else if (mediaType == MediaType.ANIME) {
             AnimeMongo targetMongo = animeMongoRepository.findById(mediaId)
-                    .orElseThrow(() -> new Exception("Media not found with id: " + mediaId));
+                    .orElseThrow(() -> new NoSuchElementException("Media not found with id: " + mediaId));
             List<ReviewDto> reviews = targetMongo.getReviews();
             reviews.add(newReview);
             targetMongo.setReviews(reviews);
             animeMongoRepository.save(targetMongo);
-        }
+        } else
+            throw new IllegalArgumentException("Media type does not exist");
         return "Successfully added review";
-
     }
 
-    public String deleteReview(String mediaId, String reviewId, MediaType mediaType) throws Exception {
+    //TODO: aggiornare sumScores e numScores
+    public String deleteReview(String mediaId, String reviewId, MediaType mediaType) {
+        if(mediaType == null)
+            throw new IllegalArgumentException("Media type not specified");
         if(mediaType == MediaType.MANGA) {
             MangaMongo targetMongo = mangaMongoRepository.findById(mediaId)
-                    .orElseThrow(() -> new Exception("Media not found with id: " + mediaId));
+                    .orElseThrow(() -> new NoSuchElementException("Media not found with id: " + mediaId));
             List<ReviewDto> reviews = targetMongo.getReviews();
-            reviews.removeIf(review -> review.getUserId().equals(reviewId));
+            ReviewDto review = reviews.stream().filter(r -> r.getUserId().equals(reviewId))
+                    .findFirst().orElseThrow(() -> new NoSuchElementException("Review not found with id: " + reviewId));
+            reviews.remove(review);
             targetMongo.setReviews(reviews);
             mangaMongoRepository.save(targetMongo);
         } else {
             AnimeMongo targetMongo = animeMongoRepository.findById(mediaId)
-                    .orElseThrow(() -> new Exception("Media not found with id: " + mediaId));
+                    .orElseThrow(() -> new NoSuchElementException("Media not found with id: " + mediaId));
             List<ReviewDto> reviews = targetMongo.getReviews();
-            reviews.removeIf(review -> review.getUserId().equals(reviewId));
+            ReviewDto review = reviews.stream().filter(r -> r.getUserId().equals(reviewId))
+                    .findFirst().orElseThrow(() -> new NoSuchElementException("Review not found with id: " + reviewId));
+            reviews.remove(review);
             targetMongo.setReviews(reviews);
             animeMongoRepository.save(targetMongo);
         }

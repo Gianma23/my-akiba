@@ -25,10 +25,10 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.NoSuchElementException;
 
 @Service
 public class UserService {
@@ -88,9 +88,9 @@ public class UserService {
 
     /* ================================ USERS CRUD ================================ */
 
-    public UserNoPwdDto getUserById(String id, boolean checkPrivacyStatus) throws UsernameNotFoundException {
+    public UserNoPwdDto getUserById(String id, boolean checkPrivacyStatus) throws NoSuchElementException {
         UserMongo user = userMongoRepository.findById(id)
-                .orElseThrow(() -> new UsernameNotFoundException("User not found with ID: " + id));
+                .orElseThrow(() -> new NoSuchElementException("User not found with ID: " + id));
 
         UserNoPwdDto userNoPwdDto = new UserNoPwdDto(user.getUsername(), user.getEmail(), user.getBirthdate(), user.getPrivacyStatus());
 
@@ -106,6 +106,8 @@ public class UserService {
     }
 
     public UserNoPwdDto updateUser(UserMongo user, UserUpdateDto updates) {
+        UserNeo4j userNeo4j = userNeo4jRepository.findById(user.getId())
+                .orElseThrow(() -> new NoSuchElementException("User not found"));
         if (updates.username() != null) {
             if (userMongoRepository.existsByUsername(updates.username())) {
                 throw new IllegalArgumentException("Username already exists");
@@ -114,6 +116,7 @@ public class UserService {
             animeMongoRepository.updateReviewsByUsername(user.getUsername(), updates.username());
             mangaMongoRepository.updateReviewsByUsername(user.getUsername(), updates.username());
             user.setUsername(updates.username());
+            userNeo4j.setUsername(user.getUsername());
         }
         if (updates.password() != null) {
             user.setPassword(encoder.encode(updates.password()));
@@ -129,13 +132,9 @@ public class UserService {
         }
         if (updates.privacyStatus() != null) {
             user.setPrivacyStatus(updates.privacyStatus());
+            userNeo4j.setPrivacyStatus(user.getPrivacyStatus());
         }
         userMongoRepository.save(user);
-
-        UserNeo4j userNeo4j = userNeo4jRepository.findById(user.getId())
-                .orElseThrow(() -> new IllegalArgumentException("User not found"));
-        userNeo4j.setUsername(user.getUsername());
-        userNeo4j.setPrivacyStatus(user.getPrivacyStatus());
         userNeo4jRepository.save(userNeo4j);
 
         return new UserNoPwdDto(user.getUsername(), user.getEmail(), user.getBirthdate(), user.getPrivacyStatus());
@@ -155,13 +154,16 @@ public class UserService {
     /* ================================ LISTS CRUD ================================ */
 
     public MediaListsDto getUserLists(String id, MediaType mediaType) {
+        userNeo4jRepository.findById(id)
+                .orElseThrow(() -> new NoSuchElementException("User not found"));
         List<ListElementDto> mediaList;
         UserPrincipal principal = (UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         if (mediaType == MediaType.ANIME) {
             mediaList = userNeo4jRepository.findAnimeListsById(id, principal.getUser().getId());
-        } else {
+        } else if (mediaType == MediaType.MANGA) {
             mediaList = userNeo4jRepository.findMangaListsById(id, principal.getUser().getId());
-        }
+        } else
+            throw new IllegalArgumentException("Media type not found");
 
         MediaListsDto mediaLists = new MediaListsDto(
                 new ArrayList<>(),
@@ -183,12 +185,15 @@ public class UserService {
     }
 
     public String addMediaToUserList(String userId, String mediaId, MediaType mediaType) {
+        userNeo4jRepository.findById(userId)
+                .orElseThrow(() -> new NoSuchElementException("User not found"));
         boolean success;
         if (mediaType == MediaType.ANIME) {
             success = userNeo4jRepository.addAnimeToList(userId, mediaId);
-        } else {
+        } else if (mediaType == MediaType.MANGA) {
             success = userNeo4jRepository.addMangaToList(userId, mediaId);
-        }
+        } else
+            throw new IllegalArgumentException("Media type not found");
 
         if (!success) {
             throw new IllegalArgumentException("Media not found");
@@ -196,13 +201,17 @@ public class UserService {
         return "Media added to user list";
     }
 
+    //TODO: controllare che l'utente non scriva di aver visto più episodi di quelli totali (?)
     public String modifyMediaInUserList(String userId, String mediaId, MediaType mediaType, int progress) {
+        userNeo4jRepository.findById(userId)
+                .orElseThrow(() -> new NoSuchElementException("User not found"));
         boolean success;
         if (mediaType == MediaType.ANIME) {
             success = userNeo4jRepository.modifyAnimeInList(userId, mediaId, progress);
-        } else {
+        } else  if (mediaType == MediaType.MANGA) {
             success = userNeo4jRepository.modifyMangaInList(userId, mediaId, progress);
-        }
+        } else
+            throw new IllegalArgumentException("Media type not found");
 
         if (!success) {
             throw new IllegalArgumentException("Media not found");
@@ -211,12 +220,15 @@ public class UserService {
     }
 
     public String removeMediaFromUserList(String userId, String mediaId, MediaType mediaType) {
+        userNeo4jRepository.findById(userId)
+                .orElseThrow(() -> new NoSuchElementException("User not found"));
         boolean success;
         if (mediaType == MediaType.ANIME) {
             success = userNeo4jRepository.removeAnimeFromList(userId, mediaId);
-        } else {
+        } else if (mediaType == MediaType.MANGA) {
             success = userNeo4jRepository.removeMangaFromList(userId, mediaId);
-        }
+        } else
+            throw new IllegalArgumentException("Media type not found");
 
         if (!success) {
             throw new IllegalArgumentException("Media not found");
@@ -227,20 +239,27 @@ public class UserService {
     /* ================================ FOLLOWERS CRUD ================================ */
 
     public List<UserIdUsernameDto> getUserFollowers(String id) {
+        userNeo4jRepository.findById(id)
+                .orElseThrow(() -> new NoSuchElementException("User not found"));
         UserPrincipal principal = (UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         return userNeo4jRepository.findFollowersById(id, principal.getUser().getId());
     }
 
     public List<UserIdUsernameDto> getUserFollowing(String id) {
+        userNeo4jRepository.findById(id)
+                .orElseThrow(() -> new NoSuchElementException("User not found"));
         UserPrincipal principal = (UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         return userNeo4jRepository.findFollowedById(id, principal.getUser().getId());
     }
 
     public String followUser(String followerId, String followedId) {
         // TODO controllare che non si segua da solo
+        if (followerId.equals(followedId)) {
+            throw new IllegalArgumentException("You can't follow yourself");
+        }
         boolean success = userNeo4jRepository.followUser(followerId, followedId);
         if (!success) {
-            throw new IllegalArgumentException("User not found");
+            throw new NoSuchElementException("User not found");
         }
         userMongoRepository.findAndPushFollowerById(followedId, followerId);
         return "User followed";
@@ -249,7 +268,7 @@ public class UserService {
     public String unfollowUser(String followerId, String followedId) {
         boolean success = userNeo4jRepository.unfollowUser(followerId, followedId);
         if (!success) {
-            throw new IllegalArgumentException("User not found");
+            throw new NoSuchElementException("User not found");
         }
         userMongoRepository.findAndPullFollowerById(followedId, followerId);
         return "User unfollowed";

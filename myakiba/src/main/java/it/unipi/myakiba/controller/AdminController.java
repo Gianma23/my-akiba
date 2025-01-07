@@ -42,33 +42,21 @@ public class AdminController {
     @PatchMapping("/media/{mediaType}/{mediaId}")
     public ResponseEntity<String> updateMedia(@PathVariable MediaType mediaType, @PathVariable String mediaId,
                                               @RequestBody Map<String, Object> updates) {
-        try {
-            return ResponseEntity.ok(mediaService.updateMedia(mediaId, mediaType, updates));
-        } catch (Exception e) {
-            return ResponseEntity.notFound().build();
-        }
+        return ResponseEntity.ok(mediaService.updateMedia(mediaId, mediaType, updates));
     }
 
     @DeleteMapping("/media/{mediaType}/{mediaId}")
     public ResponseEntity<String> deleteMedia(@PathVariable MediaType mediaType, @PathVariable String mediaId) {
-        try {
-            return ResponseEntity.ok(mediaService.deleteMedia(mediaId, mediaType));
-        } catch (Exception e) {
-            return ResponseEntity.notFound().build();
-        }
+        return ResponseEntity.ok(mediaService.deleteMedia(mediaId, mediaType));
     }
 
     @DeleteMapping("/media/{mediaType}/{mediaId}/review/{reviewId}")
     public ResponseEntity<String> deleteReview(@PathVariable MediaType mediaType, @PathVariable String mediaId, @PathVariable String reviewId) {
-        try {
-            return ResponseEntity.ok(mediaService.deleteReview(mediaId, reviewId, mediaType));
-        } catch (Exception e) {
-            return ResponseEntity.notFound().build();
-        }
+        return ResponseEntity.ok(mediaService.deleteReview(mediaId, reviewId, mediaType));
     }
     /* ================================ USER MANAGEMENT ================================ */
 
-    @GetMapping("/users/{userId}")
+    @GetMapping("/user/{userId}")
     public ResponseEntity<UserNoPwdDto> getUserDetails(@PathVariable String userId) {
         return ResponseEntity.ok(userService.getUserById(userId, false));
     }

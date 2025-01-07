@@ -13,6 +13,6 @@ public class ListCounterAnalyticDto {
     private List<TopMediaDto> topMedia;
 
     public void setListType(String listType) {
-        this.listType = MediaProgress.valueOf(listType);
+        this.listType = MediaProgress.valueOf(listType.toUpperCase());
     }
 }

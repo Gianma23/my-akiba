@@ -181,12 +181,13 @@ public interface UserNeo4jRepository extends Neo4jRepository<UserNeo4j, String> 
               }
             )
             YIELD usersGraph
-            CALL gds.scc.stream('usersGraph',{})
+            CALL gds.scc.stream('graph',{})
             YIELD componentId, nodeId
             WITH componentId, collect(gds.util.asNode(nodeId)) AS users
             RETURN componentId AS cliqueId,
                    size(users) AS cliqueSize,
                    [user IN users | {id: user.id, name: user.name}] AS userDetails
+            ORDER BY cliqueSize DESC
             CALL gds.graph.drop('graph')
             YIELD graphName
             """)
