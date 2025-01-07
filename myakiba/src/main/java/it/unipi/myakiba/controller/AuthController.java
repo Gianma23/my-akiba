@@ -6,7 +6,6 @@ import it.unipi.myakiba.DTO.user.UserLoginDto;
 import it.unipi.myakiba.DTO.user.UserRegistrationDto;
 import it.unipi.myakiba.model.UserMongo;
 import it.unipi.myakiba.service.AuthService;
-import it.unipi.myakiba.service.UserService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;

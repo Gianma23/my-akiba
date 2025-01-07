@@ -1,7 +1,6 @@
 package it.unipi.myakiba.service;
 
 import it.unipi.myakiba.DTO.media.*;
-import it.unipi.myakiba.enumerator.MediaStatus;
 import it.unipi.myakiba.enumerator.MediaType;
 import it.unipi.myakiba.model.*;
 import it.unipi.myakiba.repository.*;
@@ -13,7 +12,6 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.util.List;
-import java.util.Map;
 import java.util.NoSuchElementException;
 
 @Service

@@ -3,7 +3,6 @@ package it.unipi.myakiba.config;
 import it.unipi.myakiba.model.UserMongo;
 import it.unipi.myakiba.model.UserPrincipal;
 import it.unipi.myakiba.service.MyUserDetailsService;
-import it.unipi.myakiba.service.UserService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;

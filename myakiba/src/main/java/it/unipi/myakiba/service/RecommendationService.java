@@ -3,7 +3,6 @@ package it.unipi.myakiba.service;
 import it.unipi.myakiba.DTO.media.MediaIdNameDto;
 import it.unipi.myakiba.DTO.user.UserIdUsernameDto;
 import it.unipi.myakiba.enumerator.MediaType;
-import it.unipi.myakiba.model.UserNeo4j;
 import it.unipi.myakiba.repository.AnimeMongoRepository;
 import it.unipi.myakiba.repository.MangaMongoRepository;
 import it.unipi.myakiba.repository.UserNeo4jRepository;

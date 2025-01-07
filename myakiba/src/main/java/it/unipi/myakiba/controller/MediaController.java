@@ -4,9 +4,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import it.unipi.myakiba.DTO.media.AddReviewDto;
 import it.unipi.myakiba.DTO.media.MediaDetailsDto;
 import it.unipi.myakiba.DTO.media.MediaIdNameDto;
-import it.unipi.myakiba.DTO.user.UserIdUsernameDto;
 import it.unipi.myakiba.enumerator.MediaType;
-import it.unipi.myakiba.model.MediaMongo;
 import it.unipi.myakiba.model.UserPrincipal;
 import it.unipi.myakiba.service.MediaService;
 import jakarta.validation.constraints.Max;
@@ -16,8 +14,6 @@ import org.springframework.data.domain.Slice;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
-
-import javax.print.attribute.standard.Media;
 
 @RestController
 @RequestMapping("/api/media")
