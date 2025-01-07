@@ -33,7 +33,6 @@ import java.util.NoSuchElementException;
 @Service
 public class UserService {
 
-    private final AuthenticationManager authManager;
     private final UserMongoRepository userMongoRepository;
     private final PasswordEncoder encoder;
     private final UserNeo4jRepository userNeo4jRepository;
@@ -41,49 +40,12 @@ public class UserService {
     private final MangaMongoRepository mangaMongoRepository;
 
     @Autowired
-    public UserService(AuthenticationManager authManager, UserMongoRepository userMongoRepository, PasswordEncoder encoder, UserNeo4jRepository userNeo4jRepository, AnimeMongoRepository animeMongoRepository, MangaMongoRepository mangaMongoRepository) {
-        this.authManager = authManager;
+    public UserService(UserMongoRepository userMongoRepository, PasswordEncoder encoder, UserNeo4jRepository userNeo4jRepository, AnimeMongoRepository animeMongoRepository, MangaMongoRepository mangaMongoRepository) {
         this.userMongoRepository = userMongoRepository;
         this.encoder = encoder;
         this.userNeo4jRepository = userNeo4jRepository;
         this.animeMongoRepository = animeMongoRepository;
         this.mangaMongoRepository = mangaMongoRepository;
-    }
-
-    /* ================================ AUTHENTICATION ================================ */
-
-    public void registerUser(UserRegistrationDto user) {
-        if (userMongoRepository.existsByUsername(user.username())) {
-            throw new IllegalArgumentException("Username already exists");
-        }
-        if (userMongoRepository.existsByEmail(user.email())) {
-            throw new IllegalArgumentException("Email already exists");
-        }
-
-        UserMongo newUserMongo = new UserMongo();
-        newUserMongo.setUsername(user.username());
-        newUserMongo.setPassword(encoder.encode(user.password()));
-        newUserMongo.setEmail(user.email());
-        newUserMongo.setBirthdate(user.birthdate());
-        newUserMongo.setRole("USER");
-        newUserMongo.setCreatedAt(LocalDate.now());
-        newUserMongo.setPrivacyStatus(PrivacyStatus.ALL);
-        userMongoRepository.save(newUserMongo);
-
-        UserNeo4j newUserNeo4j = new UserNeo4j();
-        newUserNeo4j.setId(newUserMongo.getId());
-        newUserNeo4j.setUsername(user.username());
-        newUserNeo4j.setPrivacyStatus(PrivacyStatus.ALL);
-        userNeo4jRepository.save(newUserNeo4j);
-    }
-
-    public String loginUser(UserLoginDto user) {
-        Authentication auth = authManager.authenticate(new UsernamePasswordAuthenticationToken(user.getEmail(), user.getPassword()));
-        if (auth.isAuthenticated()) {
-            UserMongo userMongo = userMongoRepository.findByEmail(user.getEmail());
-            return JwtUtils.generateToken(userMongo.getId());
-        }
-        return null;
     }
 
     /* ================================ USERS CRUD ================================ */
@@ -206,6 +168,7 @@ public class UserService {
         userNeo4jRepository.findById(userId)
                 .orElseThrow(() -> new NoSuchElementException("User not found"));
         boolean success;
+        //TODO check that progress <= total
         if (mediaType == MediaType.ANIME) {
             success = userNeo4jRepository.modifyAnimeInList(userId, mediaId, progress);
         } else  if (mediaType == MediaType.MANGA) {

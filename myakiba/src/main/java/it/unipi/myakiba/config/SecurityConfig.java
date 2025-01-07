@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.mongodb.config.EnableMongoAuditing;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
@@ -38,8 +39,11 @@ public class SecurityConfig {
                 .formLogin(AbstractHttpConfigurer::disable) // Disable form login
                 .authorizeHttpRequests(request -> request
                         .requestMatchers("/api-docs.html", "/swagger-ui/**", "/v3/api-docs/**").permitAll()
-                        .requestMatchers("/api/auth/login", "/api/auth/register").permitAll()
-                        .anyRequest().authenticated())
+                        .requestMatchers("/api/auth/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/media/{mediaType:[a-zA-Z]+}", "/api/media/{mediaType:[a-zA-Z]+}/{mediaId:[a-zA-Z0-9]+}").permitAll()
+                        .requestMatchers("/api/users").authenticated() // Only authenticated users can access this endpoint
+                        .requestMatchers("/api/admin/**").hasRole("ADMIN")
+                        .anyRequest().hasRole("USER"))
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
         return http.build();

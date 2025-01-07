@@ -31,7 +31,7 @@ public class RecommendationController {
 
     @GetMapping("/popular-among-follows/{mediaType}")
     public ResponseEntity<List<MediaIdNameDto>> getPopularMediaAmongFollows(@PathVariable MediaType mediaType) {
-        UserPrincipal user = (UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        UserPrincipal user = (UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal(); //TODO perchè non uso user?
         return ResponseEntity.ok(recommendationService.getPopularMediaAmongFollows(mediaType));
     }
 

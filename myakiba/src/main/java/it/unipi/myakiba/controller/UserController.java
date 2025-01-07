@@ -19,7 +19,6 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import it.unipi.myakiba.model.UserMongo;
 
-import javax.print.attribute.standard.Media;
 import java.util.List;
 
 @Validated
@@ -142,6 +141,9 @@ public class UserController {
     @PostMapping("/user/follow/{userId}")
     public ResponseEntity<String> followUser(@PathVariable String userId) {
         UserPrincipal user = (UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        if (user.getUser().getId().equals(userId)) {
+            return ResponseEntity.badRequest().body("You can't follow yourself");
+        }
         return ResponseEntity.ok(userService.followUser(user.getUser().getId(), userId));
     }
 

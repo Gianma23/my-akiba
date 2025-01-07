@@ -45,7 +45,7 @@ public class MediaController {
 
     @GetMapping("/{mediaType}/{mediaId}")
     public ResponseEntity<MediaMongo> getMediaById(@PathVariable MediaType mediaType, @PathVariable String mediaId) {
-        return ResponseEntity.ok(mediaService.getMediaById(mediaType, mediaId));
+        return ResponseEntity.ok(mediaService.getMediaById(mediaType, mediaId)); //TODO return DTO with average score
     }
 
     @PostMapping("/{mediaType}/{mediaId}/review")
