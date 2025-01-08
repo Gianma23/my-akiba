@@ -77,9 +77,6 @@ public class UserService {
             if (userMongoRepository.existsByUsername(updates.username())) {
                 throw new IllegalArgumentException("Username already exists");
             }
-            //updates reviews username
-            animeMongoRepository.updateReviewsByUsername(user.getUsername(), updates.username());
-            mangaMongoRepository.updateReviewsByUsername(user.getUsername(), updates.username());
             user.setUsername(updates.username());
             userNeo4j.setUsername(user.getUsername());
         }
@@ -102,17 +99,28 @@ public class UserService {
         userNeo4jRepository.save(userNeo4j);
         userMongoRepository.save(user);
 
+        if (updates.username() != null) {
+            //updates reviews username
+            animeMongoRepository.updateReviewsByUsername(user.getUsername(), updates.username());
+            mangaMongoRepository.updateReviewsByUsername(user.getUsername(), updates.username());
+        }
+
         return new UserNoPwdDto(user.getUsername(), user.getEmail(), user.getBirthdate(), user.getPrivacyStatus());
     }
 
+    @Retryable(
+            retryFor = {DataAccessException.class, TransactionSystemException.class},
+            maxAttempts = 3,
+            backoff = @Backoff(delay = 2000)
+    )
     public UserNoPwdDto deleteUser(UserMongo user) {
-        userMongoRepository.delete(user);
+        userNeo4jRepository.deleteById(user.getId());
 
+        userMongoRepository.delete(user);
         animeMongoRepository.deleteReviewsByUsername(user.getUsername());
         mangaMongoRepository.deleteReviewsByUsername(user.getUsername());
         userMongoRepository.deleteUserFromFollowers(user.getId());
 
-        userNeo4jRepository.deleteById(user.getId());
         return new UserNoPwdDto(user.getUsername(), user.getEmail(), user.getBirthdate(), user.getPrivacyStatus());
     }
 
@@ -148,6 +156,11 @@ public class UserService {
         return mediaLists;
     }
 
+    @Retryable(
+            retryFor = {DataAccessException.class, TransactionSystemException.class},
+            maxAttempts = 3,
+            backoff = @Backoff(delay = 2000)
+    )
     public String addMediaToUserList(String userId, String mediaId, MediaType mediaType) {
         userNeo4jRepository.findById(userId)
                 .orElseThrow(() -> new NoSuchElementException("User not found"));
@@ -175,11 +188,16 @@ public class UserService {
         }
 
         if (!success) {
-            throw new NoSuchElementException("Media not found"); //TODO qua ci si arriva anche se progress > total
+            throw new IllegalArgumentException("Cannot update media progress");
         }
         return "Media modified in user list";
     }
 
+    @Retryable(
+            retryFor = {DataAccessException.class, TransactionSystemException.class},
+            maxAttempts = 3,
+            backoff = @Backoff(delay = 2000)
+    )
     public String removeMediaFromUserList(String userId, String mediaId, MediaType mediaType) {
         userNeo4jRepository.findById(userId)
                 .orElseThrow(() -> new NoSuchElementException("User not found"));
@@ -212,6 +230,11 @@ public class UserService {
         return userNeo4jRepository.findFollowedById(id, principal.getUser().getId());
     }
 
+    @Retryable(
+            retryFor = {DataAccessException.class, TransactionSystemException.class},
+            maxAttempts = 3,
+            backoff = @Backoff(delay = 2000)
+    )
     public String followUser(String followerId, String followedId) {
         if (followerId.equals(followedId)) {
             throw new IllegalArgumentException("You can't follow yourself");
@@ -224,6 +247,11 @@ public class UserService {
         return "User followed";
     }
 
+    @Retryable(
+            retryFor = {DataAccessException.class, TransactionSystemException.class},
+            maxAttempts = 3,
+            backoff = @Backoff(delay = 2000)
+    )
     public String unfollowUser(String followerId, String followedId) {
         boolean success = userNeo4jRepository.unfollowUser(followerId, followedId);
         if (!success) {
