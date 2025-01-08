@@ -5,6 +5,8 @@ import jakarta.validation.constraints.NotEmpty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
+import java.util.List;
+
 @Data
 @EqualsAndHashCode(callSuper = true)
 public class AnimeCreationDto extends MediaCreationDto {
@@ -18,5 +20,5 @@ public class AnimeCreationDto extends MediaCreationDto {
     private double duration;
 
     @NotEmpty
-    private String studio;
+    private List<String> studios;
 }

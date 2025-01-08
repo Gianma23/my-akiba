@@ -85,7 +85,7 @@ public class MediaService {
             newAnimeMongo.setType(animeCreationDto.getType());
             newAnimeMongo.setSource(animeCreationDto.getSource());
             newAnimeMongo.setDuration(animeCreationDto.getDuration());
-            newAnimeMongo.setStudio(animeCreationDto.getStudio());
+            newAnimeMongo.setStudios(animeCreationDto.getStudios());
             newAnimeMongo.setSynopsis(animeCreationDto.getSynopsis());
             animeMongoRepository.save(newAnimeMongo);
 
@@ -170,8 +170,8 @@ public class MediaService {
             if (animeUpdateDto.getDuration() != 0) {
                 targetMongo.setDuration(animeUpdateDto.getDuration());
             }
-            if (animeUpdateDto.getStudio() != null) {
-                targetMongo.setStudio(animeUpdateDto.getStudio());
+            if (animeUpdateDto.getStudios() != null) {
+                targetMongo.setStudios(animeUpdateDto.getStudios());
             }
 
             animeMongoRepository.save(targetMongo);

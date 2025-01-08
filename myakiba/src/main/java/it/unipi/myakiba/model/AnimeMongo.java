@@ -22,5 +22,5 @@ public class AnimeMongo extends MediaMongo{
 
     private double duration;
 
-    private String studio;
+    private List<String> studios;
 }
