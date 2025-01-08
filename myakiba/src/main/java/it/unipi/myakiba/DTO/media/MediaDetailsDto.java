@@ -10,11 +10,6 @@ import lombok.experimental.SuperBuilder;
 
 import java.util.List;
 
-@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.EXISTING_PROPERTY, property = "type")
-@JsonSubTypes({
-        @JsonSubTypes.Type(value = AnimeDetailsDto.class, name = "anime"),
-        @JsonSubTypes.Type(value = MangaDetailsDto.class, name = "manga")
-})
 @Getter
 @SuperBuilder
 public abstract class MediaDetailsDto {

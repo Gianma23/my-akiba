@@ -33,15 +33,15 @@ public class AdminController {
 
     /* ================================ MEDIA MANAGEMENT ================================ */
 
-    @PostMapping("/media/{mediaType}")
-    public ResponseEntity<String> addMedia(@PathVariable MediaType mediaType, @RequestBody MediaCreationDto media) {
-        return ResponseEntity.ok(mediaService.addMedia(mediaType, media));
+    @PostMapping("/media")
+    public ResponseEntity<String> addMedia(@RequestBody MediaCreationDto media) {
+        return ResponseEntity.ok(mediaService.addMedia(media));
     }
 
-    @PatchMapping("/media/{mediaType}/{mediaId}")
-    public ResponseEntity<String> updateMedia(@PathVariable MediaType mediaType, @PathVariable String mediaId,
+    @PatchMapping("/media/{mediaId}")
+    public ResponseEntity<String> updateMedia(@PathVariable String mediaId,
                                               @RequestBody MediaUpdateDto updates) {
-        return ResponseEntity.ok(mediaService.updateMedia(mediaId, mediaType, updates));
+        return ResponseEntity.ok(mediaService.updateMedia(mediaId, updates));
     }
 
     @DeleteMapping("/media/{mediaType}/{mediaId}")
