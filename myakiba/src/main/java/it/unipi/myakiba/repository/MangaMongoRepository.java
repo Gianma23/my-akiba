@@ -73,9 +73,9 @@ public interface MangaMongoRepository extends MongoRepository<MangaMongo, String
                     "   '_id': '$_id', " +
                     "   'name': { '$first': '$name' }, " +
                     "   'averageScore': { '$avg': '$reviews.score' }, " +
-                    "   'reviews': { '$push': { 'score': '$reviews.score', 'date': '$reviews.date' } } " +
+                    "   'reviews': { '$push': { 'score': '$reviews.score', 'timestamp': '$reviews.timestamp' } } " +
                     "} }",
-            "{ '$addFields': { 'reviews': { '$slice': { '$reverseArray': { '$sortArray': { 'input': '$reviews', 'sortBy': { 'date': -1 } } }, 'n': 5 } } } }",      // Fase 2: Ordina le recensioni dalla più recente alla più vecchia
+            "{ '$addFields': { 'reviews': { '$slice': { '$reverseArray': { '$sortArray': { 'input': '$reviews', 'sortBy': { 'timestamp': -1 } } }, 'n': 5 } } } }",      // Fase 2: Ordina le recensioni dalla più recente alla più vecchia
             "{ '$addFields': { 'recentAverageScore': { '$avg': '$reviews.score' } } }",     // Fase 3: Calcola la media dei primi 5 score
             "{ '$match': { '$expr': { '$gt': ['$recentAverageScore', '$averageScore'] } } }",   // Fase 4: Tieni solo i manga con media recente < media totale
             "{ '$addFields': { 'scoreDifference': { '$subtract': ['$recentAverageScore', '$averageScore'] } } }",       // Fase 5: Calcola la differenza tra media totale e media recente

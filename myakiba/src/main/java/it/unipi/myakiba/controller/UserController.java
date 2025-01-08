@@ -2,6 +2,7 @@ package it.unipi.myakiba.controller;
 
 import io.swagger.v3.oas.annotations.tags.Tag;
 import it.unipi.myakiba.DTO.media.MediaListsDto;
+import it.unipi.myakiba.DTO.user.MediaListUpdateDto;
 import it.unipi.myakiba.DTO.user.UserIdUsernameDto;
 import it.unipi.myakiba.DTO.user.UserNoPwdDto;
 import it.unipi.myakiba.DTO.user.UserUpdateDto;
@@ -95,9 +96,9 @@ public class UserController {
     }
 
     @PatchMapping("/user/lists/{mediaType}/{mediaId}")
-    public ResponseEntity<String> modifyMediaInUserList(@PathVariable MediaType mediaType, @PathVariable String mediaId, @RequestBody @Min(0) int progress) {
+    public ResponseEntity<String> modifyMediaInUserList(@PathVariable MediaType mediaType, @PathVariable String mediaId, @RequestBody MediaListUpdateDto progress) {
         UserPrincipal user = (UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        return ResponseEntity.ok(userService.modifyMediaInUserList(user.getUser().getId(), mediaId, mediaType, progress));
+        return ResponseEntity.ok(userService.modifyMediaInUserList(user.getUser().getId(), mediaId, mediaType, progress.progress()));
     }
 
     @DeleteMapping("/user/lists/{mediaType}/{mediaId}")

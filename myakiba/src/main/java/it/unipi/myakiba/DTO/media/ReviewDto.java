@@ -10,5 +10,5 @@ public class ReviewDto {
     private String username;
     private int score;
     private String comment;
-    private LocalDate date;
+    private LocalDate timestamp;
 }

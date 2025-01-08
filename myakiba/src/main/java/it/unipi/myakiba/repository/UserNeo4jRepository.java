@@ -168,7 +168,7 @@ public interface UserNeo4jRepository extends Neo4jRepository<UserNeo4j, String> 
             WITH u, count(f) AS followersCount
             ORDER BY followersCount DESC
             LIMIT 20
-            RETURN u.id AS userId, u.name AS username, followersCount
+            RETURN u.id AS userId, u.username AS username, followersCount
             """)
     List<InfluencersDto> findMostFollowedUsers();
 

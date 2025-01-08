@@ -234,7 +234,7 @@ public class MediaService {
         newReview.setUsername(user.getUsername());
         newReview.setScore(review.getScore());
         newReview.setComment(review.getComment());
-        newReview.setDate(LocalDate.now(ZoneOffset.UTC));
+        newReview.setTimestamp(LocalDate.now(ZoneOffset.UTC));
 
         if (mediaType == MediaType.MANGA) {
             MangaMongo targetMongo = mangaMongoRepository.findById(mediaId)
