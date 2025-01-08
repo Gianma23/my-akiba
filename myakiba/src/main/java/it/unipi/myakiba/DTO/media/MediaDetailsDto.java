@@ -29,4 +29,6 @@ public abstract class MediaDetailsDto {
     private String synopsis;
 
     private String type;
+
+    private List<ReviewDto> reviews;
 }

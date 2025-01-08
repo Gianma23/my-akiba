@@ -7,6 +7,7 @@ import jakarta.validation.constraints.Past;
 import lombok.Data;
 
 import java.time.LocalDate;
+import java.util.Date;
 
 public record UserRegistrationDto(
         @NotBlank
@@ -18,6 +19,6 @@ public record UserRegistrationDto(
         @Email
         String email,
         @Past
-        LocalDate birthdate
+        Date birthdate
 ) {
 }

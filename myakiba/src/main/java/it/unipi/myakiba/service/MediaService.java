@@ -15,6 +15,7 @@ import org.springframework.transaction.TransactionSystemException;
 
 import java.time.LocalDate;
 import java.time.ZoneOffset;
+import java.util.Date;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.UUID;
@@ -258,7 +259,7 @@ public class MediaService {
         newReview.setUsername(user.getUsername());
         newReview.setScore(review.getScore());
         newReview.setComment(review.getComment());
-        newReview.setTimestamp(LocalDate.now(ZoneOffset.UTC));
+        newReview.setTimestamp(new Date());
 
         if (mediaType == MediaType.MANGA) {
             MangaMongo targetMongo = mangaMongoRepository.findById(mediaId)

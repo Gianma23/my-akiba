@@ -3,6 +3,7 @@ package it.unipi.myakiba.DTO.media;
 import lombok.Data;
 
 import java.time.LocalDate;
+import java.util.Date;
 
 @Data
 public class ReviewDto {
@@ -10,5 +11,5 @@ public class ReviewDto {
     private String username;
     private int score;
     private String comment;
-    private LocalDate timestamp;
+    private Date timestamp;
 }
