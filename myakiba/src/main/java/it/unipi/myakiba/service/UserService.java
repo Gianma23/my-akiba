@@ -13,12 +13,17 @@ import it.unipi.myakiba.repository.MangaMongoRepository;
 import it.unipi.myakiba.repository.UserMongoRepository;
 import it.unipi.myakiba.repository.UserNeo4jRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataAccessException;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
+import org.springframework.retry.annotation.Backoff;
+import org.springframework.retry.annotation.Retryable;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.TransactionSystemException;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -60,6 +65,11 @@ public class UserService {
         return userMongoRepository.findByUsernameContaining(username, userId, pageable);
     }
 
+    @Retryable(
+            retryFor = {DataAccessException.class, TransactionSystemException.class},
+            maxAttempts = 3,
+            backoff = @Backoff(delay = 2000)
+    )
     public UserNoPwdDto updateUser(UserMongo user, UserUpdateDto updates) {
         UserNeo4j userNeo4j = userNeo4jRepository.findById(user.getId())
                 .orElseThrow(() -> new NoSuchElementException("User not found"));
@@ -89,8 +99,8 @@ public class UserService {
             user.setPrivacyStatus(updates.privacyStatus());
             userNeo4j.setPrivacyStatus(user.getPrivacyStatus());
         }
-        userMongoRepository.save(user);
         userNeo4jRepository.save(userNeo4j);
+        userMongoRepository.save(user);
 
         return new UserNoPwdDto(user.getUsername(), user.getEmail(), user.getBirthdate(), user.getPrivacyStatus());
     }
