@@ -270,7 +270,7 @@ public class UserService {
                 return true;
             case FOLLOWERS:
                 UserPrincipal principal = (UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-                return principal.getUser().getFollowers().contains(user.getId());
+                return principal.getUser().getFollowers() != null && principal.getUser().getFollowers().contains(user.getId());
             case NOBODY:
                 return false;
         }
