@@ -6,6 +6,7 @@ import it.unipi.myakiba.config.JwtUtils;
 import it.unipi.myakiba.enumerator.PrivacyStatus;
 import it.unipi.myakiba.model.UserMongo;
 import it.unipi.myakiba.model.UserNeo4j;
+import it.unipi.myakiba.model.UserPrincipal;
 import it.unipi.myakiba.repository.AnimeMongoRepository;
 import it.unipi.myakiba.repository.MangaMongoRepository;
 import it.unipi.myakiba.repository.UserMongoRepository;
@@ -77,8 +78,8 @@ public class AuthService {
     public String loginUser(UserLoginDto user) {
         Authentication auth = authManager.authenticate(new UsernamePasswordAuthenticationToken(user.getEmail(), user.getPassword()));
         if (auth.isAuthenticated()) {
-            UserMongo userMongo = userMongoRepository.findByEmail(user.getEmail());
-            return JwtUtils.generateToken(userMongo.getId());
+            UserPrincipal userPrincipal = (UserPrincipal) auth.getPrincipal();
+            return JwtUtils.generateToken(userPrincipal.getUser().getId());
         }
         return null;
     }
