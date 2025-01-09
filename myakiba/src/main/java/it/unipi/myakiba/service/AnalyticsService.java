@@ -41,19 +41,12 @@ public class AnalyticsService {
     }
 
     //   For each year, see the month with most registrations
-    public List<MonthAnalyticDto> getMonthlyRegistrations() {
-        MonthAnalyticDto maxDocument = monthAnalyticRepository.findTopByOrderByIdDesc();
+    public List<MonthAnalytic> getMonthlyRegistrations() {
+        MonthAnalytic maxDocument = monthAnalyticRepository.findTopByOrderByYearDesc();
         int lastYearCalculated = maxDocument != null ? maxDocument.getYear() : 2000;
-        // TODO: non mi torna cosa fa (perchè sei gay)
-        List<MonthAnalyticDto> results = userMongoRepository.findMaxMonthByYearGreaterThan(lastYearCalculated);
-        for (MonthAnalyticDto result : results) {
-            MonthAnalytic monthAnalytic = new MonthAnalytic();
-            monthAnalytic.setYear(result.getYear());
-            monthAnalytic.setMonth(result.getMonth());
-            monthAnalytic.setCount(result.getCount());
-            monthAnalyticRepository.save(monthAnalytic);
-        }
-        return mongoTemplate.findAll(MonthAnalyticDto.class, "month_analytics");
+        List<MonthAnalytic> results = userMongoRepository.findMaxMonthByYearGreaterThan(lastYearCalculated);
+        monthAnalyticRepository.saveAll(results);
+        return monthAnalyticRepository.findAllByOrderByYear();
     }
 
     public List<ControversialMediaDto> getControversialMedia(MediaType mediaType) {

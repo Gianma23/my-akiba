@@ -7,6 +7,7 @@ import it.unipi.myakiba.DTO.media.MediaInListsAnalyticDto;
 import it.unipi.myakiba.DTO.media.MediaUpdateDto;
 import it.unipi.myakiba.DTO.user.UserNoPwdDto;
 import it.unipi.myakiba.enumerator.MediaType;
+import it.unipi.myakiba.model.MonthAnalytic;
 import it.unipi.myakiba.service.AnalyticsService;
 import it.unipi.myakiba.service.MediaService;
 import it.unipi.myakiba.service.UserService;
@@ -63,7 +64,7 @@ public class AdminController {
     /* ================================ ANALYTICS ================================ */
 
     @GetMapping("/analytics/monthlyregistrations")
-    public ResponseEntity<List<MonthAnalyticDto>> getMonthlyRegistrations() {
+    public ResponseEntity<List<MonthAnalytic>> getMonthlyRegistrations() {
         return ResponseEntity.ok(analyticsService.getMonthlyRegistrations());
     }
 

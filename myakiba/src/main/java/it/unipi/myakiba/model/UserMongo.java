@@ -24,7 +24,6 @@ public class UserMongo {
     private String role;
 
     @NotBlank(message = "Username cannot be blank")
-    @TextIndexed
     @Indexed(unique = true)
     private String username;
 
