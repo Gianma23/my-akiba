@@ -1,7 +1,6 @@
 package it.unipi.myakiba.DTO.media;
 
 import lombok.Data;
-
 import java.time.LocalDate;
 
 @Data

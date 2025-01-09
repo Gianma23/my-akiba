@@ -3,9 +3,6 @@ package it.unipi.myakiba.DTO.media;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import it.unipi.myakiba.enumerator.MediaStatus;
-import it.unipi.myakiba.enumerator.MediaType;
-import jakarta.validation.constraints.Min;
-import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
 import lombok.Data;
 

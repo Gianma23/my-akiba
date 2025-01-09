@@ -3,7 +3,6 @@ package it.unipi.myakiba.repository;
 import it.unipi.myakiba.DTO.analytic.ControversialMediaDto;
 import it.unipi.myakiba.DTO.analytic.TrendingMediaDto;
 import it.unipi.myakiba.DTO.media.MediaAverageDto;
-import it.unipi.myakiba.DTO.media.MediaIdNameDto;
 import it.unipi.myakiba.model.AnimeMongo;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
@@ -56,7 +55,7 @@ public interface AnimeMongoRepository extends MongoRepository<AnimeMongo, String
                     "   '_id': '$_id', " +
                     "   'name': { '$first': '$name' }, " +
                     "   'averageScore': { '$avg': '$reviews.score' }, " +
-                    "   'reviews': { '$push': { 'score': '$reviews.score', 'date': '$reviews.date' } } " +
+                    "   'reviews': { '$push': { 'score': '$reviews.score', 'date': '$reviews.timestamp' } } " +
                     "} }",
             "{ '$addFields': { 'reviews': { '$slice': { '$reverseArray': { '$sortArray': { 'input': '$reviews', 'sortBy': { 'date': -1 } } }, 'n': 5 } } } }",      // Fase 2: Ordina le recensioni dalla più recente alla più vecchia
             "{ '$addFields': { 'recentAverageScore': { '$avg': '$reviews.score' } } }",     // Fase 3: Calcola la media dei primi 5 score
@@ -73,7 +72,7 @@ public interface AnimeMongoRepository extends MongoRepository<AnimeMongo, String
                     "   '_id': '$_id', " +
                     "   'name': { '$first': '$name' }, " +
                     "   'averageScore': { '$avg': '$reviews.score' }, " +
-                    "   'reviews': { '$push': { 'score': '$reviews.score', 'date': '$reviews.date' } } " +
+                    "   'reviews': { '$push': { 'score': '$reviews.score', 'date': '$reviews.timestamp' } } " +
                     "} }",
             "{ '$addFields': { 'reviews': { '$slice': { '$reverseArray': { '$sortArray': { 'input': '$reviews', 'sortBy': { 'date': -1 } } }, 'n': 5 } } } }",      // Fase 2: Ordina le recensioni dalla più recente alla più vecchia
             "{ '$addFields': { 'recentAverageScore': { '$avg': '$reviews.score' } } }",     // Fase 3: Calcola la media dei primi 5 score

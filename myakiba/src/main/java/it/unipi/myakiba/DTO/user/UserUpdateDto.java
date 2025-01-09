@@ -2,7 +2,6 @@ package it.unipi.myakiba.DTO.user;
 
 import it.unipi.myakiba.enumerator.PrivacyStatus;
 import jakarta.validation.constraints.*;
-import lombok.Data;
 
 import java.time.LocalDate;
 

@@ -13,8 +13,8 @@ public interface AnimeNeo4jRepository extends Neo4jRepository<AnimeNeo4j, String
             MATCH (user:User)-[relationship:LIST_ELEMENT]->(anime:Anime)
             WITH anime,
                  CASE
-                     WHEN relationship.episodesWatched = 0 THEN 'PLANNED'
-                     WHEN relationship.episodesWatched = anime.episodes AND anime.status = 'COMPLETED' THEN 'COMPLETED'
+                     WHEN relationship.progress = 0 THEN 'PLANNED'
+                     WHEN relationship.progress = anime.episodes AND anime.status = 'COMPLETED' THEN 'COMPLETED'
                      ELSE 'IN_PROGRESS'
                  END AS listType
             WITH  anime, listType, count(DISTINCT relationship) AS listCount
@@ -28,8 +28,8 @@ public interface AnimeNeo4jRepository extends Neo4jRepository<AnimeNeo4j, String
             MATCH (user:User)-[relationship:LIST_ELEMENT]->(anime:Anime)
             WITH anime,
                  CASE
-                     WHEN relationship.episodesWatched = 0 THEN 'PLANNED'
-                     WHEN relationship.episodesWatched = anime.episodes AND anime.status = 'COMPLETED' THEN 'COMPLETED'
+                     WHEN relationship.progress = 0 THEN 'PLANNED'
+                     WHEN relationship.progress = anime.episodes AND anime.status = 'COMPLETED' THEN 'COMPLETED'
                      ELSE 'IN_PROGRESS'
                  END AS listType
             WITH  anime, listType, count(DISTINCT relationship) AS listCount

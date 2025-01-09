@@ -13,8 +13,8 @@ public interface MangaNeo4jRepository extends Neo4jRepository<MangaNeo4j, String
             MATCH (user:User)-[relationship:LIST_ELEMENT]->(manga:Manga)
             WITH manga,
                  CASE
-                     WHEN relationship.episodesWatched = 0 THEN 'PLANNED'
-                     WHEN relationship.episodesWatched = manga.episodes AND manga.status = 'COMPLETED' THEN 'COMPLETED'
+                     WHEN relationship.progress = 0 THEN 'PLANNED'
+                     WHEN relationship.progress = manga.episodes AND manga.status = 'COMPLETED' THEN 'COMPLETED'
                      ELSE 'IN_PROGRESS'
                  END AS listType
             WITH  manga, listType, count(DISTINCT relationship) AS listCount
@@ -28,8 +28,8 @@ public interface MangaNeo4jRepository extends Neo4jRepository<MangaNeo4j, String
             MATCH (user:User)-[relationship:LIST_ELEMENT]->(manga:Manga)
             WITH manga,
                  CASE
-                     WHEN relationship.episodesWatched = 0 THEN 'PLANNED'
-                     WHEN relationship.episodesWatched = manga.episodes AND manga.status = 'COMPLETED' THEN 'COMPLETED'
+                     WHEN relationship.progress = 0 THEN 'PLANNED'
+                     WHEN relationship.progress = manga.episodes AND manga.status = 'COMPLETED' THEN 'COMPLETED'
                      ELSE 'IN_PROGRESS'
                  END AS listType
             WITH  manga, listType, count(DISTINCT relationship) AS listCount
