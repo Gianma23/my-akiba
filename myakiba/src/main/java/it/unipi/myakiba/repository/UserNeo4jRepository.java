@@ -34,7 +34,7 @@ public interface UserNeo4jRepository extends Neo4jRepository<UserNeo4j, String> 
             MATCH (u:User)-[l:LIST_ELEMENT]->(m:Manga)
             WHERE u.id = $id
               AND (
-                NOT $id = $currentUserId OR
+                $id = $currentUserId OR
                 u.privacyStatus = 'ALL' OR
                 (u.privacyStatus = 'FOLLOWERS' AND exists {
                     MATCH (follower:User)-[:FOLLOW]->(u)
@@ -87,7 +87,7 @@ public interface UserNeo4jRepository extends Neo4jRepository<UserNeo4j, String> 
             MATCH (u:User)<-[:FOLLOW]-(f:User)
             WHERE u.id = $id
               AND (
-                NOT $id = $currentUserId OR
+                $id = $currentUserId OR
                 u.privacyStatus = 'ALL' OR
                 (u.privacyStatus = 'FOLLOWERS' AND exists {
                     MATCH (follower:User)-[:FOLLOW]->(u)
@@ -102,7 +102,7 @@ public interface UserNeo4jRepository extends Neo4jRepository<UserNeo4j, String> 
             MATCH (u:User)-[:FOLLOW]->(f:User)
             WHERE u.id = $id
               AND (
-                NOT $id = $currentUserId OR
+                $id = $currentUserId OR
                 u.privacyStatus = 'ALL' OR
                 (u.privacyStatus = 'FOLLOWERS' AND exists {
                     MATCH (follower:User)-[:FOLLOW]->(u)

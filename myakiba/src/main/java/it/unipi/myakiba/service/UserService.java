@@ -150,7 +150,7 @@ public class UserService {
             System.out.println(element);
             if (element.getProgress() == 0) {
                 mediaLists.plannedList().add(element);
-            } else if (element.getProgress() < element.getTotal() && element.getStatus() != MediaStatus.COMPLETE) {
+            } else if (element.getProgress() < element.getTotal() || element.getStatus() != MediaStatus.COMPLETE) {
                 mediaLists.inProgressList().add(element);
             } else {
                 mediaLists.completedList().add(element);
