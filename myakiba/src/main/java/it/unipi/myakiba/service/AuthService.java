@@ -22,6 +22,8 @@ import org.springframework.transaction.TransactionSystemException;
 
 import java.time.LocalDate;
 import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
+import java.util.Date;
 import java.util.UUID;
 
 @Service
@@ -66,7 +68,7 @@ public class AuthService {
         newUserMongo.setEmail(user.email());
         newUserMongo.setBirthdate(user.birthdate());
         newUserMongo.setRole("USER");
-        newUserMongo.setCreatedAt(LocalDate.now(ZoneOffset.UTC));
+        newUserMongo.setCreatedAt(new Date());
         newUserMongo.setPrivacyStatus(PrivacyStatus.ALL);
         userMongoRepository.save(newUserMongo);
 

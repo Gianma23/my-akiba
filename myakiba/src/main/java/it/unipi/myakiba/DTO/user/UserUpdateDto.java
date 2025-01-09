@@ -4,6 +4,7 @@ import it.unipi.myakiba.enumerator.PrivacyStatus;
 import jakarta.validation.constraints.*;
 
 import java.time.LocalDate;
+import java.util.Date;
 
 public record UserUpdateDto(
         @NotEmpty
@@ -13,6 +14,6 @@ public record UserUpdateDto(
         @Email
         String email,
         @Past
-        LocalDate birthdate,
+        Date birthdate,
         PrivacyStatus privacyStatus
 ){}

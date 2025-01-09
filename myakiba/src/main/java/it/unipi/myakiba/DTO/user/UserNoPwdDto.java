@@ -6,10 +6,11 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Past;
 
 import java.time.LocalDate;
+import java.util.Date;
 
 public record UserNoPwdDto(
         @NotBlank String username,
         @NotBlank @Email String email,
-        @Past LocalDate birthdate,
+        @Past Date birthdate,
         PrivacyStatus privacyStatus) {
 }

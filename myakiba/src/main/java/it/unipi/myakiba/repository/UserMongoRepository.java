@@ -15,8 +15,8 @@ import java.util.List;
 
 @Repository
 public interface UserMongoRepository extends MongoRepository<UserMongo, String> {
-    @Query("{ 'username': { $regex: ?0, $options: 'i' } }")
-    Slice<UserIdUsernameDto> findByUsernameContaining(String username, String id, Pageable pageable);
+    @Query("{ 'username': { $regex: ?0, $options: 'i' }, 'role': 'USER' }")
+    Slice<UserIdUsernameDto> findByUsernameContaining(String username, Pageable pageable);
     UserMongo findByEmail(String email);
     boolean existsByUsername(String username);
     boolean existsByEmail(String email);

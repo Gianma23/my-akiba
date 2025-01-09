@@ -13,7 +13,6 @@ import java.util.List;
 @Data
 public abstract class MediaMongo {
     @Id
-    @GeneratedValue
     private String id;
 
     @NotBlank

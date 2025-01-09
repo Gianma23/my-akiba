@@ -24,7 +24,10 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.TransactionSystemException;
 
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.NoSuchElementException;
 
@@ -60,9 +63,9 @@ public class UserService {
         return canReturnPrivateDetails(user) ? userNoPwdDto : new UserNoPwdDto(user.getUsername(), null, null, null);
     }
 
-    public Slice<UserIdUsernameDto> getUsers(String username, String userId, int page, int size) {
+    public Slice<UserIdUsernameDto> getUsers(String username, int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
-        return userMongoRepository.findByUsernameContaining(username, userId, pageable);
+        return userMongoRepository.findByUsernameContaining(username, pageable);
     }
 
     @Retryable(

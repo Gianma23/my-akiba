@@ -11,6 +11,7 @@ import org.springframework.data.mongodb.core.index.TextIndexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.time.LocalDate;
+import java.util.Date;
 import java.util.List;
 
 @Document(collection = "users")
@@ -41,7 +42,7 @@ public class UserMongo {
     private List<String> followers;
 
     @Past(message = "Birthdate must be in the past")
-    private LocalDate birthdate;
+    private Date birthdate;
 
-    private LocalDate createdAt;
+    private Date createdAt;
 }

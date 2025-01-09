@@ -41,8 +41,7 @@ public class UserController {
             @RequestParam(defaultValue = "0") @Min(0) int page,
             @RequestParam(defaultValue = "10") @Min(0) @Max(100) int size
     ) {
-        UserPrincipal user = (UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        Slice<UserIdUsernameDto> results = userService.getUsers(username, user.getUser().getId(), page, size);
+        Slice<UserIdUsernameDto> results = userService.getUsers(username, page, size);
         if (results.isEmpty()) {
             return ResponseEntity.ok("No user found with this name");
         } else

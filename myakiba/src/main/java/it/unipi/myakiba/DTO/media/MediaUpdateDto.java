@@ -8,13 +8,16 @@ import lombok.Data;
 
 import java.util.List;
 
-@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.EXISTING_PROPERTY, property = "type")
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.EXISTING_PROPERTY, property = "mediaType")
 @JsonSubTypes({
-        @JsonSubTypes.Type(value = AnimeUpdateDto.class, name = "anime"),
-        @JsonSubTypes.Type(value = MangaUpdateDto.class, name = "manga")
+        @JsonSubTypes.Type(value = AnimeUpdateDto.class, name = "ANIME"),
+        @JsonSubTypes.Type(value = MangaUpdateDto.class, name = "MANGA")
 })
 @Data
 public abstract class MediaUpdateDto {
+    @NotBlank
+    private MediaType mediaType;
+
     @NotEmpty
     private String name;
 
