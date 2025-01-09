@@ -1,7 +1,7 @@
 package it.unipi.myakiba.repository;
 
-import it.unipi.myakiba.DTO.analytic.MonthAnalyticDto;
 import it.unipi.myakiba.DTO.user.UserIdUsernameDto;
+import it.unipi.myakiba.model.MonthAnalytic;
 import it.unipi.myakiba.model.UserMongo;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
@@ -30,11 +30,11 @@ public interface UserMongoRepository extends MongoRepository<UserMongo, String> 
     void deleteUserFromFollowers(String id);
 
     @Aggregation(pipeline = {
-            "{ '$match': { '$expr': { '$gt': [ { '$year': '$date' }, ?0 ] } } }",
-            "{ '$group': { '_id': { 'year': { '$year': '$date' }, 'month': { '$month': '$date' } }, 'count': { '$sum': 1 } } }",
+            "{ '$match': { '$expr': { '$gt': [ { '$year': '$createdAt' }, ?0 ] } } }",
+            "{ '$group': { '_id': { 'year': { '$year': '$createdAt' }, 'month': { '$month': '$createdAt' } }, 'count': { '$sum': 1 } } }",
             "{ '$sort': { '_id.year': 1, 'count': -1 } }",
-            "{ '$group': { '_id': '$_id.year', 'maxMonth': { '$first': { 'month': '$_id.month', 'count': '$count' } }, 'year': { '$first': '$_id.year' } } }",
-            "{ '$project': { '_id': 0, 'year': '$year', 'month': '$maxMonth.month', 'count': '$maxMonth.count' } }"
+            "{ '$group': { '_id': '$_id.year', 'maxMonth': { '$first': { 'month': '$_id.month', 'count': '$count' } } } }",
+            "{ '$project': { '_id': 0, 'year': '$_id', 'month': '$maxMonth.month', 'count': '$maxMonth.count' } }"
     })
-    List<MonthAnalyticDto> findMaxMonthByYearGreaterThan(int year);
+    List<MonthAnalytic> findMaxMonthByYearGreaterThan(int year);
 }
