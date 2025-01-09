@@ -63,6 +63,7 @@ public class MediaService {
                     .type(manga.getType())
                     .chapters(manga.getChapters())
                     .authors(manga.getAuthors())
+                    .reviews(manga.getReviews())
                     .build();
         } else {
             AnimeMongo anime = (AnimeMongo) media;
@@ -77,6 +78,7 @@ public class MediaService {
                     .source(anime.getSource())
                     .duration(anime.getDuration())
                     .studio(anime.getStudio())
+                    .reviews(anime.getReviews())
                     .build();
         }
     }
@@ -284,6 +286,7 @@ public class MediaService {
     }
 
     public String deleteReview(String mediaId, String reviewId, MediaType mediaType) {
+        //TODO vedere che l'utente non abbia già scritto una recensione
         if (mediaType == MediaType.MANGA) {
             MangaMongo targetMongo = mangaMongoRepository.findById(mediaId)
                     .orElseThrow(() -> new NoSuchElementException("Media not found with id: " + mediaId));
