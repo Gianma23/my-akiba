@@ -33,7 +33,7 @@ public class RecommendationService {
     }
 
     public List<MediaIdNameDto> getPopularMediaAmongFollows(MediaType mediaType, String userId) {
-        return userNeo4jRepository.findPopularMediaAmongFollows(mediaType, userId);
+        return userNeo4jRepository.findPopularMediaAmongFollows(mediaType.toString(), userId);
     }
 
     public List<MediaAverageDto> getTop10Media(MediaType mediaType, String genre) {
