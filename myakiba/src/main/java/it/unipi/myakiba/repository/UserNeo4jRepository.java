@@ -155,13 +155,14 @@ public interface UserNeo4jRepository extends Neo4jRepository<UserNeo4j, String> 
     List<UserIdUsernameDto> findUsersWithSimilarTastes(String userId);
 
     @Query("""
-            MATCH (user:User {id: $userId})-[:FOLLOWS]->(:User)-[:LIST_ELEMENT]->(media)
-            WHERE (media:Anime AND $mediaType = 'ANIME') OR (media:Manga AND $mediaType = 'MANGA')
-            RETURN media.id AS id, media.name AS name, COUNT(*) AS popularity
-            ORDER BY popularity DESC
+            MATCH (user:User {id: $userId})-[:FOLLOW]->(f:User)-[:LIST_ELEMENT]->(media)
+            WHERE ((media:Anime AND $mediaType = 'ANIME') OR (media:Manga AND $mediaType = 'MANGA'))
+                  AND f.privacyStatus <> 'NOBODY'
+            RETURN media.id AS id, media.name AS name, count(media.id) AS count
+            ORDER BY count DESC
             LIMIT 10
             """)
-    List<MediaIdNameDto> findPopularMediaAmongFollows(MediaType mediaType, String userId);
+    List<MediaIdNameDto> findPopularMediaAmongFollows(String mediaType, String userId);
 
     @Query("""
             MATCH (u:User)<-[:FOLLOW]-(f:User)
