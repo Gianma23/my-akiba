@@ -77,7 +77,7 @@ public class MediaService {
                     .episodes(anime.getEpisodes())
                     .source(anime.getSource())
                     .duration(anime.getDuration())
-                    .studio(anime.getStudio())
+                    .studios(anime.getStudios())
                     .reviews(anime.getReviews())
                     .build();
         }

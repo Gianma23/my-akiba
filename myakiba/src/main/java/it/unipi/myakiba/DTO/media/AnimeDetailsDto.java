@@ -5,6 +5,8 @@ import jakarta.validation.constraints.NotEmpty;
 import lombok.Getter;
 import lombok.experimental.SuperBuilder;
 
+import java.util.List;
+
 @Getter
 @SuperBuilder
 public class AnimeDetailsDto extends MediaDetailsDto {
@@ -18,5 +20,5 @@ public class AnimeDetailsDto extends MediaDetailsDto {
     private double duration;
 
     @NotEmpty
-    private String studio;
+    private List<String> studios;
 }
