@@ -7,6 +7,7 @@ import it.unipi.myakiba.enumerator.MediaType;
 import it.unipi.myakiba.repository.AnimeMongoRepository;
 import it.unipi.myakiba.repository.MangaMongoRepository;
 import it.unipi.myakiba.repository.UserNeo4jRepository;
+import org.apache.catalina.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -29,7 +30,9 @@ public class RecommendationService {
 
     public List<UserIdUsernameDto> getUsersWithSimilarTastes(String userId) {
         userNeo4jRepository.findById(userId).orElseThrow(() -> new NoSuchElementException("User not found"));
-        return userNeo4jRepository.findUsersWithSimilarTastes(userId);
+        List<UserIdUsernameDto> users = userNeo4jRepository.findUsersWithSimilarTastes(userId);
+        userNeo4jRepository.dropGraph("myGraph");
+        return users;
     }
 
     public List<MediaIdNameDto> getPopularMediaAmongFollows(MediaType mediaType, String userId) {

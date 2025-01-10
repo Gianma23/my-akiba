@@ -129,11 +129,7 @@ public interface UserNeo4jRepository extends Neo4jRepository<UserNeo4j, String> 
               'myGraph',
               {
                 User: {
-                  label: 'User',
-                  properties: {
-                    id: { type: 'STRING' },  // Explicit type definition for id
-                    username: { type: 'STRING' }
-                    }
+                  label: 'User'
                 },
                 Manga: {
                   label: 'Manga'
@@ -149,10 +145,9 @@ public interface UserNeo4jRepository extends Neo4jRepository<UserNeo4j, String> 
             
             CALL gds.nodeSimilarity.stream('myGraph')
             YIELD node1, node2, similarity
-            WITH gds.util.asNode(node2).id AS userId, gds.util.asNode(node2).username AS username, similarity
+            WITH gds.util.asNode(node2) AS user1, similarity
             WHERE gds.util.asNode(node1).id = $userId
-            CALL gds.graph.drop('myGraph') YIELD graphName
-            RETURN userId, username
+            RETURN user1.id AS id, user1.username AS username, similarity
             ORDER BY similarity DESC
             LIMIT 10
             """)
@@ -202,7 +197,7 @@ public interface UserNeo4jRepository extends Neo4jRepository<UserNeo4j, String> 
             """)
     List<CliqueAnalyticDto> findClique();
 
-    @Query("CALL gds.graph.drop('graph') YIELD graphName RETURN graphName")
-    void dropGraph();
+    @Query("CALL gds.graph.drop($graphName) YIELD graphName RETURN graphName")
+    void dropGraph(String graphName);
 }
 
