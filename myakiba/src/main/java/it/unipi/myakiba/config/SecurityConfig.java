@@ -38,7 +38,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(request -> request
                         .requestMatchers("/api-docs.html", "/swagger-ui/**", "/v3/api-docs/**").permitAll()
                         .requestMatchers("/api/auth/**").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/media/{mediaType:[a-zA-Z]+}", "/api/media/{mediaType:[a-zA-Z]+}/{mediaId:[a-zA-Z0-9]+}").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/media/{mediaType:[a-zA-Z]+}", "/api/media/{mediaType:[a-zA-Z]+}/{mediaId:[a-zA-Z0-9\\-]+}").permitAll()
                         .requestMatchers("/api/users").authenticated() // Only authenticated users can access this endpoint
                         .requestMatchers("/api/admin/**").hasRole("ADMIN")
                         .anyRequest().hasRole("USER"))
