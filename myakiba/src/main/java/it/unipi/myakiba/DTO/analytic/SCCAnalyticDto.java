@@ -1,15 +1,13 @@
 package it.unipi.myakiba.DTO.analytic;
 
 import it.unipi.myakiba.DTO.user.UserIdUsernameDto;
-import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
 
 import java.util.List;
 
 @Data
-public class CliqueAnalyticDto {
-    @NotBlank
-    private String cliqueId;
-    private int cliqueSize;
+public class SCCAnalyticDto {
+    private int componentId;
+    private int componentSize;
     List<UserIdUsernameDto> userDetails;
 }

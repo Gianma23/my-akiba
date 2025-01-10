@@ -3,24 +3,22 @@ package it.unipi.myakiba.service;
 import it.unipi.myakiba.DTO.analytic.*;
 import it.unipi.myakiba.DTO.media.MediaInListsAnalyticDto;
 import it.unipi.myakiba.enumerator.MediaType;
-import it.unipi.myakiba.model.CliqueAnalytic;
 import it.unipi.myakiba.model.MonthAnalytic;
 import it.unipi.myakiba.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoTemplate;
-import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.stereotype.Service;
 
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 
 @Service
 public class AnalyticsService {
 
-    private final AuthenticationManager authManager;
     private final UserMongoRepository userMongoRepository;
     private final UserNeo4jRepository userNeo4jRepository;
     private final MonthAnalyticRepository monthAnalyticRepository;
-    private final CliqueAnalyticRepository cliqueAnalyticRepository;
     private final MangaMongoRepository mangaMongoRepository;
     private final AnimeMongoRepository animeMongoRepository;
     private final MangaNeo4jRepository mangaNeo4jRepository;
@@ -29,17 +27,14 @@ public class AnalyticsService {
     private final MongoTemplate mongoTemplate;
 
     @Autowired
-    public AnalyticsService(AuthenticationManager authManager,
-                            UserMongoRepository userMongoRepository, UserNeo4jRepository userNeo4jRepository,
+    public AnalyticsService(UserMongoRepository userMongoRepository, UserNeo4jRepository userNeo4jRepository,
                             MangaMongoRepository mangaMongoRepository, AnimeMongoRepository animeMongoRepository,
                             MangaNeo4jRepository mangaNeo4jRepository, AnimeNeo4jRepository animeNeo4jRepository,
-                            MonthAnalyticRepository monthAnalyticRepository, CliqueAnalyticRepository cliqueAnalyticRepository,
+                            MonthAnalyticRepository monthAnalyticRepository,
                             MongoTemplate mongoTemplate) {
-        this.authManager = authManager;
         this.userMongoRepository = userMongoRepository;
         this.userNeo4jRepository = userNeo4jRepository;
         this.monthAnalyticRepository = monthAnalyticRepository;
-        this.cliqueAnalyticRepository = cliqueAnalyticRepository;
         this.mangaMongoRepository = mangaMongoRepository;
         this.animeMongoRepository = animeMongoRepository;
         this.mangaNeo4jRepository = mangaNeo4jRepository;
@@ -48,19 +43,16 @@ public class AnalyticsService {
     }
 
     //   For each year, see the month with most registrations
-    public List<MonthAnalyticDto> getMonthlyRegistrations() {
-        MonthAnalyticDto maxDocument = monthAnalyticRepository.findTopByOrderByIdDesc();
-        int lastYearCalculated = maxDocument != null ? maxDocument.getYear() : 2000;
-        // TODO: non mi torna cosa fa
-        List<MonthAnalyticDto> results = userMongoRepository.findMaxMonthByYearGreaterThan(lastYearCalculated);
-        for (MonthAnalyticDto result : results) {
-            MonthAnalytic monthAnalytic = new MonthAnalytic();
-            monthAnalytic.setYear(result.getYear());
-            monthAnalytic.setMonth(result.getMonth());
-            monthAnalytic.setCount(result.getCount());
-            monthAnalyticRepository.save(monthAnalytic);
-        }
-        return mongoTemplate.findAll(MonthAnalyticDto.class, "month_analytics");
+    public List<MonthAnalytic> getMonthlyRegistrations() {
+        MonthAnalytic maxDocument = monthAnalyticRepository.findTopByOrderByYearDesc();
+        int lastYearCalculated = maxDocument != null ? maxDocument.getYear() + 1 : 2000;
+        Calendar cal = Calendar.getInstance();
+        cal.set(Calendar.YEAR, lastYearCalculated);
+        cal.set(Calendar.DAY_OF_YEAR, 1);
+        Date firstDay = cal.getTime();
+        List<MonthAnalytic> results = userMongoRepository.findMaxMonthByYearGreaterThan(firstDay);
+        monthAnalyticRepository.saveAll(results);
+        return monthAnalyticRepository.findAllByOrderByYear();
     }
 
     public List<ControversialMediaDto> getControversialMedia(MediaType mediaType) {
@@ -87,19 +79,10 @@ public class AnalyticsService {
         }
     }
 
-    public List<CliqueAnalyticDto> getMaxClique() {
-        List<CliqueAnalyticDto> results = userNeo4jRepository.findClique();
-        for (CliqueAnalyticDto result : results) {
-            CliqueAnalytic cliqueAnalytic = new CliqueAnalytic();
-            cliqueAnalytic.setCliqueSize(result.getCliqueSize());
-            cliqueAnalytic.setUserDetails(result.getUserDetails());
-            cliqueAnalyticRepository.save(cliqueAnalytic);
-        }
-        //TODO: Return the results in descending order of clique size
-        //bisogna fare un'altra funzione in modo da separare
-        //la creazione della collezione dalla sua lettura
-        //inoltre, la collezione va svuotata prima della creazione
-        return results;
+    public List<SCCAnalyticDto> getSCC() {
+        List<SCCAnalyticDto> scc = userNeo4jRepository.findSCC();
+        userNeo4jRepository.dropGraph("graph");
+        return scc;
     }
 
     public List<InfluencersDto> getInfluencers() {

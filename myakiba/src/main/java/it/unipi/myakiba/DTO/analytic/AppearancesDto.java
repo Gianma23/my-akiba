@@ -9,6 +9,6 @@ public class AppearancesDto {
     private int listCount;
 
     public void setListType(String listType) {
-        this.listType = MediaProgress.valueOf(listType);
+        this.listType = MediaProgress.valueOf(listType.toUpperCase());
     }
 }

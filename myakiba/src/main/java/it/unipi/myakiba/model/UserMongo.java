@@ -5,13 +5,13 @@ import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Past;
 import lombok.Data;
-import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.index.TextIndexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.time.LocalDate;
+import java.util.Date;
 import java.util.List;
 
 @Document(collection = "users")
@@ -24,7 +24,6 @@ public class UserMongo {
     private String role;
 
     @NotBlank(message = "Username cannot be blank")
-    @TextIndexed
     @Indexed(unique = true)
     private String username;
 
@@ -42,7 +41,7 @@ public class UserMongo {
     private List<String> followers;
 
     @Past(message = "Birthdate must be in the past")
-    private LocalDate birthdate;
+    private Date birthdate;
 
-    private LocalDate createdAt;
+    private Date createdAt;
 }

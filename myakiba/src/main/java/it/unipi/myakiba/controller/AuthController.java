@@ -6,11 +6,12 @@ import it.unipi.myakiba.DTO.user.UserLoginDto;
 import it.unipi.myakiba.DTO.user.UserRegistrationDto;
 import it.unipi.myakiba.model.UserMongo;
 import it.unipi.myakiba.service.AuthService;
-import it.unipi.myakiba.service.UserService;
 import jakarta.validation.Valid;
+import org.apache.tomcat.util.net.openssl.ciphers.Authentication;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -37,18 +38,12 @@ public class AuthController {
     public ResponseEntity<?> loginUser(@RequestBody UserLoginDto user) {
         try {
             String token = authService.loginUser(user);
-            if (token != null) {
+            if (token != null)
                 return ResponseEntity.ok(new AccessTokenDto(token));
-            } else try {
-                {
-                    return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid credentials");
-                }
-            } catch (Exception e) {
-                throw new RuntimeException(e);
-            }
-        } catch (Exception e) {
-            System.out.println(e.getMessage());
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An error occurred while processing the request");
+            else
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid credentials");
+        } catch (AuthenticationException e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid credentials");
         }
     }
 }

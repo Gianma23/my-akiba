@@ -1,11 +1,10 @@
 package it.unipi.myakiba.repository;
 
-import it.unipi.myakiba.DTO.analytic.CliqueAnalyticDto;
+import it.unipi.myakiba.DTO.analytic.SCCAnalyticDto;
 import it.unipi.myakiba.DTO.analytic.InfluencersDto;
 import it.unipi.myakiba.DTO.media.ListElementDto;
 import it.unipi.myakiba.DTO.media.MediaIdNameDto;
 import it.unipi.myakiba.DTO.user.UserIdUsernameDto;
-import it.unipi.myakiba.enumerator.MediaType;
 import it.unipi.myakiba.model.UserNeo4j;
 import org.springframework.data.neo4j.repository.Neo4jRepository;
 import org.springframework.data.neo4j.repository.query.Query;
@@ -34,7 +33,7 @@ public interface UserNeo4jRepository extends Neo4jRepository<UserNeo4j, String> 
             MATCH (u:User)-[l:LIST_ELEMENT]->(m:Manga)
             WHERE u.id = $id
               AND (
-                NOT $id = $currentUserId OR
+                $id = $currentUserId OR
                 u.privacyStatus = 'ALL' OR
                 (u.privacyStatus = 'FOLLOWERS' AND exists {
                     MATCH (follower:User)-[:FOLLOW]->(u)
@@ -59,6 +58,7 @@ public interface UserNeo4jRepository extends Neo4jRepository<UserNeo4j, String> 
 
     @Query("""
             MATCH (u:User {id: $userId})-[rel:LIST_ELEMENT]->(a:Anime {id: $animeId})
+            WHERE $episodesWatched <= a.episodes
             SET rel.progress = $episodesWatched
             RETURN COUNT(a) > 0
             """)
@@ -66,6 +66,7 @@ public interface UserNeo4jRepository extends Neo4jRepository<UserNeo4j, String> 
 
     @Query("""
             MATCH (u:User {id: $userId})-[rel:LIST_ELEMENT]->(m:Manga {id: $mangaId})
+            WHERE $chaptersRead <= m.chapters
             SET rel.progress = $chaptersRead
             RETURN count(m) > 0
             """)
@@ -85,7 +86,7 @@ public interface UserNeo4jRepository extends Neo4jRepository<UserNeo4j, String> 
             MATCH (u:User)<-[:FOLLOW]-(f:User)
             WHERE u.id = $id
               AND (
-                NOT $id = $currentUserId OR
+                $id = $currentUserId OR
                 u.privacyStatus = 'ALL' OR
                 (u.privacyStatus = 'FOLLOWERS' AND exists {
                     MATCH (follower:User)-[:FOLLOW]->(u)
@@ -100,7 +101,7 @@ public interface UserNeo4jRepository extends Neo4jRepository<UserNeo4j, String> 
             MATCH (u:User)-[:FOLLOW]->(f:User)
             WHERE u.id = $id
               AND (
-                NOT $id = $currentUserId OR
+                $id = $currentUserId OR
                 u.privacyStatus = 'ALL' OR
                 (u.privacyStatus = 'FOLLOWERS' AND exists {
                     MATCH (follower:User)-[:FOLLOW]->(u)
@@ -121,16 +122,12 @@ public interface UserNeo4jRepository extends Neo4jRepository<UserNeo4j, String> 
 
     @Query("""
             MATCH (u:User {id: $userId})-[:LIST_ELEMENT]->(target)<-[:LIST_ELEMENT]-(other:User)
-            WHERE target:Manga
             WITH collect(u) + collect(other) AS sourceNodes, collect(target) AS targetNodes
             CALL gds.graph.project(
               'myGraph',
               {
                 User: {
                   label: 'User'
-                },
-                Manga: {
-                  label: 'Manga'
                 }
               },
               {
@@ -141,36 +138,38 @@ public interface UserNeo4jRepository extends Neo4jRepository<UserNeo4j, String> 
             )
             YIELD graphName
             
-            CALL gds.nodeSimilarity.filtered.stream('myGraph')
+            CALL gds.nodeSimilarity.stream('myGraph')
             YIELD node1, node2, similarity
-            WITH gds.util.asNode(node2).id AS userId, gds.util.asNode(node2).username AS username, similarity
+            WITH gds.util.asNode(node2) AS user1, similarity
             WHERE gds.util.asNode(node1).id = $userId
-            CALL gds.graph.drop('myGraph') YIELD graphName
-            RETURN userId, username
+            RETURN user1.id AS id, user1.username AS username, similarity
             ORDER BY similarity DESC
             LIMIT 10
             """)
     List<UserIdUsernameDto> findUsersWithSimilarTastes(String userId);
 
     @Query("""
-            MATCH (user:User)-[:FOLLOWS]->(:User)-[:LIST_ELEMENT]->(media)
-            WHERE (media:Anime AND $mediaType = 'ANIME') OR (media:Manga AND $mediaType = 'MANGA')
-            RETURN media.id AS id, media.name AS name, COUNT(*) AS popularity
-            ORDER BY popularity DESC
+            MATCH (user:User {id: $userId})-[:FOLLOW]->(f:User)-[:LIST_ELEMENT]->(media)
+            WHERE ((media:Anime AND $mediaType = 'ANIME') OR (media:Manga AND $mediaType = 'MANGA'))
+                  AND f.privacyStatus <> 'NOBODY'
+            RETURN media.id AS id, media.name AS name, count(media.id) AS count
+            ORDER BY count DESC
             LIMIT 10
             """)
-    List<MediaIdNameDto> findPopularMediaAmongFollows(MediaType mediaType);
+    List<MediaIdNameDto> findPopularMediaAmongFollows(String mediaType, String userId);
 
     @Query("""
-                MATCH (u:User)<-[:FOLLOW]-(f:User)
-                WITH u, count(f) AS followersCount
-                ORDER BY followersCount DESC
-                LIMIT 20
-                RETURN u.id AS userId, u.name AS username, followersCount
+            MATCH (u:User)<-[:FOLLOW]-(f:User)
+            WITH u, count(f) AS followersCount
+            ORDER BY followersCount DESC
+            LIMIT 20
+            RETURN u.id AS userId, u.username AS username, followersCount
             """)
-    List<InfluencersDto> findMostFollowedUsers(); //TODO: cambiare logica per trovare influencer
+    List<InfluencersDto> findMostFollowedUsers();
 
     @Query("""
+            MATCH (source:User)-[:FOLLOW]->(target:User)
+            WITH collect(source) AS sourceNodes, collect(target) AS targetNodes
             CALL gds.graph.project(
               'graph',
               ['User'],
@@ -180,16 +179,20 @@ public interface UserNeo4jRepository extends Neo4jRepository<UserNeo4j, String> 
                 }
               }
             )
-            YIELD usersGraph
-            CALL gds.scc.stream('usersGraph',{})
+            YIELD graphName
+            
+            CALL gds.scc.stream('graph', {})
             YIELD componentId, nodeId
             WITH componentId, collect(gds.util.asNode(nodeId)) AS users
-            RETURN componentId AS cliqueId,
-                   size(users) AS cliqueSize,
-                   [user IN users | {id: user.id, name: user.name}] AS userDetails
-            CALL gds.graph.drop('graph')
-            YIELD graphName
+            WHERE size(users) > 1
+            RETURN componentId,
+                   size(users) AS componentSize,
+                   [user IN users | {id: user.id, username: user.username}] AS userDetails
+            ORDER BY componentSize DESC
             """)
-    List<CliqueAnalyticDto> findClique();
+    List<SCCAnalyticDto> findSCC();
+
+    @Query("CALL gds.graph.drop($graphName) YIELD graphName RETURN graphName")
+    void dropGraph(String graphName);
 }
 

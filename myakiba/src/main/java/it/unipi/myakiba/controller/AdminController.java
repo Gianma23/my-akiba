@@ -7,17 +7,15 @@ import it.unipi.myakiba.DTO.media.MediaInListsAnalyticDto;
 import it.unipi.myakiba.DTO.media.MediaUpdateDto;
 import it.unipi.myakiba.DTO.user.UserNoPwdDto;
 import it.unipi.myakiba.enumerator.MediaType;
+import it.unipi.myakiba.model.MonthAnalytic;
 import it.unipi.myakiba.service.AnalyticsService;
 import it.unipi.myakiba.service.MediaService;
 import it.unipi.myakiba.service.UserService;
-import org.apache.coyote.Response;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import javax.print.attribute.standard.Media;
 import java.util.List;
-import java.util.Map;
 
 @RestController
 @RequestMapping("/api/admin")
@@ -36,41 +34,29 @@ public class AdminController {
 
     /* ================================ MEDIA MANAGEMENT ================================ */
 
-    @PostMapping("/media/{mediaType}")
-    public ResponseEntity<String> addMedia(@PathVariable MediaType mediaType, @RequestBody MediaCreationDto media) {
-        return ResponseEntity.ok(mediaService.addMedia(mediaType, media));
+    @PostMapping("/media")
+    public ResponseEntity<String> addMedia(@RequestBody MediaCreationDto media) {
+        return ResponseEntity.ok(mediaService.addMedia(media));
     }
 
-    @PatchMapping("/media/{mediaType}/{mediaId}")
-    public ResponseEntity<String> updateMedia(@PathVariable MediaType mediaType, @PathVariable String mediaId,
+    @PatchMapping("/media/{mediaId}")
+    public ResponseEntity<String> updateMedia(@PathVariable String mediaId,
                                               @RequestBody MediaUpdateDto updates) {
-        try {
-            return ResponseEntity.ok(mediaService.updateMedia(mediaId, mediaType, updates));
-        } catch (Exception e) {
-            return ResponseEntity.notFound().build();
-        }
+        return ResponseEntity.ok(mediaService.updateMedia(mediaId, updates));
     }
 
     @DeleteMapping("/media/{mediaType}/{mediaId}")
     public ResponseEntity<String> deleteMedia(@PathVariable MediaType mediaType, @PathVariable String mediaId) {
-        try {
-            return ResponseEntity.ok(mediaService.deleteMedia(mediaId, mediaType));
-        } catch (Exception e) {
-            return ResponseEntity.notFound().build();
-        }
+        return ResponseEntity.ok(mediaService.deleteMedia(mediaId, mediaType));
     }
 
     @DeleteMapping("/media/{mediaType}/{mediaId}/review/{reviewId}")
     public ResponseEntity<String> deleteReview(@PathVariable MediaType mediaType, @PathVariable String mediaId, @PathVariable String reviewId) {
-        try {
-            return ResponseEntity.ok(mediaService.deleteReview(mediaId, reviewId, mediaType));
-        } catch (Exception e) {
-            return ResponseEntity.notFound().build();
-        }
+        return ResponseEntity.ok(mediaService.deleteReview(mediaId, reviewId, mediaType));
     }
     /* ================================ USER MANAGEMENT ================================ */
 
-    @GetMapping("/users/{userId}")
+    @GetMapping("/user/{userId}")
     public ResponseEntity<UserNoPwdDto> getUserDetails(@PathVariable String userId) {
         return ResponseEntity.ok(userService.getUserById(userId, false));
     }
@@ -78,14 +64,13 @@ public class AdminController {
     /* ================================ ANALYTICS ================================ */
 
     @GetMapping("/analytics/monthlyregistrations")
-    public ResponseEntity<List<MonthAnalyticDto>> getMonthlyRegistrations() {
+    public ResponseEntity<List<MonthAnalytic>> getMonthlyRegistrations() {
         return ResponseEntity.ok(analyticsService.getMonthlyRegistrations());
     }
 
     @GetMapping("/analytics/controversial/{mediaType}")
     public ResponseEntity<List<ControversialMediaDto>> getControversialMedia(@PathVariable MediaType mediaType) {
         return ResponseEntity.ok(analyticsService.getControversialMedia(mediaType));
-
     }
 
     @GetMapping("/analytics/declining/{mediaType}")
@@ -100,9 +85,9 @@ public class AdminController {
 
     }
 
-    @GetMapping("/analytics/max-clique")
-    public ResponseEntity<List<CliqueAnalyticDto>> getMaxClique() {
-        return ResponseEntity.ok(analyticsService.getMaxClique());
+    @GetMapping("/analytics/scc")
+    public ResponseEntity<List<SCCAnalyticDto>> getSCC() {
+        return ResponseEntity.ok(analyticsService.getSCC());
 
     }
 

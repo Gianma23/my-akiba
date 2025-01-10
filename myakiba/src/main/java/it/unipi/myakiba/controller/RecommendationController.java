@@ -1,6 +1,7 @@
 package it.unipi.myakiba.controller;
 
 import io.swagger.v3.oas.annotations.tags.Tag;
+import it.unipi.myakiba.DTO.media.MediaAverageDto;
 import it.unipi.myakiba.DTO.media.MediaIdNameDto;
 import it.unipi.myakiba.DTO.user.UserIdUsernameDto;
 import it.unipi.myakiba.model.UserPrincipal;
@@ -31,12 +32,12 @@ public class RecommendationController {
 
     @GetMapping("/popular-among-follows/{mediaType}")
     public ResponseEntity<List<MediaIdNameDto>> getPopularMediaAmongFollows(@PathVariable MediaType mediaType) {
-        UserPrincipal user = (UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal(); //TODO perchè non uso user?
-        return ResponseEntity.ok(recommendationService.getPopularMediaAmongFollows(mediaType));
+        UserPrincipal user = (UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        return ResponseEntity.ok(recommendationService.getPopularMediaAmongFollows(mediaType, user.getUser().getId()));
     }
 
     @GetMapping("/top10media/{mediaType}")
-    public ResponseEntity<List<?>> getTop10Media(@PathVariable MediaType mediaType, @RequestParam(required = false) String genre) {
+    public ResponseEntity<List<MediaAverageDto>> getTop10Media(@PathVariable MediaType mediaType, @RequestParam(required = false) String genre) {
         return ResponseEntity.ok(recommendationService.getTop10Media(mediaType, genre));
     }
 }

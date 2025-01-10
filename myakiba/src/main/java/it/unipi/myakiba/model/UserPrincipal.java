@@ -15,6 +15,7 @@ public class UserPrincipal implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
+        System.out.println("ROLE_" + user.getRole().toUpperCase());
         return Collections.singleton(() -> "ROLE_" + user.getRole().toUpperCase());
     }
 

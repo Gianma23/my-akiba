@@ -2,10 +2,10 @@ package it.unipi.myakiba.controller;
 
 import io.swagger.v3.oas.annotations.tags.Tag;
 import it.unipi.myakiba.DTO.media.MediaListsDto;
+import it.unipi.myakiba.DTO.user.MediaListUpdateDto;
 import it.unipi.myakiba.DTO.user.UserIdUsernameDto;
 import it.unipi.myakiba.DTO.user.UserNoPwdDto;
 import it.unipi.myakiba.DTO.user.UserUpdateDto;
-import it.unipi.myakiba.model.UserNeo4j;
 import it.unipi.myakiba.model.UserPrincipal;
 import it.unipi.myakiba.service.UserService;
 import jakarta.validation.constraints.Max;
@@ -35,15 +35,17 @@ public class UserController {
     }
 
     /* ================================ USERS CRUD ================================ */
-
     @GetMapping("/users")
-    public ResponseEntity<Slice<UserIdUsernameDto>> browseUsers(
+    public ResponseEntity<?> browseUsers(
             @RequestParam(defaultValue = "") String username,
             @RequestParam(defaultValue = "0") @Min(0) int page,
             @RequestParam(defaultValue = "10") @Min(0) @Max(100) int size
     ) {
-        UserPrincipal user = (UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        return ResponseEntity.ok(userService.getUsers(username, user.getUser().getId(), page, size));
+        Slice<UserIdUsernameDto> results = userService.getUsers(username, page, size);
+        if (results.isEmpty()) {
+            return ResponseEntity.ok("No user found with this name");
+        } else
+            return ResponseEntity.ok(results);
     }
 
     @GetMapping("/user")
@@ -56,11 +58,7 @@ public class UserController {
 
     @GetMapping("/user/{userId}")
     public ResponseEntity<UserNoPwdDto> getUserById(@PathVariable String userId) {
-        try {
-            return ResponseEntity.ok(userService.getUserById(userId, true));
-        } catch (Exception e) {
-            return ResponseEntity.notFound().build();
-        }
+        return ResponseEntity.ok(userService.getUserById(userId, true));
     }
 
     @PatchMapping("/user")
@@ -97,9 +95,9 @@ public class UserController {
     }
 
     @PatchMapping("/user/lists/{mediaType}/{mediaId}")
-    public ResponseEntity<String> modifyMediaInUserList(@PathVariable MediaType mediaType, @PathVariable String mediaId, @RequestBody @Min(0) int progress) {
+    public ResponseEntity<String> modifyMediaInUserList(@PathVariable MediaType mediaType, @PathVariable String mediaId, @RequestBody MediaListUpdateDto progress) {
         UserPrincipal user = (UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        return ResponseEntity.ok(userService.modifyMediaInUserList(user.getUser().getId(), mediaId, mediaType, progress));
+        return ResponseEntity.ok(userService.modifyMediaInUserList(user.getUser().getId(), mediaId, mediaType, progress.progress()));
     }
 
     @DeleteMapping("/user/lists/{mediaType}/{mediaId}")
@@ -135,9 +133,6 @@ public class UserController {
     @PostMapping("/user/follow/{userId}")
     public ResponseEntity<String> followUser(@PathVariable String userId) {
         UserPrincipal user = (UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        if (user.getUser().getId().equals(userId)) {
-            return ResponseEntity.badRequest().body("You can't follow yourself");
-        }
         return ResponseEntity.ok(userService.followUser(user.getUser().getId(), userId));
     }
 

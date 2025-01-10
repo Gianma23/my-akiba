@@ -1,13 +1,10 @@
 package it.unipi.myakiba.model;
 
-import it.unipi.myakiba.enumerator.MediaProgress;
 import it.unipi.myakiba.enumerator.MediaStatus;
 import lombok.Data;
 import org.springframework.data.annotation.Id;
-import org.springframework.data.neo4j.core.schema.GeneratedValue;
 import org.springframework.data.neo4j.core.schema.Node;
 import org.springframework.data.neo4j.core.schema.Property;
-import org.springframework.data.neo4j.core.schema.Relationship;
 
 import java.util.List;
 
