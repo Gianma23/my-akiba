@@ -16,7 +16,6 @@ import java.util.List;
 
 @Repository
 public interface MangaMongoRepository extends MongoRepository<MangaMongo, String> {
-    boolean existsByName(String name);
     @Aggregation(pipeline = {
             "{ '$match': { 'name': { $regex: ?0, $options: 'i' } } }",
             "{ '$addFields': { 'averageScore': { $cond: { if: { $eq: ['$numScores', 0] }, then: 0, else: { $divide: ['$sumScores', '$numScores'] } } } } }",
@@ -86,8 +85,8 @@ public interface MangaMongoRepository extends MongoRepository<MangaMongo, String
     List<TrendingMediaDto> findTopImprovingManga();
 
     @Aggregation(pipeline = {
-            "{ '$addFields': { 'averageScore': { '$cond': { if: { '$gt': ['$numScores', 0] }, then: { '$divide': ['$sumScores', '$numScores'] }, else: 0 } } } }",
             "{ '$match': { '$expr': { '$or': [ { '$eq': [?0, null] }, { '$in': [?0, '$genres'] } ] } } }",
+            "{ '$addFields': { 'averageScore': { '$cond': { if: { '$gt': ['$numScores', 0] }, then: { '$divide': ['$sumScores', '$numScores'] }, else: 0 } } } }",
             "{ '$sort': { 'averageScore': -1 } }",
             "{ '$limit': 10 }",
             "{ '$project': { 'id': 1, 'name': 1, 'averageScore': 1 } }"

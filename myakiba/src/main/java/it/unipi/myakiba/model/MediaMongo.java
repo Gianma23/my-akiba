@@ -17,7 +17,6 @@ public abstract class MediaMongo {
     private String id;
 
     @NotBlank
-    @Indexed(unique = true)
     private String name;
 
     @NotBlank
