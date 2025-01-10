@@ -45,7 +45,7 @@ public class AnalyticsService {
     //   For each year, see the month with most registrations
     public List<MonthAnalytic> getMonthlyRegistrations() {
         MonthAnalytic maxDocument = monthAnalyticRepository.findTopByOrderByYearDesc();
-        int lastYearCalculated = maxDocument != null ? maxDocument.getYear() + 1 : 2000;
+        int lastYearCalculated = maxDocument != null ? maxDocument.getYear() : 2000;
         Calendar cal = Calendar.getInstance();
         cal.set(Calendar.YEAR, lastYearCalculated);
         cal.set(Calendar.DAY_OF_YEAR, 1);
