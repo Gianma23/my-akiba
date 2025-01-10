@@ -171,6 +171,9 @@ public class MediaService {
                 targetNeo4j.setStatus(mangaUpdateDto.getStatus());
             }
             if (mangaUpdateDto.getChapters() != 0) {
+                if(mangaUpdateDto.getChapters() < targetMongo.getChapters()) {
+                    throw new IllegalArgumentException("Cannot decrease number of chapters");
+                }
                 targetMongo.setChapters(mangaUpdateDto.getChapters());
                 targetNeo4j.setChapters(mangaUpdateDto.getChapters());
             }
@@ -209,6 +212,9 @@ public class MediaService {
                 targetNeo4j.setStatus(animeUpdateDto.getStatus());
             }
             if (animeUpdateDto.getEpisodes() != 0) {
+                if(animeUpdateDto.getEpisodes() < targetMongo.getEpisodes()) {
+                    throw new IllegalArgumentException("Cannot decrease number of episodes");
+                }
                 targetMongo.setEpisodes(animeUpdateDto.getEpisodes());
                 targetNeo4j.setEpisodes(animeUpdateDto.getEpisodes());
             }

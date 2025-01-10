@@ -85,9 +85,9 @@ public class AdminController {
 
     }
 
-    @GetMapping("/analytics/max-clique")
-    public ResponseEntity<List<CliqueAnalyticDto>> getMaxClique() {
-        return ResponseEntity.ok(analyticsService.getMaxClique());
+    @GetMapping("/analytics/scc")
+    public ResponseEntity<List<SCCAnalyticDto>> getSCC() {
+        return ResponseEntity.ok(analyticsService.getSCC());
 
     }
 

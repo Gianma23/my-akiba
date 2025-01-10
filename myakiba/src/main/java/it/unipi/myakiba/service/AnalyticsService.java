@@ -9,8 +9,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.stereotype.Service;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
@@ -81,8 +79,8 @@ public class AnalyticsService {
         }
     }
 
-    public List<CliqueAnalyticDto> getMaxClique() {
-        List<CliqueAnalyticDto> cliques = userNeo4jRepository.findClique();
+    public List<SCCAnalyticDto> getSCC() {
+        List<SCCAnalyticDto> cliques = userNeo4jRepository.findSCC();
         userNeo4jRepository.dropGraph("graph");
         return cliques;
     }

@@ -1,11 +1,10 @@
 package it.unipi.myakiba.repository;
 
-import it.unipi.myakiba.DTO.analytic.CliqueAnalyticDto;
+import it.unipi.myakiba.DTO.analytic.SCCAnalyticDto;
 import it.unipi.myakiba.DTO.analytic.InfluencersDto;
 import it.unipi.myakiba.DTO.media.ListElementDto;
 import it.unipi.myakiba.DTO.media.MediaIdNameDto;
 import it.unipi.myakiba.DTO.user.UserIdUsernameDto;
-import it.unipi.myakiba.enumerator.MediaType;
 import it.unipi.myakiba.model.UserNeo4j;
 import org.springframework.data.neo4j.repository.Neo4jRepository;
 import org.springframework.data.neo4j.repository.query.Query;
@@ -190,12 +189,12 @@ public interface UserNeo4jRepository extends Neo4jRepository<UserNeo4j, String> 
             YIELD componentId, nodeId
             WITH componentId, collect(gds.util.asNode(nodeId)) AS users
             WHERE size(users) > 1
-            RETURN componentId AS cliqueId,
-                   size(users) AS cliqueSize,
+            RETURN componentId,
+                   size(users) AS componentSize,
                    [user IN users | {id: user.id, username: user.username}] AS userDetails
-            ORDER BY cliqueSize DESC
+            ORDER BY componentSize DESC
             """)
-    List<CliqueAnalyticDto> findClique();
+    List<SCCAnalyticDto> findSCC();
 
     @Query("CALL gds.graph.drop($graphName) YIELD graphName RETURN graphName")
     void dropGraph(String graphName);

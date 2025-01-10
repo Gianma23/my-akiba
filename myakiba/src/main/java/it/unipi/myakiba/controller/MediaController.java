@@ -51,4 +51,13 @@ public class MediaController {
         UserPrincipal user = (UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         return ResponseEntity.ok(mediaService.addReview(mediaType, mediaId, user.getUser(), review));
     }
+
+    @DeleteMapping("/{mediaType}/{mediaId}/review/{reviewId}")
+    public ResponseEntity<String> deleteReview(@PathVariable MediaType mediaType, @PathVariable String mediaId, @PathVariable String reviewId) {
+        UserPrincipal user = (UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        if(!user.getUser().getId().equals(reviewId)) {
+            return ResponseEntity.badRequest().body("You can delete only your reviews");
+        }
+        return ResponseEntity.ok(mediaService.deleteReview(mediaId, reviewId, mediaType));
+    }
 }
