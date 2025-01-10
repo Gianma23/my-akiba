@@ -123,16 +123,12 @@ public interface UserNeo4jRepository extends Neo4jRepository<UserNeo4j, String> 
 
     @Query("""
             MATCH (u:User {id: $userId})-[:LIST_ELEMENT]->(target)<-[:LIST_ELEMENT]-(other:User)
-            WHERE target:Manga
             WITH collect(u) + collect(other) AS sourceNodes, collect(target) AS targetNodes
             CALL gds.graph.project(
               'myGraph',
               {
                 User: {
                   label: 'User'
-                },
-                Manga: {
-                  label: 'Manga'
                 }
               },
               {
