@@ -201,5 +201,8 @@ public interface UserNeo4jRepository extends Neo4jRepository<UserNeo4j, String> 
             ORDER BY cliqueSize DESC
             """)
     List<CliqueAnalyticDto> findClique();
+
+    @Query("CALL gds.graph.drop('graph') YIELD graphName RETURN graphName")
+    void dropGraph();
 }
 

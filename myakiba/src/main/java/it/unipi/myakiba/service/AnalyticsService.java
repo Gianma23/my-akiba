@@ -74,7 +74,9 @@ public class AnalyticsService {
     }
 
     public List<CliqueAnalyticDto> getMaxClique() {
-        return userNeo4jRepository.findClique();
+        List<CliqueAnalyticDto> cliques = userNeo4jRepository.findClique();
+        userNeo4jRepository.dropGraph();
+        return cliques;
     }
 
     public List<InfluencersDto> getInfluencers() {
