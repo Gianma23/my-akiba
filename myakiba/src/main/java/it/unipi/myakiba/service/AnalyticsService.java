@@ -80,9 +80,9 @@ public class AnalyticsService {
     }
 
     public List<SCCAnalyticDto> getSCC() {
-        List<SCCAnalyticDto> cliques = userNeo4jRepository.findSCC();
+        List<SCCAnalyticDto> scc = userNeo4jRepository.findSCC();
         userNeo4jRepository.dropGraph("graph");
-        return cliques;
+        return scc;
     }
 
     public List<InfluencersDto> getInfluencers() {
