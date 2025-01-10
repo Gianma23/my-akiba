@@ -16,6 +16,7 @@ import java.util.List;
 
 @Repository
 public interface AnimeMongoRepository extends MongoRepository<AnimeMongo, String> {
+    boolean existsByName(String name);
     @Aggregation(pipeline = {
             "{ '$match': { 'name': { $regex: ?0, $options: 'i' } } }",
             "{ '$addFields': { 'averageScore': { $cond: { if: { $eq: ['$numScores', 0] }, then: 0, else: { $divide: ['$sumScores', '$numScores'] } } } } }",

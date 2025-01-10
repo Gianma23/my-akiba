@@ -6,6 +6,7 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
 import lombok.Data;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.neo4j.core.schema.GeneratedValue;
 
 import java.util.List;
@@ -16,6 +17,7 @@ public abstract class MediaMongo {
     private String id;
 
     @NotBlank
+    @Indexed(unique = true)
     private String name;
 
     @NotBlank
