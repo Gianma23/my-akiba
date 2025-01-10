@@ -8,8 +8,7 @@ import java.util.List;
 
 @Data
 public class CliqueAnalyticDto {
-    @NotBlank
-    private String cliqueId;
+    private int cliqueId;
     private int cliqueSize;
     List<UserIdUsernameDto> userDetails;
 }

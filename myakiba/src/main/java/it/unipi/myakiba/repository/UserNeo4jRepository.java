@@ -129,7 +129,11 @@ public interface UserNeo4jRepository extends Neo4jRepository<UserNeo4j, String> 
               'myGraph',
               {
                 User: {
-                  label: 'User'
+                  label: 'User',
+                  properties: {
+                    id: { type: 'STRING' },  // Explicit type definition for id
+                    username: { type: 'STRING' }
+                    }
                 },
                 Manga: {
                   label: 'Manga'
@@ -174,6 +178,8 @@ public interface UserNeo4jRepository extends Neo4jRepository<UserNeo4j, String> 
     List<InfluencersDto> findMostFollowedUsers();
 
     @Query("""
+            MATCH (source:User)-[:FOLLOW]->(target:User)
+            WITH collect(source) AS sourceNodes, collect(target) AS targetNodes
             CALL gds.graph.project(
               'graph',
               ['User'],
@@ -183,16 +189,16 @@ public interface UserNeo4jRepository extends Neo4jRepository<UserNeo4j, String> 
                 }
               }
             )
-            YIELD usersGraph
-            CALL gds.scc.stream('graph',{})
+            YIELD graphName
+            
+            CALL gds.scc.stream('graph', {})
             YIELD componentId, nodeId
             WITH componentId, collect(gds.util.asNode(nodeId)) AS users
+            WHERE size(users) > 1
             RETURN componentId AS cliqueId,
                    size(users) AS cliqueSize,
-                   [user IN users | {id: user.id, name: user.name}] AS userDetails
+                   [user IN users | {id: user.id, username: user.username}] AS userDetails
             ORDER BY cliqueSize DESC
-            CALL gds.graph.drop('graph')
-            YIELD graphName
             """)
     List<CliqueAnalyticDto> findClique();
 }
