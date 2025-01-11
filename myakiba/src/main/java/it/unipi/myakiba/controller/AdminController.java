@@ -103,9 +103,9 @@ public class AdminController {
 
     }
 
-    @GetMapping("/analytics/mediainlists/{mediaType}")
-    public ResponseEntity<List<MediaInListsAnalyticDto>> getMediaInLists(@PathVariable MediaType mediaType) {
-        return ResponseEntity.ok(analyticsService.getMediaInLists(mediaType));
+    @GetMapping("/analytics/mediainlists/{mediaType}/{mediaId}")
+    public ResponseEntity<List<MediaInListsAnalyticDto>> getMediaInLists(@PathVariable MediaType mediaType, @PathVariable String mediaId) {
+        return ResponseEntity.ok(analyticsService.getMediaInLists(mediaType, mediaId));
 
     }
 }

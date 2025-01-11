@@ -97,11 +97,11 @@ public class AnalyticsService {
         }
     }
 
-    public List<MediaInListsAnalyticDto> getMediaInLists(MediaType mediaType) {
+    public List<MediaInListsAnalyticDto> getMediaInLists(MediaType mediaType, String mediaId) {
         if (mediaType == MediaType.MANGA) {
-            return mangaNeo4jRepository.findMangaAppearancesInLists();
+            return mangaNeo4jRepository.findMangaAppearancesInLists(mediaId);
         } else {
-            return animeNeo4jRepository.findAnimeAppearancesInLists();
+            return animeNeo4jRepository.findAnimeAppearancesInLists(mediaId);
         }
     }
 }

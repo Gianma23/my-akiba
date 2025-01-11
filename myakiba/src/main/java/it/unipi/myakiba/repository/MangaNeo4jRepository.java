@@ -3,7 +3,6 @@ package it.unipi.myakiba.repository;
 import it.unipi.myakiba.DTO.analytic.ListCounterAnalyticDto;
 import it.unipi.myakiba.DTO.media.MediaInListsAnalyticDto;
 import it.unipi.myakiba.model.MangaNeo4j;
-import it.unipi.myakiba.enumerator.MediaStatus;
 import org.springframework.data.neo4j.repository.Neo4jRepository;
 import org.springframework.data.neo4j.repository.query.Query;
 
@@ -26,7 +25,7 @@ public interface MangaNeo4jRepository extends Neo4jRepository<MangaNeo4j, String
     List<ListCounterAnalyticDto> findListCounters();
 
     @Query("""
-            MATCH (user:User)-[relationship:LIST_ELEMENT]->(manga:Manga)
+            MATCH (user:User)-[relationship:LIST_ELEMENT]->(manga:Manga {id: $mangaId})
             WITH manga, relationship,
                  CASE
                      WHEN relationship.progress = 0 THEN 'PLANNED'
@@ -37,5 +36,5 @@ public interface MangaNeo4jRepository extends Neo4jRepository<MangaNeo4j, String
             WITH manga, collect({listType: listType, listCount: listCount}) AS appearances
             RETURN manga.id AS mediaId, manga.name AS mediaName, appearances
             """)
-    List<MediaInListsAnalyticDto> findMangaAppearancesInLists();
+    List<MediaInListsAnalyticDto> findMangaAppearancesInLists(String mangaId);
 }

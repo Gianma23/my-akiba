@@ -25,7 +25,7 @@ public interface AnimeNeo4jRepository extends Neo4jRepository<AnimeNeo4j, String
     List<ListCounterAnalyticDto> findListCounters();
 
     @Query("""
-            MATCH (user:User)-[relationship:LIST_ELEMENT]->(anime:Anime)
+            MATCH (user:User)-[relationship:LIST_ELEMENT]->(anime:Anime {id: $animeId})
             WITH anime, relationship,
                  CASE
                      WHEN relationship.progress = 0 THEN 'PLANNED'
@@ -36,5 +36,5 @@ public interface AnimeNeo4jRepository extends Neo4jRepository<AnimeNeo4j, String
             WITH anime, collect({listType: listType, listCount: listCount}) AS appearances
             RETURN anime.id AS mediaId, anime.name AS mediaName, appearances
             """)
-    List<MediaInListsAnalyticDto> findAnimeAppearancesInLists();
+    List<MediaInListsAnalyticDto> findAnimeAppearancesInLists(String animeId);
 }
