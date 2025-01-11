@@ -32,55 +32,48 @@ public interface AnimeMongoRepository extends MongoRepository<AnimeMongo, String
     void deleteReviewsByUsername(String username);
 
     @Aggregation(pipeline = {
-            "{ '$unwind': '$reviews' }",                                            // Fase 1: Unwind per separare le review embedded
-            "{ '$group': { " +                                                      // Fase 2: Raggruppamento per anime per calcolare deviazione standard
-                    "   '_id': '$_id', " +
-                    "   'name': { '$first': '$name' }, " +
-                    "   'genres': { '$first': '$genres' }, " +
-                    "   'stdDevScore': { '$stdDevPop': '$reviews.score' } " +
-                    "} }",
-            "{ '$addFields': { 'variance': { '$pow': ['$stdDevScore', 2] } } }",    // Fase 3: Aggiunta del campo varianza (quadrato della deviazione standard)
-            "{ '$unwind': '$genres' }",                                             // Fase 4: Dividi l'array dei generi in righe separate
-            "{ '$sort': { 'genres': 1, 'variance': -1 } }",                          // Fase 5: Ordinamento per varianza decrescente
-            "{ '$group': { " +                                                      // Fase 6: Raggruppamento per genere mantenendo solo l'anime con la varianza massima
+            "{ '$addFields': { 'variance': { '$pow': [{ '$stdDevPop': '$reviews.score' }, 2] } } }",
+            "{ '$unwind': '$genres' }",
+            "{ '$sort': { 'genres': 1, 'variance': -1 } }",
+            "{ '$group': { " +
                     "   '_id': '$genres', " +
-                    "   'anime': { '$first': { 'id': '$_id', 'name': '$name', 'genre': '$genres', 'variance': '$variance' } } " +
+                    "   'anime': { '$first': { 'id': '$_id', 'name': '$name', 'variance': '$variance' } } " +
                     "} }",
-            "{ '$project': { '_id': 0, 'genre': '$anime.genre', 'id': '$anime.id', 'name': '$anime.name' } }"   // Fase 7: Proiezione finale per ritornare solo i campi richiesti
+            "{ '$project': { '_id': 0, 'genre': '$_id', 'id': '$anime.id', 'name': '$anime.name' } }"
     })
     List<ControversialMediaDto> findTopVarianceAnime();
     @Aggregation(pipeline = {
-            "{ '$unwind': '$reviews' }",                                // Fase 1: Unwind per separare le review embedded
-            "{ '$group': { " +
-                    "   '_id': '$_id', " +
-                    "   'name': { '$first': '$name' }, " +
-                    "   'averageScore': { '$avg': '$reviews.score' }, " +
-                    "   'reviews': { '$push': { 'score': '$reviews.score', 'timestamp': '$reviews.timestamp' } } " +
-                    "} }",
-            "{ '$addFields': { 'reviews': { '$slice': [ { '$sortArray': { 'input': '$reviews', 'sortBy': { 'timestamp': -1 } } }, 5 ] } } }",      // Fase 2: Ordina le recensioni dalla più recente alla più vecchia
-            "{ '$addFields': { 'recentAverageScore': { '$avg': '$reviews.score' } } }",     // Fase 3: Calcola la media dei primi 5 score
-            "{ '$match': { '$expr': { '$lt': ['$recentAverageScore', '$averageScore'] } } }",   // Fase 4: Tieni solo gli anime con media recente < media totale
-            "{ '$addFields': { 'scoreDifference': { '$subtract': ['$averageScore', '$recentAverageScore'] } } }",       // Fase 5: Calcola la differenza tra media totale e media recente
-            "{ '$sort': { 'scoreDifference': -1 } }",       // Fase 6: Ordina per differenza decrescente
-            "{ '$limit': 10 }",     // Fase 7: Limita ai primi 10 anime
-            "{ '$project': { '_id': 0, 'id': '$_id', 'name': '$name', 'scoreDifference': 1 } }"     // Fase 8: Proietta i campi richiesti
+            "{ '$addFields': { " +
+                    "   'averageScore': { '$cond': { " +
+                    "       if: { '$gt': ['$numScores', 0] }, " +
+                    "       then: { '$divide': ['$sumScores', '$numScores'] }, " +
+                    "       else: 0 " +
+                    "   } }, " +
+                    "   'reviews': { '$slice': [ { '$sortArray': { 'input': '$reviews', 'sortBy': { 'timestamp': -1 } } }, 5 ] } " +
+            "} }",
+            "{ '$addFields': { 'recentAverageScore': { '$avg': '$reviews.score' } } }",
+            "{ '$match': { '$expr': { '$lt': ['$recentAverageScore', '$averageScore'] } } }",
+            "{ '$addFields': { 'scoreDifference': { '$subtract': ['$averageScore', '$recentAverageScore'] } } }",
+            "{ '$sort': { 'scoreDifference': -1 } }",
+            "{ '$limit': 10 }",
+            "{ '$project': { '_id': 0, 'id': '$_id', 'name': '$name', 'scoreDifference': 1 } }"
     })
     List<TrendingMediaDto> findTopDecliningAnime();
     @Aggregation(pipeline = {
-            "{ '$unwind': '$reviews' }",                                // Fase 1: Unwind per separare le review embedded
-            "{ '$group': { " +
-                    "   '_id': '$_id', " +
-                    "   'name': { '$first': '$name' }, " +
-                    "   'averageScore': { '$avg': '$reviews.score' }, " +
-                    "   'reviews': { '$push': { 'score': '$reviews.score', 'timestamp': '$reviews.timestamp' } } " +
-                    "} }",
-            "{ '$addFields': { 'reviews': { '$slice': [ { '$sortArray': { 'input': '$reviews', 'sortBy': { 'timestamp': -1 } } }, 5 ] } } }",      // Fase 2: Ordina le recensioni dalla più recente alla più vecchia
-            "{ '$addFields': { 'recentAverageScore': { '$avg': '$reviews.score' } } }",     // Fase 3: Calcola la media dei primi 5 score
-            "{ '$match': { '$expr': { '$gt': ['$recentAverageScore', '$averageScore'] } } }",   // Fase 4: Tieni solo gli anime con media recente < media totale
-            "{ '$addFields': { 'scoreDifference': { '$subtract': ['$recentAverageScore', '$averageScore'] } } }",       // Fase 5: Calcola la differenza tra media totale e media recente
-            "{ '$sort': { 'scoreDifference': -1 } }",       // Fase 6: Ordina per differenza decrescente
-            "{ '$limit': 10 }",     // Fase 7: Limita ai primi 10 anime
-            "{ '$project': { '_id': 0, 'id': '$_id', 'name': '$name', 'scoreDifference': 1 } }"     // Fase 8: Proietta i campi richiesti
+            "{ '$addFields': { " +
+                    "   'averageScore': { '$cond': { " +
+                    "       if: { '$gt': ['$numScores', 0] }, " +
+                    "       then: { '$divide': ['$sumScores', '$numScores'] }, " +
+                    "       else: 0 " +
+                    "   } }, " +
+                    "   'reviews': { '$slice': [ { '$sortArray': { 'input': '$reviews', 'sortBy': { 'timestamp': -1 } } }, 5 ] } " +
+            "} }",
+            "{ '$addFields': { 'recentAverageScore': { '$avg': '$reviews.score' } } }",
+            "{ '$match': { '$expr': { '$gt': ['$recentAverageScore', '$averageScore'] } } }",
+            "{ '$addFields': { 'scoreDifference': { '$subtract': ['$recentAverageScore', '$averageScore'] } } }",
+            "{ '$sort': { 'scoreDifference': -1 } }",
+            "{ '$limit': 10 }",
+            "{ '$project': { '_id': 0, 'id': '$_id', 'name': '$name', 'scoreDifference': 1 } }"
     })
     List<TrendingMediaDto> findTopImprovingAnime();
 
