@@ -3,6 +3,7 @@ package it.unipi.myakiba.repository;
 import it.unipi.myakiba.DTO.analytic.ListCounterAnalyticDto;
 import it.unipi.myakiba.DTO.media.MediaInListsAnalyticDto;
 import it.unipi.myakiba.model.MangaNeo4j;
+import it.unipi.myakiba.enumerator.MediaStatus;
 import org.springframework.data.neo4j.repository.Neo4jRepository;
 import org.springframework.data.neo4j.repository.query.Query;
 
@@ -11,10 +12,10 @@ import java.util.List;
 public interface MangaNeo4jRepository extends Neo4jRepository<MangaNeo4j, String> {
     @Query("""
             MATCH (user:User)-[relationship:LIST_ELEMENT]->(manga:Manga)
-            WITH manga,
+            WITH manga, relationship,
                  CASE
                      WHEN relationship.progress = 0 THEN 'PLANNED'
-                     WHEN relationship.progress = manga.episodes AND manga.status = 'COMPLETED' THEN 'COMPLETED'
+                     WHEN relationship.progress = manga.chapters AND manga.status = 'COMPLETE' THEN 'COMPLETED'
                      ELSE 'IN_PROGRESS'
                  END AS listType
             WITH  manga, listType, count(DISTINCT relationship) AS listCount
@@ -26,10 +27,10 @@ public interface MangaNeo4jRepository extends Neo4jRepository<MangaNeo4j, String
 
     @Query("""
             MATCH (user:User)-[relationship:LIST_ELEMENT]->(manga:Manga)
-            WITH manga,
+            WITH manga, relationship,
                  CASE
                      WHEN relationship.progress = 0 THEN 'PLANNED'
-                     WHEN relationship.progress = manga.episodes AND manga.status = 'COMPLETED' THEN 'COMPLETED'
+                     WHEN relationship.progress = manga.chapters AND manga.status = 'COMPLETE' THEN 'COMPLETED'
                      ELSE 'IN_PROGRESS'
                  END AS listType
             WITH  manga, listType, count(DISTINCT relationship) AS listCount

@@ -11,10 +11,10 @@ import java.util.List;
 public interface AnimeNeo4jRepository extends Neo4jRepository<AnimeNeo4j, String> {
     @Query("""
             MATCH (user:User)-[relationship:LIST_ELEMENT]->(anime:Anime)
-            WITH anime,
+            WITH anime, relationship,
                  CASE
                      WHEN relationship.progress = 0 THEN 'PLANNED'
-                     WHEN relationship.progress = anime.episodes AND anime.status = 'COMPLETED' THEN 'COMPLETED'
+                     WHEN relationship.progress = anime.episodes AND anime.status = 'COMPLETE' THEN 'COMPLETED'
                      ELSE 'IN_PROGRESS'
                  END AS listType
             WITH  anime, listType, count(DISTINCT relationship) AS listCount
@@ -26,10 +26,10 @@ public interface AnimeNeo4jRepository extends Neo4jRepository<AnimeNeo4j, String
 
     @Query("""
             MATCH (user:User)-[relationship:LIST_ELEMENT]->(anime:Anime)
-            WITH anime,
+            WITH anime, relationship,
                  CASE
                      WHEN relationship.progress = 0 THEN 'PLANNED'
-                     WHEN relationship.progress = anime.episodes AND anime.status = 'COMPLETED' THEN 'COMPLETED'
+                     WHEN relationship.progress = anime.episodes AND anime.status = 'COMPLETE' THEN 'COMPLETED'
                      ELSE 'IN_PROGRESS'
                  END AS listType
             WITH  anime, listType, count(DISTINCT relationship) AS listCount
